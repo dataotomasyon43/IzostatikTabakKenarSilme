@@ -35,6 +35,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="HidSharp">
+      <HintPath>..\packages\HidSharp.2.1.0\lib\net35\HidSharp.dll</HintPath>
+    </Reference>
     <Reference Include="libplctag, Version=1.5.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\libplctag.1.5.2\lib\netstandard2.0\libplctag.dll</HintPath>
     </Reference>
@@ -107,6 +110,8 @@
     <Compile Include="Services\AlarmService.cs" />
     <Compile Include="Services\AlarmTextProvider.cs" />
     <Compile Include="Services\AppLogger.cs" />
+    <Compile Include="Services\EzSwitchAnimations.cs" />
+    <Compile Include="Services\EzSwitchDevice.cs" />
     <Compile Include="Services\PlcService.cs" />
     <Compile Include="Services\PlcTags.cs" />
     <Compile Include="Services\PlcWriteQueue.cs" />

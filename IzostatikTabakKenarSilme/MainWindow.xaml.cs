@@ -57,6 +57,12 @@ namespace IzostatikTabakKenarSilme
             new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         private int _alarmTickerIndex;
 
+        // USB ışıklı buton modülü (Pro-face EZ, 5 buton + 5 RGB lamba).
+        private readonly EzSwitchDevice _ezSwitch = new EzSwitchDevice();
+        private readonly CancellationTokenSource _ezCts = new CancellationTokenSource();
+        private Task _ezAnimation;
+        private bool _ezStartupPlayed;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -81,6 +87,8 @@ namespace IzostatikTabakKenarSilme
 
             _alarmTickerTimer.Start();
 
+            StartEzSwitch();
+
             _ = PollPlcAsync(_pollCts.Token);
         }
 
@@ -95,6 +103,8 @@ namespace IzostatikTabakKenarSilme
         {
             _alarmTickerTimer.Stop();
             _pollCts.Cancel();
+
+            StopEzSwitch();
 
             // Kuyrukta bekleyen yazmalar (ör. HMI_Reset = FALSE) PLC servisi
             // kapatılmadan önce gönderilsin.
@@ -399,6 +409,74 @@ namespace IzostatikTabakKenarSilme
         //   Çalışıyor: AutoCycle = TRUE.
         // Kenarlık: arızada kırmızı; aksi hâlde Manuel turuncu,
         // Otomatik mavi, diğer modlarda varsayılan.
+        // ---------------- USB ışıklı buton modülü ----------------
+
+        private void StartEzSwitch()
+        {
+            try
+            {
+                _ezSwitch.ConnectionChanged += EzSwitch_ConnectionChanged;
+                _ezSwitch.ButtonChanged += EzSwitch_ButtonChanged;
+                _ezSwitch.Start();
+            }
+            catch (Exception ex)
+            {
+                // Buton modülü olmadan da program çalışmaya devam etmeli.
+                AppLogger.Error("EZ buton modülü başlatılamadı", ex);
+            }
+        }
+
+        // Kapanışta animasyon durdurulur, lambalar söndürülür
+        // (program kapalıyken lambaların yanık kalmaması için).
+        private void StopEzSwitch()
+        {
+            _ezCts.Cancel();
+
+            try { _ezAnimation?.Wait(300); } catch { }
+
+            try { _ezSwitch.AllOff(); } catch { }
+            _ezSwitch.Dispose();
+        }
+
+        // Arka plan thread'inden gelir → UI thread'ine aktarılır.
+        private void EzSwitch_ConnectionChanged(bool connected)
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                if (_ezCts.IsCancellationRequested)
+                    return;
+
+                if (!connected)
+                {
+                    ShowSystemMessage("Buton modülü bağlantısı koptu.", isError: true);
+                    return;
+                }
+
+                ShowSystemMessage("Buton modülü bağlandı.", isError: false);
+
+                // Program açılışında (ilk bağlantıda) gökkuşağı, sonra beyaz.
+                // Sonraki bağlantılarda (çıkar/tak) doğrudan beyaz.
+                if (!_ezStartupPlayed)
+                {
+                    _ezStartupPlayed = true;
+                    _ezAnimation = Task.Run(() =>
+                        EzSwitchAnimations.PlayStartupAsync(_ezSwitch, _ezCts.Token));
+                }
+                else if (_ezAnimation == null || _ezAnimation.IsCompleted)
+                {
+                    _ezSwitch.SetAll(255, 255, 255, LampMode.Sabit);
+                }
+            }));
+        }
+
+        // Buton olayları. Butonlara henüz görev atanmadı; yalnızca loglanır.
+        // Görev atanırken: bu modül güvenlik fonksiyonu için KULLANILMAZ ve
+        // PLC'ye yazan bir görev açık operatör eylemi olarak tasarlanmalıdır.
+        private void EzSwitch_ButtonChanged(int button, bool pressed)
+        {
+            AppLogger.Info($"EZ buton {button} {(pressed ? "basıldı" : "bırakıldı")}");
+        }
+
         // ---------------- Alt çubuk ----------------
 
         // Sağdaki sabit PLC durumu: renkli nokta + metin.

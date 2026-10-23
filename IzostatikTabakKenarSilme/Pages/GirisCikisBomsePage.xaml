@@ -1,0 +1,136 @@
+﻿<Page x:Class="IzostatikTabakKenarSilme.Pages.GirisCikisBomsePage"
+      Foreground="{DynamicResource PrimaryText}"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:controls="clr-namespace:IzostatikTabakKenarSilme.Controls"
+      mc:Ignorable="d"
+      d:DesignHeight="538" d:DesignWidth="1024"
+      Background="Transparent"
+      Title="GirisCikisBomsePage">
+
+    <!-- AYARLAR > Giriş Çıkış Bomse: giriş (Bomse 1) ve çıkış (Bomse 8)
+         offsetleri, aktüel pozisyonlar, jog butonları. -->
+    <Page.Resources>
+        <Style x:Key="CardStyle" TargetType="{x:Type Border}">
+            <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource PanelBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="18,12"/>
+        </Style>
+        <Style x:Key="CardTitleStyle" TargetType="{x:Type TextBlock}">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryText}"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+        </Style>
+        <Style TargetType="{x:Type controls:ParameterField}">
+            <Setter Property="Height" Value="58"/>
+            <Setter Property="FontSize" Value="16"/>
+        </Style>
+        <!-- Jog butonları: basılı tuttukça (turuncu) -->
+        <Style x:Key="PushButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource CommandButtonStyle}">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentColor}"/>
+        </Style>
+    </Page.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Başlık -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBlock Text="Giriş Çıkış Bomse"
+                       FontSize="25"
+                       FontWeight="Bold"
+                       VerticalAlignment="Bottom"/>
+            <TextBlock Text="Bomse offsetleri ve manuel döndürme"
+                       Margin="16,0,0,4"
+                       VerticalAlignment="Bottom"
+                       Foreground="{DynamicResource SecondaryText}"/>
+        </StackPanel>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="460"/>
+                <ColumnDefinition Width="14"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <!-- ================= GİRİŞ BOMSE ================= -->
+                <Border Style="{StaticResource CardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="GİRİŞ BOMSE" Style="{StaticResource CardTitleStyle}"/>
+
+                        <!-- HMI_BomIn_Alma_Pos (REAL, °) -->
+                        <controls:ParameterField x:Name="GirisOffsetField"
+                                                 Label="Bomse Alma Offset" Unit="°" Decimals="1" Min="0" Max="360"
+                                                 ValueWidth="140" UnitWidth="30"/>
+                        <!-- HMI_Bomse[1].Akt_Poz (gösterge) -->
+                        <controls:ParameterField x:Name="GirisAktPozField"
+                                                 Label="Bomse Aktüel Pozisyon" Unit="°" Decimals="2"
+                                                 ValueWidth="140" UnitWidth="30"
+                                                 IsReadOnly="True"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ================= ÇIKIŞ BOMSE ================= -->
+                <Border Style="{StaticResource CardStyle}" Margin="0,14,0,0">
+                    <StackPanel>
+                        <TextBlock Text="ÇIKIŞ BOMSE" Style="{StaticResource CardTitleStyle}"/>
+
+                        <!-- HMI_BomOut_Alma_Pos (REAL, °) -->
+                        <controls:ParameterField x:Name="CikisOffsetField"
+                                                 Label="Bomse Referans Offset" Unit="°" Decimals="1" Min="0" Max="360"
+                                                 ValueWidth="140" UnitWidth="30"/>
+                        <!-- HMI_Bomse[8].Akt_Poz (gösterge) -->
+                        <controls:ParameterField x:Name="CikisAktPozField"
+                                                 Label="Bomse Aktüel Pozisyon" Unit="°" Decimals="2"
+                                                 ValueWidth="140" UnitWidth="30"
+                                                 IsReadOnly="True"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- ================= GÖRSEL =================
+                 Örnek görsel: Assets\GirisCikisBomse.png aynı adla değiştirilebilir. -->
+            <Border Grid.Column="2" Style="{StaticResource CardStyle}" Padding="10">
+                <Image Source="/Assets/GirisCikisBomse.png"
+                       Stretch="Uniform"
+                       RenderOptions.BitmapScalingMode="HighQuality"/>
+            </Border>
+        </Grid>
+
+        <!-- ================= JOG BUTONLARI =================
+             Basılı tuttukça döner (bas TRUE, bırak FALSE). -->
+        <UniformGrid Grid.Row="2" Rows="1" Columns="4" Margin="-4,10,-4,0" Height="72">
+            <controls:PlcPushButton x:Name="GirisIleriButton" Content="GİRİŞ BOMSE İLERİ DÖN"
+                                    Description="Giriş Bomse İleri Dön" Style="{StaticResource PushButtonStyle}"/>
+            <controls:PlcPushButton x:Name="GirisGeriButton" Content="GİRİŞ BOMSE GERİ DÖN"
+                                    Description="Giriş Bomse Geri Dön" Style="{StaticResource PushButtonStyle}"/>
+            <controls:PlcPushButton x:Name="CikisIleriButton" Content="ÇIKIŞ BOMSE İLERİ DÖN"
+                                    Description="Çıkış Bomse İleri Dön" Style="{StaticResource PushButtonStyle}"/>
+            <controls:PlcPushButton x:Name="CikisGeriButton" Content="ÇIKIŞ BOMSE GERİ DÖN"
+                                    Description="Çıkış Bomse Geri Dön" Style="{StaticResource PushButtonStyle}"/>
+        </UniformGrid>
+
+        <!-- Sayfa durumu -->
+        <TextBlock x:Name="PageStatusText"
+                   Grid.Row="3"
+                   Margin="0,6,0,0"
+                   FontSize="13"
+                   TextTrimming="CharacterEllipsis"
+                   Foreground="{DynamicResource SecondaryText}"
+                   Text="Döndürme butonları basılı tuttukça çalışır."/>
+    </Grid>
+</Page>

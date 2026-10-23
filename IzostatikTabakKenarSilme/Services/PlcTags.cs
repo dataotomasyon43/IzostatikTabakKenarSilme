@@ -84,6 +84,18 @@
         public const string Baski2Asagi = "HMI_Tabla2_Baski_V_Man";
         public const string Baski3Asagi = "HMI_Tabla3_Baski_V_Man";
 
+        // ---------------- AYARLAR: Giriş Çıkış Bomse ----------------
+        // Giriş bomse = HMI_Bomse[1], çıkış bomse = HMI_Bomse[8].
+        public const string GirisBomseOffset = "HMI_BomIn_Alma_Pos";      // REAL, ° (alma offset)
+        public const string CikisBomseOffset = "HMI_BomOut_Alma_Pos";     // REAL, ° (referans offset)
+        public const string GirisBomseAktPoz = "HMI_Bomse[1].Akt_Poz";    // REAL, °, gösterge
+        public const string CikisBomseAktPoz = "HMI_Bomse[8].Akt_Poz";    // REAL, °, gösterge
+        // Basılı tutma (jog: bas TRUE, bırak FALSE)
+        public const string GirisBomseIleri = "HMI_Bomse[1].JogP";
+        public const string GirisBomseGeri = "HMI_Bomse[1].JogN";
+        public const string CikisBomseIleri = "HMI_Bomse[8].JogP";
+        public const string CikisBomseGeri = "HMI_Bomse[8].JogN";
+
         // BOOL — alarm reset (basılı tutma: TRUE, bırakınca FALSE)
         public const string Reset = "HMI_Reset";
 

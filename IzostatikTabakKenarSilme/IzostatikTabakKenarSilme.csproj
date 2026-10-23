@@ -93,6 +93,9 @@
     <Compile Include="Controls\HoldButton.cs" />
     <Compile Include="Controls\PlcPushButton.cs" />
     <Compile Include="Controls\PlcToggleButton.cs" />
+    <Compile Include="Pages\GirisCikisBomsePage.xaml.cs">
+      <DependentUpon>GirisCikisBomsePage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\DonerTablaPage.xaml.cs">
       <DependentUpon>DonerTablaPage.xaml</DependentUpon>
     </Compile>
@@ -153,6 +156,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\ParameterField.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\GirisCikisBomsePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -238,6 +245,7 @@
     <None Include="Assets\logo.svg" />
     <Resource Include="Assets\TransferYukleme.png" />
     <Resource Include="Assets\DonerTabla.png" />
+    <Resource Include="Assets\GirisCikisBomse.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="WhatsApp Image 2025-01-02 at 19.45.08-Photoroom.png" />

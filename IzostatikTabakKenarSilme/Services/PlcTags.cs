@@ -10,6 +10,13 @@
         // BOOL — makine çalışıyor (otomatik çevrim aktif)
         public const string AutoCycle = "AutoCycle";
 
+        // BOOL — otomatik çevrim başlat / durdur (basılı tutma).
+        // PLC: AutoCycle = Otomatik VE (Baslat VEYA AutoCycle) VE Durdur değil.
+        // Baslat TRUE kalırsa Durdur bırakılınca çevrim yeniden başlar;
+        // Durdur TRUE kalırsa çevrim başlamaz → ikisi de bırakınca FALSE.
+        public const string Start = "HMI_Sistem_Baslat";
+        public const string Stop = "HMI_Sistem_Durdur";
+
         // BOOL — alarm reset (basılı tutma: TRUE, bırakınca FALSE)
         public const string Reset = "HMI_Reset";
 

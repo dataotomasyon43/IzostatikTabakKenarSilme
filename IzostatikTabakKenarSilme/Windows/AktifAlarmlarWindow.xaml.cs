@@ -25,22 +25,19 @@ namespace IzostatikTabakKenarSilme.Windows
     // birkaç kez denenir.
     // Butonun bırakılmış sayıldığı durumlar: parmak/fare kaldırıldı,
     // yakalama kayboldu (dokunma iptali vb.), pencere kapandı.
-    // Yazmalar PlcWriteQueue ile sırayla gider; FALSE asla TRUE'dan
-    // önce gönderilmez.
+    // Yazmalar PlcCommands → PlcWriteQueue ile sırayla gider; FALSE asla
+    // TRUE'dan önce gönderilmez. Aynı reset, ışıklı butonun 5. tuşundan da
+    // (arıza varken) yapılır.
     public partial class AktifAlarmlarWindow : Window
     {
-        private const int ReleaseRetryCount = 3;
-
-        private readonly PlcService _plc;
-        private readonly PlcWriteQueue _writeQueue;
+        private readonly PlcCommands _commands;
         private readonly AlarmService _alarms;
 
         private bool _resetPressed;
 
-        public AktifAlarmlarWindow(PlcService plc, PlcWriteQueue writeQueue, AlarmService alarms)
+        public AktifAlarmlarWindow(PlcCommands commands, AlarmService alarms)
         {
-            _plc = plc ?? throw new ArgumentNullException(nameof(plc));
-            _writeQueue = writeQueue ?? throw new ArgumentNullException(nameof(writeQueue));
+            _commands = commands ?? throw new ArgumentNullException(nameof(commands));
             _alarms = alarms ?? throw new ArgumentNullException(nameof(alarms));
 
             InitializeComponent();
@@ -145,11 +142,7 @@ namespace IzostatikTabakKenarSilme.Windows
 
             try
             {
-                await _writeQueue.Enqueue(() =>
-                {
-                    _plc.WriteIntTag(PlcTags.Mode, MachineModes.Guvenli);
-                    _plc.WriteBoolTag(PlcTags.Reset, true);
-                });
+                await _commands.PressResetAsync();
 
                 // Kullanıcı bu arada bıraktıysa mesajı ReleaseReset verir.
                 if (_resetPressed)
@@ -174,32 +167,9 @@ namespace IzostatikTabakKenarSilme.Windows
 
             try
             {
-                // FALSE yazması önemli: başarısız olursa birkaç kez denenir.
-                await _writeQueue.Enqueue(() =>
-                {
-                    Exception last = null;
-
-                    for (int attempt = 1; attempt <= ReleaseRetryCount; attempt++)
-                    {
-                        try
-                        {
-                            _plc.WriteBoolTag(PlcTags.Reset, false);
-                            return;
-                        }
-                        catch (ObjectDisposedException)
-                        {
-                            throw;
-                        }
-                        catch (Exception ex)
-                        {
-                            last = ex;
-                            AppLogger.Warn($"{PlcTags.Reset} = FALSE yazılamadı (deneme {attempt}/{ReleaseRetryCount}): {ex.Message}");
-                            Thread.Sleep(300);
-                        }
-                    }
-
-                    throw last;
-                });
+                // FALSE yazması önemli: başarısız olursa birkaç kez denenir
+                // (PlcCommands.ReleaseResetAsync).
+                await _commands.ReleaseResetAsync();
 
                 ShowStatus("Reset tamamlandı.", isError: false);
             }

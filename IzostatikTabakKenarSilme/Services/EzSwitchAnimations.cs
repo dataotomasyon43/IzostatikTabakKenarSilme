@@ -14,8 +14,8 @@ namespace IzostatikTabakKenarSilme.Services
         // Açılış animasyonu:
         //   1) Lambalar 1→5 sırayla, gökkuşağı renkleriyle yanar
         //   2) Gökkuşağı lambalar boyunca akar (soldan sağa dalga)
-        //   3) Hepsi sabit beyaza geçer
-        // Toplam ~1,8 s. İptal edilirse beyaza geçmeden çıkar.
+        // Toplam ~1,8 s. Bitince lambalar son karede kalır; görev renklerini
+        // (mod renkleri, 5. tuş durumu) çağıran taraf uygular.
         public static async Task PlayStartupAsync(EzSwitchDevice device, CancellationToken ct)
         {
             const double totalMs = 1800;
@@ -57,11 +57,6 @@ namespace IzostatikTabakKenarSilme.Services
                 }
             }
 
-            if (ct.IsCancellationRequested)
-                return;
-
-            // 3) sabit beyaz
-            device.SetAll(255, 255, 255, LampMode.Sabit);
         }
 
         private static double Clamp(double v, double min, double max)

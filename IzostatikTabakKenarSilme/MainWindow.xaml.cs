@@ -25,6 +25,10 @@ namespace IzostatikTabakKenarSilme
         // geliş sırasıyla gider.
         private readonly PlcWriteQueue _writeQueue = new PlcWriteQueue();
 
+        // Operatör komutları (mod, start/stop, reset) — ekran butonları ve
+        // ışıklı butonlar aynı komutları kullanır.
+        private readonly PlcCommands _commands;
+
         // Alarm izleme, alarm metinleri ve geçmiş kaydı.
         private readonly AlarmService _alarmService = new AlarmService();
 
@@ -64,8 +68,17 @@ namespace IzostatikTabakKenarSilme
         private Task _ezAnimation;
         private bool _ezStartupPlayed;
 
+        // Işıklı butonun 5. tuşu basıldığında seçilen komut; bırakınca
+        // aynı komutun FALSE'u yazılır (bu arada durum değişse bile).
+        private Ez5Action _ez5Action = Ez5Action.None;
+
+        // Lambalara son gönderilen durum (yalnızca değişince gönderilir).
+        private string _ezLampState;
+
         public MainWindow()
         {
+            _commands = new PlcCommands(_plcService, _writeQueue);
+
             InitializeComponent();
 
             _alarmTickerTimer.Tick += (s, e) => UpdateAlarmTicker(advance: true);
@@ -237,6 +250,9 @@ namespace IzostatikTabakKenarSilme
                     // 5) Alt çubuk arıza akışı: yeni gelen/giden arıza bir
                     //    sonraki saniyeyi beklemeden yansısın.
                     UpdateAlarmTicker(advance: false);
+
+                    // 6) Işıklı buton lambası (5: beyaz / kırmızı / kırmızı flaş)
+                    UpdateEzLamps();
                 }
                 catch (Exception ex)
                 {
@@ -296,7 +312,7 @@ namespace IzostatikTabakKenarSilme
         {
             if (_alarmWindow == null)
             {
-                _alarmWindow = new AktifAlarmlarWindow(_plcService, _writeQueue, _alarmService)
+                _alarmWindow = new AktifAlarmlarWindow(_commands, _alarmService)
                 {
                     Owner = this
                 };
@@ -324,16 +340,28 @@ namespace IzostatikTabakKenarSilme
             if (button == null || !short.TryParse(button.CommandParameter as string, out short value))
                 return;
 
-            string text = MachineModes.ToText(value);
-
             ModeButtonsPanel.IsEnabled = false;
-            AppLogger.Info($"Mod butonu: {PlcTags.Mode} = {value} ({text}) yazılıyor.");
 
             try
             {
-                await _writeQueue.Enqueue(
-                    () => _plcService.WriteIntTag(PlcTags.Mode, value));
+                await RequestModeAsync(value, "Mod butonu");
+            }
+            finally
+            {
+                ModeButtonsPanel.IsEnabled = true;
+            }
+        }
 
+        // Mode yazar; sonucu alt çubukta gösterir ve loglar. Hata fırlatmaz.
+        // source: komutun nereden geldiği (log için).
+        private async Task RequestModeAsync(short value, string source)
+        {
+            string text = MachineModes.ToText(value);
+            AppLogger.Info($"{source}: {PlcTags.Mode} = {value} ({text}) yazılıyor.");
+
+            try
+            {
+                await _commands.SetModeAsync(value);
                 ShowSystemMessage($"Mod komutu gönderildi: {text}", isError: false);
             }
             catch (Exception ex)
@@ -341,10 +369,6 @@ namespace IzostatikTabakKenarSilme
                 string error = FriendlyPlcError(ex);
                 AppLogger.Error($"{PlcTags.Mode} = {value} ({text}) yazılamadı", ex);
                 ShowSystemMessage($"Mod değiştirilemedi ({text}): {error}", isError: true);
-            }
-            finally
-            {
-                ModeButtonsPanel.IsEnabled = true;
             }
         }
 
@@ -464,27 +488,184 @@ namespace IzostatikTabakKenarSilme
 
                 ShowSystemMessage("Buton modülü bağlandı.", isError: false);
 
-                // Program açılışında (ilk bağlantıda) gökkuşağı, sonra beyaz.
-                // Sonraki bağlantılarda (çıkar/tak) doğrudan beyaz.
+                // Program açılışında (ilk bağlantıda) gökkuşağı, ardından
+                // görev renkleri. Sonraki bağlantılarda (çıkar/tak) doğrudan
+                // görev renkleri.
                 if (!_ezStartupPlayed)
                 {
                     _ezStartupPlayed = true;
                     _ezAnimation = Task.Run(() =>
                         EzSwitchAnimations.PlayStartupAsync(_ezSwitch, _ezCts.Token));
+
+                    _ezAnimation.ContinueWith(t => Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        if (!_ezCts.IsCancellationRequested)
+                            UpdateEzLamps(force: true);
+                    })));
                 }
-                else if (_ezAnimation == null || _ezAnimation.IsCompleted)
+                else
                 {
-                    _ezSwitch.SetAll(255, 255, 255, LampMode.Sabit);
+                    UpdateEzLamps(force: true);
                 }
             }));
         }
 
-        // Buton olayları. Butonlara henüz görev atanmadı; yalnızca loglanır.
-        // Görev atanırken: bu modül güvenlik fonksiyonu için KULLANILMAZ ve
-        // PLC'ye yazan bir görev açık operatör eylemi olarak tasarlanmalıdır.
+        // ---- Işıklı buton görevleri ----
+        //   1 beyaz   → Mode = 0 (Kapalı)
+        //   2 yeşil   → Mode = 1 (Güvenli)
+        //   3 turuncu → Mode = 2 (Manuel)
+        //   4 mavi    → Mode = 3 (Otomatik)
+        //   5 durumuna göre (basılı tutma):
+        //       arıza var      → kırmızı flaş, RESET (Mode = 1 + HMI_Reset)
+        //       çevrim çalışıyor → kırmızı sabit, STOP (HMI_Sistem_Durdur)
+        //       diğer          → beyaz sabit,  START (HMI_Sistem_Baslat)
+        // Bu modül güvenlik fonksiyonu (acil stop) DEĞİLDİR; STOP normal
+        // çevrim durdurmadır.
+
+        private enum Ez5Action { None, Start, Stop, Reset }
+
+        // Arka plan thread'inden gelir → UI thread'ine aktarılır. BeginInvoke
+        // sırayı korur; basma ve bırakma aynı sırayla işlenir.
         private void EzSwitch_ButtonChanged(int button, bool pressed)
         {
-            AppLogger.Info($"EZ buton {button} {(pressed ? "basıldı" : "bırakıldı")}");
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                if (_ezCts.IsCancellationRequested)
+                    return;
+
+                AppLogger.Info($"EZ buton {button} {(pressed ? "basıldı" : "bırakıldı")}");
+                HandleEzButton(button, pressed);
+            }));
+        }
+
+        private void HandleEzButton(int button, bool pressed)
+        {
+            if (button >= 1 && button <= 4)
+            {
+                // Mod butonları yalnızca basınca çalışır.
+                if (pressed)
+                    _ = RequestModeAsync((short)(button - 1), $"Işıklı buton {button}");
+                return;
+            }
+
+            if (button != 5)
+                return;
+
+            if (pressed)
+            {
+                if (_ez5Action != Ez5Action.None)
+                    return;
+
+                _ez5Action = CurrentEz5Action();
+
+                switch (_ez5Action)
+                {
+                    case Ez5Action.Reset:
+                        RunEzCommand(_commands.PressResetAsync(), "Reset (Mode = 1 + HMI_Reset = TRUE)");
+                        break;
+                    case Ez5Action.Stop:
+                        RunEzCommand(_commands.PressStopAsync(), "Stop (HMI_Sistem_Durdur = TRUE)");
+                        break;
+                    case Ez5Action.Start:
+                        RunEzCommand(_commands.PressStartAsync(), "Start (HMI_Sistem_Baslat = TRUE)");
+                        break;
+                }
+            }
+            else
+            {
+                // Basarken hangi komut verildiyse onun FALSE'u yazılır.
+                Ez5Action action = _ez5Action;
+                _ez5Action = Ez5Action.None;
+
+                switch (action)
+                {
+                    case Ez5Action.Reset:
+                        RunEzCommand(_commands.ReleaseResetAsync(), "Reset bırak (HMI_Reset = FALSE)");
+                        break;
+                    case Ez5Action.Stop:
+                        RunEzCommand(_commands.ReleaseStopAsync(), "Stop bırak (HMI_Sistem_Durdur = FALSE)");
+                        break;
+                    case Ez5Action.Start:
+                        RunEzCommand(_commands.ReleaseStartAsync(), "Start bırak (HMI_Sistem_Baslat = FALSE)");
+                        break;
+                }
+            }
+        }
+
+        // 5. tuşun o anki görevi: arıza > çalışıyor > beklemede.
+        private Ez5Action CurrentEz5Action()
+        {
+            if (_plcConnected == true && _alarmService.ActiveAlarms.Count > 0)
+                return Ez5Action.Reset;
+
+            if (_plcConnected == true && _autoCycle == true)
+                return Ez5Action.Stop;
+
+            return Ez5Action.Start;
+        }
+
+        // Komutu çalıştırır; hata olursa loglar ve alt çubukta gösterir.
+        private async void RunEzCommand(Task command, string description)
+        {
+            try
+            {
+                await command;
+                AppLogger.Info($"Işıklı buton komutu: {description}");
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error($"Işıklı buton komutu yazılamadı: {description}", ex);
+                ShowSystemMessage($"Komut gönderilemedi: {description} ({FriendlyPlcError(ex)})", isError: true);
+            }
+        }
+
+        // Lamba renkleri: 1–4 mod renkleri (koyu tema tonları), 5 duruma göre.
+        // Yalnızca durum değişince gönderilir. Açılış animasyonu sürerken
+        // dokunulmaz (animasyon bitince force ile uygulanır).
+        private void UpdateEzLamps(bool force = false)
+        {
+            // Kapanışta lambalar söndürüldükten sonra tekrar yakılmasın.
+            if (_ezCts.IsCancellationRequested)
+                return;
+
+            if (_ezAnimation != null && !_ezAnimation.IsCompleted)
+                return;
+
+            Ez5Action action = CurrentEz5Action();
+
+            string state = action.ToString();
+
+            if (!force && state == _ezLampState)
+                return;
+
+            _ezLampState = state;
+
+            try
+            {
+                _ezSwitch.SetLamp(1, 0xF1, 0xF3, 0xF5, LampMode.Sabit, send: false); // Kapalı  #F1F3F5
+                _ezSwitch.SetLamp(2, 0x5C, 0xC8, 0x72, LampMode.Sabit, send: false); // Güvenli #5CC872
+                _ezSwitch.SetLamp(3, 0xF2, 0x8C, 0x28, LampMode.Sabit, send: false); // Manuel  #F28C28
+                _ezSwitch.SetLamp(4, 0x4D, 0xA3, 0xFF, LampMode.Sabit, send: false); // Otomatik #4DA3FF
+
+                switch (action)
+                {
+                    case Ez5Action.Reset:   // arıza: kırmızı flaş (mod 0x02)
+                        _ezSwitch.SetLamp(5, 0xFF, 0x00, 0x00, LampMode.FlasHizli, send: false);
+                        break;
+                    case Ez5Action.Stop:    // çalışıyor: kırmızı sabit
+                        _ezSwitch.SetLamp(5, 0xFF, 0x00, 0x00, LampMode.Sabit, send: false);
+                        break;
+                    default:                // beklemede: beyaz sabit
+                        _ezSwitch.SetLamp(5, 0xFF, 0xFF, 0xFF, LampMode.Sabit, send: false);
+                        break;
+                }
+
+                _ezSwitch.Update();
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("Işıklı buton lambaları güncellenemedi", ex);
+            }
         }
 
         // ---------------- Alt çubuk ----------------

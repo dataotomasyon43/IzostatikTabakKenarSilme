@@ -5,12 +5,9 @@
         Title="İzostatik Tabak Kenar Silme"
         Height="800"
         Width="1280"
-        MinHeight="600"
-        MinWidth="950"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         ResizeMode="NoResize"
-        WindowState="Maximized"
         Background="{DynamicResource AppBackground}"
         Foreground="{DynamicResource PrimaryText}">
 

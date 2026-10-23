@@ -117,6 +117,7 @@
     <Compile Include="Services\AppLogger.cs" />
     <Compile Include="Services\EzSwitchAnimations.cs" />
     <Compile Include="Services\EzSwitchDevice.cs" />
+    <Compile Include="Services\PlcCommands.cs" />
     <Compile Include="Services\PlcService.cs" />
     <Compile Include="Services\PlcTags.cs" />
     <Compile Include="Services\PlcWriteQueue.cs" />

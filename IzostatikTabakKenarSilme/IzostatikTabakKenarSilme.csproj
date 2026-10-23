@@ -93,6 +93,9 @@
     <Compile Include="Controls\HoldButton.cs" />
     <Compile Include="Controls\PlcPushButton.cs" />
     <Compile Include="Controls\PlcToggleButton.cs" />
+    <Compile Include="Pages\DonerTablaPage.xaml.cs">
+      <DependentUpon>DonerTablaPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\TransferYuklemePage.xaml.cs">
       <DependentUpon>TransferYuklemePage.xaml</DependentUpon>
     </Compile>
@@ -150,6 +153,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\ParameterField.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\DonerTablaPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -230,6 +237,7 @@
          bu dosya başka yerlerde kullanım içindir, derlemeye girmez). -->
     <None Include="Assets\logo.svg" />
     <Resource Include="Assets\TransferYukleme.png" />
+    <Resource Include="Assets\DonerTabla.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="WhatsApp Image 2025-01-02 at 19.45.08-Photoroom.png" />

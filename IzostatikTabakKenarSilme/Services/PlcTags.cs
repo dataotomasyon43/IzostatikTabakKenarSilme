@@ -74,6 +74,16 @@
         public const string GtrPiston1Ufleme = "HMI_GTR_Piston1_Ufleme_Man";
         public const string GtrPiston2Ufleme = "HMI_GTR_Piston2_Ufleme_Man";
 
+        // ---------------- AYARLAR: Döner Tabla ----------------
+        public const string GobekHiz = "HMI_Doner_Tabla_Hiz";            // INT, % (0-99)
+        public const string TablaYerinde1 = "I_Tabla_Yerinde";           // gösterge
+        // Basılı tutma (bas TRUE, bırak FALSE)
+        public const string GobekAdim = "HMI_DonerTablaMan";
+        // Kalıcı (bir basış TRUE, bir basış FALSE)
+        public const string Baski1Asagi = "HMI_Tabla1_Baski_V_Man";
+        public const string Baski2Asagi = "HMI_Tabla2_Baski_V_Man";
+        public const string Baski3Asagi = "HMI_Tabla3_Baski_V_Man";
+
         // BOOL — alarm reset (basılı tutma: TRUE, bırakınca FALSE)
         public const string Reset = "HMI_Reset";
 

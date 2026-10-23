@@ -98,7 +98,7 @@
                                          Unit="%"
                                          Decimals="0"
                                          Min="0"
-                                         Max="9999"/>
+                                         Max="99"/>
 
                 <TextBlock Margin="0,14,0,0"
                            FontSize="13"

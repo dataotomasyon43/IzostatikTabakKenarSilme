@@ -59,7 +59,7 @@ namespace IzostatikTabakKenarSilme
         private bool? _alarmReadOk;
         private bool? _autoCycle;          // null: okunamadı / bilinmiyor
         private bool? _autoCycleReadOk;
-        private string _machineState;      // son gösterilen makine durumu (log için)
+        private string _lastMachineStateText;  // son loglanan makine durumu metni
 
         // Alt çubuktaki arıza akışı: aktif arızaların açıklamaları
         // saniyede bir sırayla gösterilir.
@@ -793,9 +793,9 @@ namespace IzostatikTabakKenarSilme
             // Yalnızca durum değiştiğinde logla (arıza sayısı hariç).
             string stateKey = text.StartsWith("● Arıza") ? "● Arıza Var" : text;
 
-            if (_machineState != stateKey)
+            if (_lastMachineStateText != stateKey)
             {
-                _machineState = stateKey;
+                _lastMachineStateText = stateKey;
                 AppLogger.Info($"Makine durumu: {stateKey.TrimStart('●', ' ')}");
             }
         }

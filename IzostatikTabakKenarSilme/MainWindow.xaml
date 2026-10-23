@@ -48,9 +48,38 @@
 
                 <Grid Grid.Column="2">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="60"/>
-                        <RowDefinition Height="60"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
+
+                    <!-- Başlıktaki simgeli butonların ortak stili (mod butonları
+                         ve tema butonu). Simge üstte, küçük etiket altta.
+                         Simge çizgileri ve etiket rengi butonun Foreground'undan
+                         gelir; aktif modda (Tag="Active") beyaza döner. -->
+                    <Grid.Resources>
+                        <Style TargetType="{x:Type Button}"
+                               BasedOn="{StaticResource ActionButtonStyle}">
+                            <Setter Property="Width" Value="73"/>
+                            <Setter Property="Height" Value="58"/>
+                            <Setter Property="MinHeight" Value="0"/>
+                            <Setter Property="Padding" Value="0"/>
+                            <Setter Property="Margin" Value="4,2"/>
+                        </Style>
+                        <Style TargetType="{x:Type Path}">
+                            <Setter Property="Stroke"
+                                    Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"/>
+                            <Setter Property="StrokeThickness" Value="2.2"/>
+                            <Setter Property="StrokeStartLineCap" Value="Round"/>
+                            <Setter Property="StrokeEndLineCap" Value="Round"/>
+                            <Setter Property="StrokeLineJoin" Value="Round"/>
+                        </Style>
+                        <Style x:Key="IconLabelStyle" TargetType="{x:Type TextBlock}">
+                            <Setter Property="FontSize" Value="10"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                            <Setter Property="Margin" Value="0,2,0,0"/>
+                        </Style>
+                    </Grid.Resources>
                     <WrapPanel Grid.Row="0"
                            VerticalAlignment="Center">
                         <Border Background="{DynamicResource CardBackground}"
@@ -88,19 +117,34 @@
                             </StackPanel>
                         </Border>
 
-                        <Button x:Name="ThemeButton" Style="{DynamicResource MenuButtonStyle}"
-                                
-                            Content="☀"
-                            Padding="12,9"
-                            Width="60"
-                            Margin="8,4,4,4"
-                            Click="ThemeButton_Click" FontSize="24" HorizontalAlignment="Center"/>
+                        <!-- Tema butonu: koyu temadayken güneş (açığa geç),
+                             açık temadayken ay (koyuya geç) gösterilir. -->
+                        <Button x:Name="ThemeButton"
+                                ToolTip="Tema değiştir"
+                                AutomationProperties.Name="Tema değiştir"
+                                Click="ThemeButton_Click">
+                            <StackPanel>
+                                <Grid Width="30" Height="30" HorizontalAlignment="Center">
+                                    <Viewbox x:Name="ThemeSunIcon">
+                                        <Canvas Width="24" Height="24">
+                                            <Path Data="M16,12 A4,4 0 1 1 8,12 A4,4 0 1 1 16,12 Z M12,2.5 V4.5 M12,19.5 V21.5 M5.28,5.28 L6.7,6.7 M17.3,17.3 L18.72,18.72 M2.5,12 H4.5 M19.5,12 H21.5 M5.28,18.72 L6.7,17.3 M17.3,6.7 L18.72,5.28"/>
+                                        </Canvas>
+                                    </Viewbox>
+                                    <Viewbox x:Name="ThemeMoonIcon" Visibility="Collapsed">
+                                        <Canvas Width="24" Height="24">
+                                            <Path Data="M20,14.5 A8.5,8.5 0 1 1 9.5,4 A6.8,6.8 0 0 0 20,14.5 Z"/>
+                                        </Canvas>
+                                    </Viewbox>
+                                </Grid>
+                                <TextBlock Text="TEMA" Style="{StaticResource IconLabelStyle}"/>
+                            </StackPanel>
+                        </Button>
                     </WrapPanel>
 
                     <!-- ÇALIŞMA MODU BUTONLARI: tıklanınca Mode tag'ine
                      CommandParameter'daki değer yazılır.
                      0 Kapalı, 1 Güvenli, 2 Manuel, 3 Otomatik -->
-                    <!-- Kare (52x52) simgeli butonlar. Simgeler 24x24 SVG yol
+                    <!-- Simgeli butonlar (stil yukarıdaki Grid.Resources'ta). Simgeler 24x24 SVG yol
                      verisidir; çizgi rengi butonun Foreground'undan gelir,
                      böylece aktif modda (Tag="Active") beyaza döner. -->
                     <StackPanel x:Name="ModeButtonsPanel"
@@ -108,23 +152,6 @@
                             Orientation="Horizontal"
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center" Width="326">
-                        <StackPanel.Resources>
-                            <Style TargetType="{x:Type Button}"
-                               BasedOn="{StaticResource ActionButtonStyle}">
-                                <Setter Property="Width" Value="52"/>
-                                <Setter Property="Height" Value="52"/>
-                                <Setter Property="MinHeight" Value="0"/>
-                                <Setter Property="Padding" Value="0"/>
-                            </Style>
-                            <Style TargetType="{x:Type Path}">
-                                <Setter Property="Stroke"
-                                    Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"/>
-                                <Setter Property="StrokeThickness" Value="2.2"/>
-                                <Setter Property="StrokeStartLineCap" Value="Round"/>
-                                <Setter Property="StrokeEndLineCap" Value="Round"/>
-                                <Setter Property="StrokeLineJoin" Value="Round"/>
-                            </Style>
-                        </StackPanel.Resources>
 
                         <!-- 0: Kapalı — güç simgesi -->
                         <Button x:Name="ModeKapaliButton"
@@ -132,11 +159,14 @@
                             ToolTip="Kapalı"
                             AutomationProperties.Name="Kapalı"
                             Click="ModeButton_Click" Width="73">
-                            <Viewbox Width="45" Height="45">
-                                <Canvas Width="24" Height="24">
-                                    <Path Data="M12,3 L12,11 M7.1,6.2 A7.5,7.5 0 1 0 16.9,6.2"/>
-                                </Canvas>
-                            </Viewbox>
+                            <StackPanel>
+                                <Viewbox Width="30" Height="30" HorizontalAlignment="Center">
+                                    <Canvas Width="24" Height="24">
+                                        <Path Data="M12,3 L12,11 M7.1,6.2 A7.5,7.5 0 1 0 16.9,6.2"/>
+                                    </Canvas>
+                                </Viewbox>
+                                <TextBlock Text="KAPALI" Style="{StaticResource IconLabelStyle}"/>
+                            </StackPanel>
                         </Button>
 
                         <!-- 1: Güvenli — kalkan + onay -->
@@ -145,11 +175,14 @@
                             ToolTip="Güvenli Mod"
                             AutomationProperties.Name="Güvenli Mod"
                             Click="ModeButton_Click" Width="73">
-                            <Viewbox Width="45" Height="45">
-                                <Canvas Width="24" Height="24">
-                                    <Path Data="M12,2.5 L19.5,5.5 V11 C19.5,15.8 16.3,19.8 12,21.5 C7.7,19.8 4.5,15.8 4.5,11 V5.5 Z M8.5,12 L11,14.5 L15.5,9.5"/>
-                                </Canvas>
-                            </Viewbox>
+                            <StackPanel>
+                                <Viewbox Width="30" Height="30" HorizontalAlignment="Center">
+                                    <Canvas Width="24" Height="24">
+                                        <Path Data="M12,2.5 L19.5,5.5 V11 C19.5,15.8 16.3,19.8 12,21.5 C7.7,19.8 4.5,15.8 4.5,11 V5.5 Z M8.5,12 L11,14.5 L15.5,9.5"/>
+                                    </Canvas>
+                                </Viewbox>
+                                <TextBlock Text="GÜVENLİ" Style="{StaticResource IconLabelStyle}"/>
+                            </StackPanel>
                         </Button>
 
                         <!-- 2: Manuel — el -->
@@ -158,11 +191,14 @@
                             ToolTip="Manuel Mod"
                             AutomationProperties.Name="Manuel Mod"
                             Click="ModeButton_Click" Width="73">
-                            <Viewbox Width="45" Height="45">
-                                <Canvas Width="24" Height="24">
-                                    <Path Data="M7,12.5 V6 A1.5,1.5 0 0 1 10,6 V11.5 M10,11 V4.5 A1.5,1.5 0 0 1 13,4.5 V11 M13,11 V5.5 A1.5,1.5 0 0 1 16,5.5 V11.5 M16,12 V8.5 A1.5,1.5 0 0 1 19,8.5 V15 A6.5,6.5 0 0 1 12.5,21.5 H12 A6.5,6.5 0 0 1 6.8,18.9 L3.6,15.4 A1.5,1.5 0 0 1 5.9,13.5 L7,14.6"/>
-                                </Canvas>
-                            </Viewbox>
+                            <StackPanel>
+                                <Viewbox Width="30" Height="30" HorizontalAlignment="Center">
+                                    <Canvas Width="24" Height="24">
+                                        <Path Data="M7,12.5 V6 A1.5,1.5 0 0 1 10,6 V11.5 M10,11 V4.5 A1.5,1.5 0 0 1 13,4.5 V11 M13,11 V5.5 A1.5,1.5 0 0 1 16,5.5 V11.5 M16,12 V8.5 A1.5,1.5 0 0 1 19,8.5 V15 A6.5,6.5 0 0 1 12.5,21.5 H12 A6.5,6.5 0 0 1 6.8,18.9 L3.6,15.4 A1.5,1.5 0 0 1 5.9,13.5 L7,14.6"/>
+                                    </Canvas>
+                                </Viewbox>
+                                <TextBlock Text="MANUEL" Style="{StaticResource IconLabelStyle}"/>
+                            </StackPanel>
                         </Button>
 
                         <!-- 3: Otomatik — döngü + oynat -->
@@ -171,14 +207,17 @@
                             ToolTip="Otomatik Mod"
                             AutomationProperties.Name="Otomatik Mod"
                             Click="ModeButton_Click" Width="73">
-                            <Viewbox Width="45" Height="45">
-                                <Canvas Width="24" Height="24">
-                                    <Path Data="M20,12 A8,8 0 1 1 17.66,6.34 M17.9,2.6 L17.66,6.34 L13.9,6.1"/>
-                                    <Path Data="M10,8.5 L15.5,12 L10,15.5 Z"
-                                      Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
-                                      StrokeThickness="1"/>
-                                </Canvas>
-                            </Viewbox>
+                            <StackPanel>
+                                <Viewbox Width="30" Height="30" HorizontalAlignment="Center">
+                                    <Canvas Width="24" Height="24">
+                                        <Path Data="M20,12 A8,8 0 1 1 17.66,6.34 M17.9,2.6 L17.66,6.34 L13.9,6.1"/>
+                                        <Path Data="M10,8.5 L15.5,12 L10,15.5 Z"
+                                          Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
+                                          StrokeThickness="1"/>
+                                    </Canvas>
+                                </Viewbox>
+                                <TextBlock Text="OTOMATİK" Style="{StaticResource IconLabelStyle}"/>
+                            </StackPanel>
                         </Button>
                     </StackPanel>
                 </Grid>

@@ -388,9 +388,9 @@ namespace IzostatikTabakKenarSilme
 
             _isDarkTheme = !_isDarkTheme;
 
-            ThemeButton.Content = _isDarkTheme
-                ? "☀"
-                : "  ☾ ";
+            // Koyu temada güneş (açığa geç), açık temada ay (koyuya geç).
+            ThemeSunIcon.Visibility = _isDarkTheme ? Visibility.Visible : Visibility.Collapsed;
+            ThemeMoonIcon.Visibility = _isDarkTheme ? Visibility.Collapsed : Visibility.Visible;
         }
 
         private void MenuButton_Click(object sender, RoutedEventArgs e)

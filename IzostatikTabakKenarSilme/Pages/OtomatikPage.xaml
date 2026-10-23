@@ -4,26 +4,265 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:controls="clr-namespace:IzostatikTabakKenarSilme.Controls"
       mc:Ignorable="d"
-      d:DesignHeight="560" d:DesignWidth="1240"
+      d:DesignHeight="540" d:DesignWidth="1240"
       Background="Transparent"
       Title="OtomatikPage">
+
+    <Page.Resources>
+        <!-- Kart: başlık + içerik -->
+        <Style x:Key="CardStyle" TargetType="{x:Type Border}">
+            <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource PanelBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="22,18"/>
+        </Style>
+        <Style x:Key="CardTitleStyle" TargetType="{x:Type TextBlock}">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryText}"/>
+        </Style>
+        <Style x:Key="BigNumberStyle" TargetType="{x:Type TextBlock}">
+            <Setter Property="FontSize" Value="54"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontFamily" Value="Consolas"/>
+        </Style>
+    </Page.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="440"/>
+            <ColumnDefinition Width="20"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Row="0" Margin="0,0,0,16">
+        <!-- Başlık -->
+        <StackPanel Grid.Row="0" Grid.ColumnSpan="3" Margin="0,0,0,16">
             <TextBlock Text="Otomatik"
                        FontSize="25"
                        FontWeight="Bold"/>
-            <TextBlock Text="Otomatik çalışma ekranı"
+            <TextBlock Text="Otomatik çevrim ve üretim adetleri"
                        Margin="0,5,0,0"
                        Foreground="{DynamicResource SecondaryText}"/>
         </StackPanel>
 
-        <!-- Sayfa içeriği buraya gelecek -->
+        <!-- ================= ÇEVRİM ================= -->
+        <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource CardStyle}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="12"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="ÇEVRİM" Style="{StaticResource CardTitleStyle}"/>
+
+                <!-- Çevrim durumu: makine durumundan (AutoCycle) -->
+                <TextBlock x:Name="CycleStateText"
+                           Grid.Row="1"
+                           Text="● Bağlantı bekleniyor"
+                           FontSize="20"
+                           FontWeight="Bold"
+                           Margin="0,6,0,16"
+                           Foreground="{DynamicResource WarningColor}"/>
+
+                <!-- START: basılı tutma → HMI_Sistem_Baslat -->
+                <controls:HoldButton x:Name="StartButton"
+                                     Grid.Row="2"
+                                     Style="{StaticResource CommandButtonStyle}"
+                                     Foreground="{DynamicResource OkColor}">
+                    <StackPanel Orientation="Horizontal">
+                        <Viewbox Width="34" Height="34">
+                            <Canvas Width="24" Height="24">
+                                <Path Style="{StaticResource ButtonIconPathStyle}"
+                                      Data="M7,4.5 L19.5,12 L7,19.5 Z"
+                                      Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"/>
+                            </Canvas>
+                        </Viewbox>
+                        <TextBlock Text="START" FontSize="24" Margin="14,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </controls:HoldButton>
+
+                <!-- STOP: basılı tutma → HMI_Sistem_Durdur -->
+                <controls:HoldButton x:Name="StopButton"
+                                     Grid.Row="4"
+                                     Style="{StaticResource CommandButtonStyle}"
+                                     Foreground="{DynamicResource ErrorColor}">
+                    <StackPanel Orientation="Horizontal">
+                        <Viewbox Width="30" Height="30">
+                            <Canvas Width="24" Height="24">
+                                <Path Style="{StaticResource ButtonIconPathStyle}"
+                                      Data="M5,5 H19 V19 H5 Z"
+                                      Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"/>
+                            </Canvas>
+                        </Viewbox>
+                        <TextBlock Text="STOP" FontSize="24" Margin="14,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </controls:HoldButton>
+
+                <!-- Start koşulu ipucu (Mode ≠ Otomatik) -->
+                <TextBlock x:Name="StartHintText"
+                           Grid.Row="5"
+                           Margin="0,12,0,0"
+                           TextWrapping="Wrap"
+                           FontSize="13"
+                           Foreground="{DynamicResource SecondaryText}"
+                           Text="Start için makine Otomatik modda olmalı."/>
+            </Grid>
+        </Border>
+
+        <!-- Sağ sütun: üstte üretim adetleri, altta boşaltma -->
+        <Grid Grid.Row="1" Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="16"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- ================= ÜRETİM ADETLERİ ================= -->
+            <Border Grid.Row="0" Style="{StaticResource CardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.ColumnSpan="2"
+                               Text="ÜRETİM ADETLERİ"
+                               Style="{StaticResource CardTitleStyle}"/>
+
+                    <!-- Vardiya adedi: HMI_Vardiya_Adet (INT) -->
+                    <StackPanel Grid.Row="1" Grid.Column="0" VerticalAlignment="Center">
+                        <TextBlock Text="Vardiya Adet"
+                                   FontSize="16"
+                                   Foreground="{DynamicResource SecondaryText}"/>
+                        <TextBlock x:Name="ShiftCountText"
+                                   Text="—"
+                                   Style="{StaticResource BigNumberStyle}"
+                                   Margin="0,4,0,0"/>
+                    </StackPanel>
+
+                    <!-- Toplam adet: HMI_Toplam_Adet (UDINT) -->
+                    <StackPanel Grid.Row="1" Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="Toplam Adet"
+                                   FontSize="16"
+                                   Foreground="{DynamicResource SecondaryText}"/>
+                        <TextBlock x:Name="TotalCountText"
+                                   Text="—"
+                                   Style="{StaticResource BigNumberStyle}"
+                                   Margin="0,4,0,0"/>
+                    </StackPanel>
+
+                    <!-- Vardiya sıfırla: basılı tutma → HMI_Vardiya_Reset -->
+                    <StackPanel Grid.Row="2" Grid.ColumnSpan="2"
+                                Orientation="Horizontal">
+                        <controls:HoldButton x:Name="ShiftResetButton"
+                                             Width="260"
+                                             Height="70"
+                                             Style="{StaticResource CommandButtonStyle}"
+                                             Foreground="{DynamicResource WarningColor}">
+                            <StackPanel Orientation="Horizontal">
+                                <Viewbox Width="26" Height="26">
+                                    <Canvas Width="24" Height="24">
+                                        <Path Style="{StaticResource ButtonIconPathStyle}"
+                                              Data="M3.63,13.48 A8.5,8.5 0 1 0 4.64,7.75 M4.64,3.8 L4.64,7.75 L8.6,7.75"/>
+                                    </Canvas>
+                                </Viewbox>
+                                <TextBlock Text="VARDİYA SIFIRLA" FontSize="17" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </controls:HoldButton>
+                        <TextBlock Text="Sıfırlamak için basılı tutun"
+                                   Margin="16,0,0,0"
+                                   VerticalAlignment="Center"
+                                   FontSize="13"
+                                   Foreground="{DynamicResource SecondaryText}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ================= BOŞALTMA ================= -->
+            <!-- Kalıcı (aç/kapa) butonlar: bir basış TRUE, bir basış FALSE.
+                 Durum PLC'den okunur (PLC biti kendisi sıfırlarsa buton da
+                 söner). TRUE iken yeşil (Tag="Active"), FALSE iken varsayılan. -->
+            <Border Grid.Row="2" Style="{StaticResource CardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.ColumnSpan="3"
+                               Text="BOŞALTMA"
+                               Margin="0,0,0,12"
+                               Style="{StaticResource CardTitleStyle}"/>
+
+                    <Grid Grid.Row="1" Grid.ColumnSpan="3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Button x:Name="BosaltmaModuButton"
+                            Grid.Column="0"
+                            Height="76"
+                            Style="{StaticResource CommandButtonStyle}"
+                            Click="BosaltmaToggle_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <Viewbox Width="26" Height="26">
+                                <Canvas Width="24" Height="24">
+                                    <Path Style="{StaticResource ButtonIconPathStyle}" Data="M4,12 H16 M12,7 L17,12 L12,17 M20,5 V19"/>
+                                </Canvas>
+                            </Viewbox>
+                            <TextBlock Text="BOŞALTMA MODU" FontSize="17" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                        <Button x:Name="BosaltmaBaslaButton"
+                            Grid.Column="2"
+                            Height="76"
+                            Style="{StaticResource CommandButtonStyle}"
+                            Click="BosaltmaToggle_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <Viewbox Width="26" Height="26">
+                                <Canvas Width="24" Height="24">
+                                    <Path Style="{StaticResource ButtonIconPathStyle}" Data="M20,12 A8,8 0 1 1 17.66,6.34 M17.9,2.6 L17.66,6.34 L13.9,6.1"/>
+                                </Canvas>
+                            </Viewbox>
+                            <TextBlock Text="BOŞALTMA BAŞLA" FontSize="17" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Sayfa durumu: okuma / komut hataları -->
+        <TextBlock x:Name="PageStatusText"
+                   Grid.Row="2" Grid.ColumnSpan="3"
+                   Margin="0,10,0,0"
+                   FontSize="13"
+                   TextTrimming="CharacterEllipsis"
+                   Foreground="{DynamicResource SecondaryText}"/>
     </Grid>
 </Page>

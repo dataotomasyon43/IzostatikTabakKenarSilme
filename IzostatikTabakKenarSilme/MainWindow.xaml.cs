@@ -29,6 +29,11 @@ namespace IzostatikTabakKenarSilme
         // ışıklı butonlar aynı komutları kullanır.
         private readonly PlcCommands _commands;
 
+        // Tüm makine için gereken durum (bağlantı, mod, çevrim, alarm sayısı).
+        // Bu pencerenin izleme döngüsü günceller; sayfalar buradan dinler,
+        // aynı tag'leri tekrar okumaz.
+        private readonly MachineState _machineState = new MachineState();
+
         // Alarm izleme, alarm metinleri ve geçmiş kaydı.
         private readonly AlarmService _alarmService = new AlarmService();
 
@@ -730,6 +735,12 @@ namespace IzostatikTabakKenarSilme
 
             int alarmCount = _alarmService.ActiveAlarms.Count;
 
+            // Sayfalara yayınlanan ortak durum (değişmeyen değerler olay üretmez).
+            _machineState.IsConnected = _plcConnected == true;
+            _machineState.Mode = _plcConnected == true ? _lastMode : null;
+            _machineState.AutoCycle = _plcConnected == true ? _autoCycle : null;
+            _machineState.ActiveAlarmCount = alarmCount;
+
             if (_plcConnected != true)
             {
                 text = _plcConnected == null ? "● Bağlantı bekleniyor" : "● Bağlantı yok";
@@ -886,7 +897,7 @@ namespace IzostatikTabakKenarSilme
             switch (key)
             {
                 case "Otomatik":
-                    MainFrame.Navigate(new Pages.OtomatikPage());
+                    MainFrame.Navigate(new Pages.OtomatikPage(_plcService, _commands, _machineState));
                     SetActiveMenu(MenuOtomatikButton);
                     break;
 

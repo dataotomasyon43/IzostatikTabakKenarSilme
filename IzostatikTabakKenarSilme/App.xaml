@@ -60,6 +60,75 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+
+            <!-- Büyük komut butonu (Start, Stop, Sıfırla, jog...). Button ve
+                 HoldButton ile kullanılır. Renk butonun Foreground'undan gelir:
+                 simge/yazı, basılıyken dolgu, aktifken (Tag="Active") kenarlık
+                 + dolgu + alt çizgi. -->
+            <Style x:Key="CommandButtonStyle" TargetType="{x:Type Button}">
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryText}"/>
+                <Setter Property="FontSize" Value="20"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+                <Setter Property="Padding" Value="16,0"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Focusable" Value="False"/>
+                <Setter Property="Stylus.IsPressAndHoldEnabled" Value="False"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type Button}">
+                            <Grid>
+                                <Border x:Name="Frame"
+                                        Background="{DynamicResource CardBackground}"
+                                        BorderBrush="{DynamicResource PanelBorder}"
+                                        BorderThickness="1"
+                                        CornerRadius="8"/>
+                                <Border x:Name="Tint"
+                                        Background="{TemplateBinding Foreground}"
+                                        CornerRadius="8"
+                                        Opacity="0"/>
+                                <Border x:Name="Bar"
+                                        Background="{TemplateBinding Foreground}"
+                                        Height="5"
+                                        VerticalAlignment="Bottom"
+                                        CornerRadius="0,0,8,8"
+                                        Visibility="Collapsed"/>
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"
+                                                  Margin="{TemplateBinding Padding}"/>
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <!-- Sıra önemli: sonraki tetikleyici öncekini ezer. -->
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Tint" Property="Opacity" Value="0.08"/>
+                                </Trigger>
+                                <Trigger Property="Tag" Value="Active">
+                                    <Setter TargetName="Frame" Property="BorderBrush"
+                                            Value="{Binding Foreground, RelativeSource={RelativeSource TemplatedParent}}"/>
+                                    <Setter TargetName="Frame" Property="BorderThickness" Value="2"/>
+                                    <Setter TargetName="Tint" Property="Opacity" Value="0.18"/>
+                                    <Setter TargetName="Bar" Property="Visibility" Value="Visible"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="Tint" Property="Opacity" Value="0.35"/>
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="Opacity" Value="0.4"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Simgeli butonlarda Path çizgisi: rengi butonun Foreground'undan. -->
+            <Style x:Key="ButtonIconPathStyle" TargetType="{x:Type Path}">
+                <Setter Property="Stroke"
+                        Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"/>
+                <Setter Property="StrokeThickness" Value="2.2"/>
+                <Setter Property="StrokeStartLineCap" Value="Round"/>
+                <Setter Property="StrokeEndLineCap" Value="Round"/>
+                <Setter Property="StrokeLineJoin" Value="Round"/>
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -73,6 +73,30 @@ namespace IzostatikTabakKenarSilme.Services
             return ReleaseAsync(PlcTags.Stop);
         }
 
+        // ---------------- Vardiya adedi sıfırla (basılı tutma) ----------------
+
+        public Task PressShiftResetAsync()
+        {
+            return _queue.Enqueue(() => _plc.WriteBoolTag(PlcTags.VardiyaReset, true));
+        }
+
+        public Task ReleaseShiftResetAsync()
+        {
+            return ReleaseAsync(PlcTags.VardiyaReset);
+        }
+
+        // ---------------- Boşaltma (kalıcı aç/kapa) ----------------
+
+        public Task SetBosaltmaModuAsync(bool on)
+        {
+            return _queue.Enqueue(() => _plc.WriteBoolTag(PlcTags.BosaltmaModu, on));
+        }
+
+        public Task SetBosaltmaBaslaAsync(bool on)
+        {
+            return _queue.Enqueue(() => _plc.WriteBoolTag(PlcTags.BosaltmaBasla, on));
+        }
+
         // Basılı tutma bitini FALSE'a çeker; hata olursa tekrar dener.
         private Task ReleaseAsync(string tag)
         {

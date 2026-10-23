@@ -90,6 +90,7 @@
     <Compile Include="Pages\CanliIzlemePage.xaml.cs">
       <DependentUpon>CanliIzlemePage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\HoldButton.cs" />
     <Compile Include="Controls\LogoView.xaml.cs">
       <DependentUpon>LogoView.xaml</DependentUpon>
     </Compile>
@@ -118,6 +119,8 @@
     <Compile Include="Services\EzSwitchAnimations.cs" />
     <Compile Include="Services\EzSwitchDevice.cs" />
     <Compile Include="Services\PlcCommands.cs" />
+    <Compile Include="Services\MachineState.cs" />
+    <Compile Include="Services\PagePoller.cs" />
     <Compile Include="Services\PlcService.cs" />
     <Compile Include="Services\PlcTags.cs" />
     <Compile Include="Services\PlcWriteQueue.cs" />

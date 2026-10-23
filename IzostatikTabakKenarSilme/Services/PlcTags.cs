@@ -17,6 +17,20 @@
         public const string Start = "HMI_Sistem_Baslat";
         public const string Stop = "HMI_Sistem_Durdur";
 
+        // Üretim adetleri (Vardiya_Adetler: CTR_Step = 110 olunca ikisi de +1)
+        public const string VardiyaAdet = "HMI_Vardiya_Adet";     // INT
+        public const string ToplamAdet = "HMI_Toplam_Adet";       // UDINT
+        // BOOL — vardiya sayacı reset (CTU Reset girişi; PLC sıfırlamaz →
+        // basılı tutma: TRUE, bırakınca FALSE)
+        public const string VardiyaReset = "HMI_Vardiya_Reset";
+
+        // Boşaltma (Genel_Prog rung 12–14). Kalıcı (aç/kapa) butonlar:
+        // bir basış TRUE, bir basış FALSE.
+        //   HMI_Rotus_ON: boşaltma modu açık
+        //   HMI_Konvde_Tabak_Var: boşaltma başla (PLC 8 sayımdan sonra sıfırlar)
+        public const string BosaltmaModu = "HMI_Rotus_ON";
+        public const string BosaltmaBasla = "HMI_Konvde_Tabak_Var";
+
         // BOOL — alarm reset (basılı tutma: TRUE, bırakınca FALSE)
         public const string Reset = "HMI_Reset";
 

@@ -97,6 +97,26 @@ namespace IzostatikTabakKenarSilme.Services
             return _queue.Enqueue(() => _plc.WriteBoolTag(PlcTags.BosaltmaBasla, on));
         }
 
+        // ---------------- İstasyon ayarları ----------------
+        // Parametre ve kalıcı (aç/kapa) buton yazmaları. Tag adları
+        // PlcTags'ten gelir; yalnızca operatör değer girince / butona
+        // basınca çağrılır.
+
+        public Task WriteRealAsync(string tag, float value)
+        {
+            return _queue.Enqueue(() => _plc.WriteRealTag(tag, value));
+        }
+
+        public Task WriteIntAsync(string tag, short value)
+        {
+            return _queue.Enqueue(() => _plc.WriteIntTag(tag, value));
+        }
+
+        public Task SetBoolAsync(string tag, bool value)
+        {
+            return _queue.Enqueue(() => _plc.WriteBoolTag(tag, value));
+        }
+
         // Basılı tutma bitini FALSE'a çeker; hata olursa tekrar dener.
         private Task ReleaseAsync(string tag)
         {

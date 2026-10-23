@@ -138,6 +138,16 @@ namespace IzostatikTabakKenarSilme.Services
         }
 
         // REAL: 32 bit floating point
+        public float ReadRealTag(string tagName)
+        {
+            lock (_sync)
+            {
+                Tag tag = Get(tagName, 4);
+                tag.Read();
+                return tag.GetFloat32(0);
+            }
+        }
+
         public float TestReadReal(string tagName)
         {
             lock (_sync)
@@ -181,6 +191,18 @@ namespace IzostatikTabakKenarSilme.Services
                 Tag tag = Get(tagName, 2);
                 tag.Read();
                 tag.SetInt16(0, value);
+                tag.Write();
+            }
+        }
+
+        // REAL: 32 bit floating point
+        public void WriteRealTag(string tagName, float value)
+        {
+            lock (_sync)
+            {
+                Tag tag = Get(tagName, 4);
+                tag.Read();
+                tag.SetFloat32(0, value);
                 tag.Write();
             }
         }

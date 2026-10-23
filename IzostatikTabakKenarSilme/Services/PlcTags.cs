@@ -31,6 +31,17 @@
         public const string BosaltmaModu = "HMI_Rotus_ON";
         public const string BosaltmaBasla = "HMI_Konvde_Tabak_Var";
 
+        // ---------------- AYARLAR: Vibrasyon Merkezleme ----------------
+        public const string VibrasyonSure = "HMI_Vibrasyon_T";                 // REAL, sn
+        public const string VibrasyonSonrasiBekleme = "HMI_Vibrasyon_Sonrasi_T"; // REAL, sn
+        public const string VibrasyonHiz = "HMI_Vibrasyon_Hiz";                // INT, %
+        // BOOL — manuel çalıştırma, kalıcı (bir basış TRUE, bir basış FALSE)
+        public const string VibrasyonManStart = "HMI_Vibrasyon_Man_Start";
+        // Göstergeler (yalnız okunur)
+        public const string VibrasyonCalisiyor = "Q_Vibrasyon_Calis";
+        public const string MerkezlemeSensor = "I_Merkezleme_Sens";
+        public const string VibrasyonInvHata = "I_Vib_Inv_Hata";
+
         // BOOL — alarm reset (basılı tutma: TRUE, bırakınca FALSE)
         public const string Reset = "HMI_Reset";
 

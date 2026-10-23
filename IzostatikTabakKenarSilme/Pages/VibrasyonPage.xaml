@@ -1,0 +1,178 @@
+﻿<Page x:Class="IzostatikTabakKenarSilme.Pages.VibrasyonPage"
+      Foreground="{DynamicResource PrimaryText}"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:controls="clr-namespace:IzostatikTabakKenarSilme.Controls"
+      mc:Ignorable="d"
+      d:DesignHeight="526" d:DesignWidth="1024"
+      Background="Transparent"
+      Title="VibrasyonPage">
+
+    <!-- AYARLAR > Vibrasyon Merkezleme: parametreler, manuel çalıştırma,
+         durum göstergeleri. -->
+    <Page.Resources>
+        <Style x:Key="CardStyle" TargetType="{x:Type Border}">
+            <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource PanelBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="22,18"/>
+        </Style>
+        <Style x:Key="CardTitleStyle" TargetType="{x:Type TextBlock}">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryText}"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+        <!-- Durum lambası (Fill koddan) -->
+        <Style x:Key="LampStyle" TargetType="{x:Type Ellipse}">
+            <Setter Property="Width" Value="16"/>
+            <Setter Property="Height" Value="16"/>
+            <Setter Property="Margin" Value="0,0,12,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Fill" Value="{DynamicResource PanelBorder}"/>
+        </Style>
+        <Style x:Key="LampTextStyle" TargetType="{x:Type TextBlock}">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </Page.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="20"/>
+            <ColumnDefinition Width="340"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Başlık -->
+        <StackPanel Grid.Row="0" Grid.ColumnSpan="3" Margin="0,0,0,16">
+            <TextBlock Text="Vibrasyon Merkezleme"
+                       FontSize="25"
+                       FontWeight="Bold"/>
+            <TextBlock Text="Vibrasyon süreleri, hızı ve manuel çalıştırma"
+                       Margin="0,5,0,0"
+                       Foreground="{DynamicResource SecondaryText}"/>
+        </StackPanel>
+
+        <!-- ================= AYARLAR ================= -->
+        <Border Grid.Row="1" Grid.Column="0"
+                Style="{StaticResource CardStyle}"
+                VerticalAlignment="Top">
+            <StackPanel>
+                <TextBlock Text="AYARLAR" Style="{StaticResource CardTitleStyle}"/>
+
+                <!-- HMI_Vibrasyon_T (REAL, sn) -->
+                <controls:ParameterField x:Name="SureField"
+                                         Label="Vibrasyon Süresi"
+                                         Unit="sn"
+                                         Decimals="1"
+                                         Min="0"
+                                         Max="9999"/>
+                <Border Height="1" Margin="0,6" Background="{DynamicResource PanelBorder}"/>
+
+                <!-- HMI_Vibrasyon_Sonrasi_T (REAL, sn) -->
+                <controls:ParameterField x:Name="BeklemeField"
+                                         Label="Vibrasyon Sonrası Bekleme"
+                                         Unit="sn"
+                                         Decimals="1"
+                                         Min="0"
+                                         Max="9999"/>
+                <Border Height="1" Margin="0,6" Background="{DynamicResource PanelBorder}"/>
+
+                <!-- HMI_Vibrasyon_Hiz (INT, %) -->
+                <controls:ParameterField x:Name="HizField"
+                                         Label="Vibrasyon Hızı"
+                                         Unit="%"
+                                         Decimals="0"
+                                         Min="0"
+                                         Max="9999"/>
+
+                <TextBlock Margin="0,14,0,0"
+                           FontSize="13"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource SecondaryText}"
+                           Text="Değeri değiştirmek için kutuya dokunun. Onaylanan değer hemen PLC'ye yazılır."/>
+            </StackPanel>
+        </Border>
+
+        <!-- Sağ sütun: manuel + durum -->
+        <Grid Grid.Row="1" Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="16"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- ================= MANUEL ================= -->
+            <!-- Kalıcı (aç/kapa): bir basış TRUE, bir basış FALSE.
+                 Durum PLC'den okunur; TRUE iken yeşil. -->
+            <Border Grid.Row="0" Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="MANUEL" Style="{StaticResource CardTitleStyle}"/>
+
+                    <Button x:Name="ManStartButton"
+                            Height="96"
+                            Style="{StaticResource CommandButtonStyle}"
+                            Click="ManStartButton_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <Viewbox Width="30" Height="30">
+                                <Canvas Width="24" Height="24">
+                                    <Path Style="{StaticResource ButtonIconPathStyle}"
+                                          Data="M20,12 A8,8 0 1 1 17.66,6.34 M17.9,2.6 L17.66,6.34 L13.9,6.1"/>
+                                </Canvas>
+                            </Viewbox>
+                            <TextBlock Text="VİBRASYON DÖN" FontSize="20" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <TextBlock x:Name="ManStartStateText"
+                               Margin="0,10,0,0"
+                               FontSize="13"
+                               Foreground="{DynamicResource SecondaryText}"
+                               Text="Bir basış çalıştırır, bir basış durdurur."/>
+                </StackPanel>
+            </Border>
+
+            <!-- ================= DURUM ================= -->
+            <Border Grid.Row="2" Style="{StaticResource CardStyle}">
+                <StackPanel>
+                    <TextBlock Text="DURUM" Style="{StaticResource CardTitleStyle}"/>
+
+                    <!-- Q_Vibrasyon_Calis -->
+                    <StackPanel Orientation="Horizontal" Margin="0,4">
+                        <Ellipse x:Name="RunLamp" Style="{StaticResource LampStyle}"/>
+                        <TextBlock Text="Vibrasyon çalışıyor" Style="{StaticResource LampTextStyle}"/>
+                    </StackPanel>
+
+                    <!-- I_Merkezleme_Sens -->
+                    <StackPanel Orientation="Horizontal" Margin="0,4">
+                        <Ellipse x:Name="SensorLamp" Style="{StaticResource LampStyle}"/>
+                        <TextBlock Text="Merkezleme sensörü" Style="{StaticResource LampTextStyle}"/>
+                    </StackPanel>
+
+                    <!-- I_Vib_Inv_Hata -->
+                    <StackPanel Orientation="Horizontal" Margin="0,4">
+                        <Ellipse x:Name="FaultLamp" Style="{StaticResource LampStyle}"/>
+                        <TextBlock Text="Vibrasyon sürücü hatası" Style="{StaticResource LampTextStyle}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Sayfa durumu: okuma / yazma hataları -->
+        <TextBlock x:Name="PageStatusText"
+                   Grid.Row="2" Grid.ColumnSpan="3"
+                   Margin="0,10,0,0"
+                   FontSize="13"
+                   TextTrimming="CharacterEllipsis"
+                   Foreground="{DynamicResource SecondaryText}"/>
+    </Grid>
+</Page>

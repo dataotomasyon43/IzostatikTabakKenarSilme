@@ -947,12 +947,13 @@ namespace IzostatikTabakKenarSilme
         }
 
         // AYARLAR: istasyon sayfaları (parametreler + manuel butonlar).
-        // İçerikleri sırayla doldurulacak; şimdilik yer tutucu.
-        private static IList<Pages.SectionItem> AyarlarItems()
+        // Doldurulmamış istasyonlar şimdilik yer tutucu.
+        private IList<Pages.SectionItem> AyarlarItems()
         {
             return new[]
             {
-                Station("VibrasyonMerkezleme", "Vibrasyon Merkezleme"),
+                new Pages.SectionItem("VibrasyonMerkezleme", "Vibrasyon Merkezleme",
+                    () => new Pages.VibrasyonPage(_plcService, _commands, _machineState)),
                 Station("TransferYukleme", "Transfer Yükleme"),
                 Station("DonerTabla", "Döner Tabla"),
                 Station("GirisCikisBomse", "Giriş Çıkış Bomse"),

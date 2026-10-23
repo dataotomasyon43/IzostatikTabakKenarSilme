@@ -91,6 +91,15 @@
       <DependentUpon>CanliIzlemePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\HoldButton.cs" />
+    <Compile Include="Controls\ParameterField.xaml.cs">
+      <DependentUpon>ParameterField.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\VibrasyonPage.xaml.cs">
+      <DependentUpon>VibrasyonPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\NumericKeypadWindow.xaml.cs">
+      <DependentUpon>NumericKeypadWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\LogoView.xaml.cs">
       <DependentUpon>LogoView.xaml</DependentUpon>
     </Compile>
@@ -132,6 +141,18 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\AlarmGecmisiPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ParameterField.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\VibrasyonPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\NumericKeypadWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

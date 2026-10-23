@@ -13,8 +13,16 @@ namespace IzostatikTabakKenarSilme.Windows
     // Aktif alarmları gösteren açılır pencere.
     //
     // ALARM RESET butonu "push button" gibi çalışır:
-    //   basıldığında  → Mode = 0, ardından HMI_Reset = TRUE
+    //   basıldığında  → Mode = 1 (Güvenli), ardından HMI_Reset = TRUE
     //   bırakıldığında→ HMI_Reset = FALSE
+    //
+    // PLC (Genel_Prog rung 1): (Mode = 1 VEYA Mode = 3) VE HMI_Reset →
+    // TP 250 ms → Reset (+ inverter / güvenlik rölesi / EC-MC-PLC hata
+    // resetleri). Manuel ve Kapalı modda HMI_Reset tek başına reset
+    // yapmadığı için önce Güvenli moda geçilir.
+    // Not: 23 ve 58–71 numaralı alarmlar doğrudan HMI_Reset ile silinir;
+    // HMI_Reset TRUE kalırsa bu alarmlar mühürlenemez → FALSE yazması
+    // birkaç kez denenir.
     // Butonun bırakılmış sayıldığı durumlar: parmak/fare kaldırıldı,
     // yakalama kayboldu (dokunma iptali vb.), pencere kapandı.
     // Yazmalar PlcWriteQueue ile sırayla gider; FALSE asla TRUE'dan
@@ -133,13 +141,13 @@ namespace IzostatikTabakKenarSilme.Windows
             ShowPressed(true);
             ShowStatus("Reset gönderiliyor...", isError: false);
 
-            AppLogger.Info($"Alarm reset basıldı: {PlcTags.Mode} = {MachineModes.Kapali}, {PlcTags.Reset} = TRUE");
+            AppLogger.Info($"Alarm reset basıldı: {PlcTags.Mode} = {MachineModes.Guvenli} (Güvenli), {PlcTags.Reset} = TRUE");
 
             try
             {
                 await _writeQueue.Enqueue(() =>
                 {
-                    _plc.WriteIntTag(PlcTags.Mode, MachineModes.Kapali);
+                    _plc.WriteIntTag(PlcTags.Mode, MachineModes.Guvenli);
                     _plc.WriteBoolTag(PlcTags.Reset, true);
                 });
 
@@ -149,7 +157,7 @@ namespace IzostatikTabakKenarSilme.Windows
             }
             catch (Exception ex)
             {
-                AppLogger.Error("Alarm reset yazılamadı (Mode = 0 / HMI_Reset = TRUE)", ex);
+                AppLogger.Error("Alarm reset yazılamadı (Mode = 1 / HMI_Reset = TRUE)", ex);
                 ShowStatus("Reset gönderilemedi: " + ex.Message, isError: true);
             }
         }

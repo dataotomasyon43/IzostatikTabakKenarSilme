@@ -2,78 +2,80 @@
 # Biçim: No;Metin   (örnek: 12;Faz koruma hatası)
 # Metni boş bırakılan alarm ekranda "Alarm 12" gibi görünür.
 # Dosya UTF-8 kaydedilmelidir. Değişiklik uygulama yeniden açılınca geçerli olur.
+# Kaynak: PLC AlarmProg (CalisanSürüm, 22.10.2026) rung koşulları. PLC'de Alm[1..71] kullanılıyor;
+# "Yedek" olanlar P_Off (Always FALSE) ile devre dışı. Alm[0] ve 72+ PLC'de atanmamış.
 0;
-1;
-2;
-3;
-4;
-5;
-6;
-7;
-8;
-9;
-10;
-11;
-12;
-13;
-14;
-15;
-16;
-17;
-18;
-19;
-20;
-21;
-22;
-23;
-24;
-25;
-26;
-27;
-28;
-29;
-30;
-31;
-32;
-33;
-34;
-35;
-36;
-37;
-38;
-39;
-40;
-41;
-42;
-43;
-44;
-45;
-46;
-47;
-48;
-49;
-50;
-51;
-52;
-53;
-54;
-55;
-56;
-57;
-58;
-59;
-60;
-61;
-62;
-63;
-64;
-65;
-66;
-67;
-68;
-69;
-70;
-71;
+1;Faz koruma hatası (I_Faz_OK yok)
+2;Mico güç denetim hatası (I_Mico_OK yok)
+3;Güvenlik rölesi hatası (I_GuvRole_OK yok)
+4;Rötuş acil stop-1 basılı
+5;Rötuş acil stop-2 basılı
+6;Çıkış konveyörü acil stop basılı
+7;EDM geri besleme hatası (I_Edm_Ok yok)
+8;Vibrasyon inverter hatası
+9;Zımpara-1 inverter hatası
+10;Zımpara-2 inverter hatası
+11;Yedek
+12;Yedek
+13;Sünger-1 inverter hatası
+14;Sünger-2 inverter hatası
+15;Sünger-3 inverter hatası
+16;Yedek
+17;Yedek
+18;Yedek
+19;Döner tabla inverter hatası
+20;Çıkış konveyörü inverter hatası
+21;Tabla yerinde ama bombe sensörleri algılamıyor
+22;Yedek
+23;Tabla yerine gelmedi (10 sn)
+24;Yedek
+25;Yedek
+26;GTR piston-1 aşağı: ileri gidemedi
+27;GTR piston-1 aşağı: geri gelemedi
+28;GTR piston-2 aşağı: ileri gidemedi
+29;GTR piston-2 aşağı: geri gelemedi
+30;CTR piston aşağı: ileri gidemedi
+31;CTR piston aşağı: geri gelemedi
+32;Reçete yüklenmedi
+33;Yedek
+34;Yedek
+35;GTR servo eksen hatası
+36;CTR servo eksen hatası
+37;Zımpara-1 modül servo hatası
+38;Zımpara-2 modül servo hatası
+39;Sünger-1 modül servo hatası
+40;Sünger-2 modül servo hatası
+41;Sünger-3 modül servo hatası
+42;Bombe giriş servo hatası
+43;Bombe çapak servo hatası
+44;Bombe zımpara-1 servo hatası
+45;Bombe zımpara-2 servo hatası
+46;Bombe sünger-1 servo hatası
+47;Bombe sünger-2 servo hatası
+48;Bombe sünger-3 servo hatası
+49;Yedek
+50;GTR tork limiti aşıldı
+51;CTR tork limiti aşıldı
+52;Reçetede sıfır değerli parametre var
+53;Zımpara geri pozisyonu 700'ü aşıyor
+54;Sünger geri pozisyonu 700'ü aşıyor
+55;Çapak modülü geri pozisyonu 700'ü aşıyor
+56;Yedek
+57;Yedek
+58;Bombe-1 tork alarmı
+59;Bombe-2 tork alarmı
+60;Bombe-3 tork alarmı
+61;Bombe-4 tork alarmı
+62;Bombe-5 tork alarmı
+63;Bombe-6 tork alarmı
+64;Bombe-7 tork alarmı
+65;Bombe-8 tork alarmı
+66;Çapak kırma modülü tork alarmı
+67;Zımpara-1 modülü tork alarmı
+68;Zımpara-2 modülü tork alarmı
+69;Sünger-1 modülü tork alarmı
+70;Sünger-2 modülü tork alarmı
+71;Sünger-3 modülü tork alarmı
 72;
 73;
 74;

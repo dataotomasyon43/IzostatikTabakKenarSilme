@@ -11,6 +11,8 @@
     <SolidColorBrush x:Key="SecondaryText" Color="#AAB3BE"/>
     <SolidColorBrush x:Key="AccentColor" Color="#F28C28"/>
     <SolidColorBrush x:Key="WarningColor" Color="#FFB347"/>
+    <SolidColorBrush x:Key="OkColor" Color="#5CC872"/>
+    <SolidColorBrush x:Key="ErrorColor" Color="#FF6B6B"/>
 
     <Style x:Key="MenuButtonStyle" TargetType="{x:Type Button}">
         <Setter Property="HorizontalContentAlignment" Value="Left"/>

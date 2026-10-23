@@ -63,7 +63,8 @@
                             <TextBlock Text="PLC BAĞLANTISI"
                                        FontSize="10"
                                        Foreground="{DynamicResource SecondaryText}"/>
-                            <TextBlock Text="● Bağlı değil"
+                            <TextBlock x:Name="PlcStatusText"
+                                       Text="● Bağlantı bekleniyor"
                                        Foreground="{DynamicResource WarningColor}"
                                        FontWeight="Bold"
                                        Margin="0,3,0,0"/>
@@ -80,7 +81,8 @@
                             <TextBlock Text="ÇALIŞMA MODU"
                                        FontSize="10"
                                        Foreground="{DynamicResource SecondaryText}"/>
-                            <TextBlock Text="Beklemede"
+                            <TextBlock x:Name="ModeText"
+                                       Text="-"
                                        FontWeight="Bold"
                                        Margin="0,3,0,0"/>
                         </StackPanel>
@@ -170,7 +172,8 @@
                 <DockPanel>
                     <TextBlock Text="Sistem hazır"
                            Foreground="{DynamicResource SecondaryText}"/>
-                    <TextBlock DockPanel.Dock="Right"
+                    <TextBlock x:Name="StatusBarPlcText"
+                           DockPanel.Dock="Right"
                            Text="PLC: Bağlantı bekleniyor"
                            Foreground="{DynamicResource SecondaryText}"/>
                 </DockPanel>

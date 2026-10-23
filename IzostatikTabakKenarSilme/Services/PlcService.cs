@@ -14,7 +14,21 @@ namespace IzostatikTabakKenarSilme.Services
         private readonly Dictionary<string, Tag> _tags =
             new Dictionary<string, Tag>();
 
+        // Tüm PLC erişimleri bu kilitle sıraya alınır. Servis hem ana
+        // penceredeki periyodik okumadan hem de sayfalardan, arka plan
+        // thread'lerinden çağrılır; libplctag Tag nesneleri ve _tags
+        // sözlüğü eşzamanlı kullanıma karşı korunur.
+        private readonly object _sync = new object();
+        private bool _disposed;
+
+        // Not: Bu değer ağ bağlantısını değil, servisin kullanıma
+        // hazırlandığını gösterir. Gerçek bağlantı durumu için son
+        // okumanın başarılı olup olmadığına bakılmalıdır.
         public bool IsConnected { get; private set; }
+
+        // Kilitsiz okunur: UI thread'i, uzun süren bir PLC okuması
+        // kilidi tutarken burada beklememelidir.
+        public string IpAddress => _ip;
 
         public void Connect()
         {
@@ -26,17 +40,31 @@ namespace IzostatikTabakKenarSilme.Services
             if (string.IsNullOrWhiteSpace(ip))
                 throw new ArgumentException("PLC IP adresi boş olamaz.", nameof(ip));
 
-            if (IsConnected && _ip == ip)
-                return;
+            lock (_sync)
+            {
+                ThrowIfDisposed();
 
-            Disconnect();
+                if (IsConnected && _ip == ip)
+                    return;
 
-            _ip = ip.Trim();
-            IsConnected = true;
+                DisconnectCore();
+
+                _ip = ip.Trim();
+                IsConnected = true;
+            }
         }
 
+        private void ThrowIfDisposed()
+        {
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(PlcService));
+        }
+
+        // Çağıran taraf _sync kilidini tutmalıdır.
         private Tag Get(string name, int elementSize, int elementCount = 1)
         {
+            ThrowIfDisposed();
+
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Tag adı boş olamaz.", nameof(name));
 
@@ -68,41 +96,56 @@ namespace IzostatikTabakKenarSilme.Services
         // BOOL: 1 byte
         public bool ReadBoolTag(string tagName)
         {
-            Tag tag = Get(tagName, 1);
-            tag.Read();
-            return tag.GetUInt8(0) != 0;
+            lock (_sync)
+            {
+                Tag tag = Get(tagName, 1);
+                tag.Read();
+                return tag.GetUInt8(0) != 0;
+            }
         }
 
         // INT: 16 bit signed
         public short ReadIntTag(string tagName)
         {
-            Tag tag = Get(tagName, 2);
-            tag.Read();
-            return tag.GetInt16(0);
+            lock (_sync)
+            {
+                Tag tag = Get(tagName, 2);
+                tag.Read();
+                return tag.GetInt16(0);
+            }
         }
 
         // DINT: 32 bit signed
         public int ReadDIntTag(string tagName)
         {
-            Tag tag = Get(tagName, 4);
-            tag.Read();
-            return tag.GetInt32(0);
+            lock (_sync)
+            {
+                Tag tag = Get(tagName, 4);
+                tag.Read();
+                return tag.GetInt32(0);
+            }
         }
 
         // UDINT: 32 bit unsigned
         public uint ReadUDintTag(string tagName)
         {
-            Tag tag = Get(tagName, 4);
-            tag.Read();
-            return tag.GetUInt32(0);
+            lock (_sync)
+            {
+                Tag tag = Get(tagName, 4);
+                tag.Read();
+                return tag.GetUInt32(0);
+            }
         }
 
         // REAL: 32 bit floating point
         public float TestReadReal(string tagName)
         {
-            Tag tag = Get(tagName, 4);
-            tag.Read();
-            return tag.GetFloat32(0);
+            lock (_sync)
+            {
+                Tag tag = Get(tagName, 4);
+                tag.Read();
+                return tag.GetFloat32(0);
+            }
         }
 
         public float ReadPosition()
@@ -113,9 +156,12 @@ namespace IzostatikTabakKenarSilme.Services
         // LREAL: 64 bit floating point
         public double ReadLRealTag(string tagName)
         {
-            Tag tag = Get(tagName, 8);
-            tag.Read();
-            return tag.GetFloat64(0);
+            lock (_sync)
+            {
+                Tag tag = Get(tagName, 8);
+                tag.Read();
+                return tag.GetFloat64(0);
+            }
         }
 
         // BOOL dizisi
@@ -126,16 +172,23 @@ namespace IzostatikTabakKenarSilme.Services
 
             var result = new bool[count];
 
+            // Dizinin tamamı tek istekte okunamıyor (ErrorBadParam);
+            // indeksli parçalarla okuma mantığı aynen korunmuştur.
+            // Kilit parça başına alınır; böylece 501 elemanlık okuma
+            // sürerken ana penceredeki bağlantı kontrolü araya girebilir.
             for (int start = 0; start < count; start += chunk)
             {
                 int n = Math.Min(chunk, count - start);
 
-                // "Alm[100]" gibi, belirli indexten başlayan dilim
-                Tag tag = Get($"{tagName}[{start}]", 1, n);
-                tag.Read();
+                lock (_sync)
+                {
+                    // "Alm[100]" gibi, belirli indexten başlayan dilim
+                    Tag tag = Get($"{tagName}[{start}]", 1, n);
+                    tag.Read();
 
-                for (int i = 0; i < n; i++)
-                    result[start + i] = tag.GetUInt8(i) != 0;
+                    for (int i = 0; i < n; i++)
+                        result[start + i] = tag.GetUInt8(i) != 0;
+                }
             }
 
             return result;
@@ -149,6 +202,15 @@ namespace IzostatikTabakKenarSilme.Services
 
         public void Disconnect()
         {
+            lock (_sync)
+            {
+                DisconnectCore();
+            }
+        }
+
+        // Çağıran taraf _sync kilidini tutmalıdır.
+        private void DisconnectCore()
+        {
             foreach (Tag tag in _tags.Values)
                 tag.Dispose();
 
@@ -158,7 +220,14 @@ namespace IzostatikTabakKenarSilme.Services
 
         public void Dispose()
         {
-            Disconnect();
+            lock (_sync)
+            {
+                if (_disposed)
+                    return;
+
+                DisconnectCore();
+                _disposed = true;
+            }
         }
     }
 }

@@ -35,7 +35,8 @@
                        TextWrapping="Wrap"
                        Foreground="{DynamicResource SecondaryText}"/>
 
-            <Button Grid.Column="1"
+            <Button x:Name="ReadAllButton"
+                    Grid.Column="1"
                     Content="Tümünü Oku"
                     Padding="16,8"
                     Margin="12,0,0,0"

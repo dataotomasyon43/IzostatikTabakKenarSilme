@@ -353,16 +353,62 @@
                 BorderBrush="{DynamicResource PanelBorder}"
                 BorderThickness="0,1,0,0"
                 Padding="12,4">
-            <DockPanel>
-                <TextBlock x:Name="StatusBarMessageText"
-                           Text="Sistem hazır"
-                           TextTrimming="CharacterEllipsis"
-                           Foreground="{DynamicResource SecondaryText}"/>
-                <TextBlock x:Name="StatusBarPlcText"
-                           DockPanel.Dock="Right"
-                           Text="PLC: Bağlantı bekleniyor"
-                           Foreground="{DynamicResource SecondaryText}"/>
-            </DockPanel>
+            <!-- Sol (*): sistem mesajı; aktif arıza varken onun yerine
+                 arıza açıklamaları saniyede bir sırayla gösterilir.
+                 Sağ (Auto): PLC durumu, her zaman sağa sabit. -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Column="0" VerticalAlignment="Center">
+                    <TextBlock x:Name="StatusBarMessageText"
+                               Text="Sistem hazır"
+                               TextTrimming="CharacterEllipsis"
+                               VerticalAlignment="Center"
+                               Foreground="{DynamicResource SecondaryText}"/>
+
+                    <!-- Arıza akışı: [ARIZA 2/3]  [12] Arıza açıklaması -->
+                    <DockPanel x:Name="AlarmTickerPanel"
+                               Visibility="Collapsed"
+                               LastChildFill="True">
+                        <Border DockPanel.Dock="Left"
+                                Background="{DynamicResource ErrorColor}"
+                                CornerRadius="3"
+                                Padding="6,1"
+                                Margin="0,0,8,0"
+                                VerticalAlignment="Center">
+                            <TextBlock x:Name="AlarmTickerBadge"
+                                       Text="ARIZA"
+                                       FontSize="11"
+                                       FontWeight="Bold"
+                                       Foreground="White"/>
+                        </Border>
+                        <TextBlock x:Name="AlarmTickerText"
+                                   TextTrimming="CharacterEllipsis"
+                                   VerticalAlignment="Center"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource ErrorColor}"/>
+                    </DockPanel>
+                </Grid>
+
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center"
+                            Margin="24,0,0,0">
+                    <Ellipse x:Name="StatusBarPlcDot"
+                             Width="8"
+                             Height="8"
+                             Margin="0,0,6,0"
+                             VerticalAlignment="Center"
+                             Fill="{DynamicResource WarningColor}"/>
+                    <TextBlock x:Name="StatusBarPlcText"
+                               Text="PLC: Bağlantı bekleniyor"
+                               VerticalAlignment="Center"
+                               Foreground="{DynamicResource SecondaryText}"/>
+                </StackPanel>
+            </Grid>
         </Border>
     </Grid>
 </Window>

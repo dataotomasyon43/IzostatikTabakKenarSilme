@@ -6,6 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Shapes;
+using System.Windows.Threading;
 using IzostatikTabakKenarSilme.Services;
 using IzostatikTabakKenarSilme.Windows;
 
@@ -49,9 +51,17 @@ namespace IzostatikTabakKenarSilme
         private bool? _autoCycleReadOk;
         private string _machineState;      // son gösterilen makine durumu (log için)
 
+        // Alt çubuktaki arıza akışı: aktif arızaların açıklamaları
+        // saniyede bir sırayla gösterilir.
+        private readonly DispatcherTimer _alarmTickerTimer =
+            new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        private int _alarmTickerIndex;
+
         public MainWindow()
         {
             InitializeComponent();
+
+            _alarmTickerTimer.Tick += (s, e) => UpdateAlarmTicker(advance: true);
 
             Loaded += MainWindow_Loaded;
             Closing += MainWindow_Closing;
@@ -69,6 +79,8 @@ namespace IzostatikTabakKenarSilme
 
             MainFrame.Navigate(new Pages.AnaEkranPage());
 
+            _alarmTickerTimer.Start();
+
             _ = PollPlcAsync(_pollCts.Token);
         }
 
@@ -81,6 +93,7 @@ namespace IzostatikTabakKenarSilme
 
         private void MainWindow_Closed(object sender, EventArgs e)
         {
+            _alarmTickerTimer.Stop();
             _pollCts.Cancel();
 
             // Kuyrukta bekleyen yazmalar (ör. HMI_Reset = FALSE) PLC servisi
@@ -200,6 +213,10 @@ namespace IzostatikTabakKenarSilme
 
                     // 4) Makine durumu kartı (bağlantı, arıza, çalışma, mod)
                     UpdateMachineState();
+
+                    // 5) Alt çubuk arıza akışı: yeni gelen/giden arıza bir
+                    //    sonraki saniyeyi beklemeden yansısın.
+                    UpdateAlarmTicker(advance: false);
                 }
                 catch (Exception ex)
                 {
@@ -332,7 +349,7 @@ namespace IzostatikTabakKenarSilme
                 TextBlock.ForegroundProperty, ModeColorKey(mode) ?? "PrimaryText");
             HighlightModeButton(mode);
 
-            StatusBarPlcText.Text = $"PLC: {_plcService.IpAddress} bağlı";
+            SetFooterPlcStatus($"PLC {_plcService.IpAddress}  ·  Bağlı", "OkColor", "SecondaryText");
 
             // Yalnızca durum değiştiğinde logla; her 500 ms'de değil.
             if (_plcConnected != true)
@@ -363,7 +380,7 @@ namespace IzostatikTabakKenarSilme
             _lastMode = null;
             _autoCycle = null;
 
-            StatusBarPlcText.Text = $"PLC: {_plcService.IpAddress} bağlantı yok";
+            SetFooterPlcStatus($"PLC {_plcService.IpAddress}  ·  Bağlantı yok", "ErrorColor", "ErrorColor");
 
             // Yalnızca durum değiştiğinde logla; bağlantı yokken her
             // denemede aynı hata dosyaya yazılmaz.
@@ -382,6 +399,51 @@ namespace IzostatikTabakKenarSilme
         //   Çalışıyor: AutoCycle = TRUE.
         // Kenarlık: arızada kırmızı; aksi hâlde Manuel turuncu,
         // Otomatik mavi, diğer modlarda varsayılan.
+        // ---------------- Alt çubuk ----------------
+
+        // Sağdaki sabit PLC durumu: renkli nokta + metin.
+        private void SetFooterPlcStatus(string text, string dotColorKey, string textColorKey)
+        {
+            StatusBarPlcText.Text = text;
+            StatusBarPlcText.SetResourceReference(TextBlock.ForegroundProperty, textColorKey);
+            StatusBarPlcDot.SetResourceReference(Shape.FillProperty, dotColorKey);
+        }
+
+        // Aktif arıza varsa sol alanda sistem mesajı yerine arıza
+        // açıklamalarını sırayla gösterir: [ARIZA 2/3]  [12] Açıklama
+        // advance = true: bir sonraki arızaya geç (saniyelik zamanlayıcı).
+        // PLC bağlantısı yokken alarm durumu bilinmediği için akış gizlenir.
+        private void UpdateAlarmTicker(bool advance)
+        {
+            var alarms = _alarmService.ActiveAlarms;
+            int count = alarms.Count;
+
+            if (count == 0 || _plcConnected != true)
+            {
+                _alarmTickerIndex = 0;
+                AlarmTickerPanel.Visibility = Visibility.Collapsed;
+                StatusBarMessageText.Visibility = Visibility.Visible;
+                return;
+            }
+
+            if (advance)
+                _alarmTickerIndex++;
+
+            if (_alarmTickerIndex >= count)
+                _alarmTickerIndex = 0;
+
+            ActiveAlarm alarm = alarms[_alarmTickerIndex];
+
+            AlarmTickerBadge.Text = count == 1
+                ? "ARIZA"
+                : $"ARIZA {_alarmTickerIndex + 1}/{count}";
+            AlarmTickerText.Text = $"[{alarm.No}] {alarm.Metin}";
+            AlarmTickerText.ToolTip = $"{alarm.BaslangicText}  [{alarm.No}] {alarm.Metin}";
+
+            StatusBarMessageText.Visibility = Visibility.Collapsed;
+            AlarmTickerPanel.Visibility = Visibility.Visible;
+        }
+
         private void UpdateMachineState()
         {
             string text;

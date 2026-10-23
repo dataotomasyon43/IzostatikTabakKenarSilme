@@ -89,6 +89,7 @@ namespace IzostatikTabakKenarSilme.Pages
                 }
                 catch (Exception ex)
                 {
+                    AppLogger.Error("Canlı izleme: PLC bağlantısı başlatılamadı", ex);
                     StatusText.Text = "PLC bağlantı hatası: " + ex.Message;
 
                     foreach (var tag in _tags)
@@ -101,6 +102,7 @@ namespace IzostatikTabakKenarSilme.Pages
                 int success = 0;
                 int failed = 0;
                 int index = 0;
+                var failedTags = new List<string>();
 
                 foreach (var tag in _tags)
                 {
@@ -129,6 +131,7 @@ namespace IzostatikTabakKenarSilme.Pages
                         tag.Value = "-";
                         tag.Status = ex.Message;
                         failed++;
+                        failedTags.Add($"{tag.Name} ({ex.Message})");
                     }
 
                     TagGrid.Items.Refresh();
@@ -136,6 +139,19 @@ namespace IzostatikTabakKenarSilme.Pages
 
                 StatusText.Text =
                     $"Test tamamlandı. Başarılı: {success} | Hatalı: {failed}";
+
+                // Tek tek değil, okuma sonunda tek satır özet loglanır.
+                if (failedTags.Count > 0)
+                    AppLogger.Warn($"Canlı izleme okuması: {success} başarılı, {failed} hatalı. Hatalı tag'ler: {string.Join(", ", failedTags)}");
+                else
+                    AppLogger.Info($"Canlı izleme okuması: {success} tag başarıyla okundu.");
+            }
+            catch (Exception ex)
+            {
+                // async void içinden hata kaçmamalı; aksi hâlde uygulama
+                // seviyesindeki yakalayıcıya düşer.
+                AppLogger.Error("Canlı izleme okumasında beklenmeyen hata", ex);
+                StatusText.Text = "Beklenmeyen hata: " + ex.Message;
             }
             finally
             {

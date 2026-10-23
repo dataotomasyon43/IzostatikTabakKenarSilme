@@ -1,0 +1,192 @@
+﻿<Window x:Class="IzostatikTabakKenarSilme.Windows.AktifAlarmlarWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Aktif Alarmlar"
+        Width="960"
+        Height="620"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource AppBackground}"
+        Foreground="{DynamicResource PrimaryText}">
+
+    <Border BorderBrush="{DynamicResource ErrorColor}"
+            BorderThickness="3">
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- BAŞLIK + KAPAT -->
+            <Border Grid.Row="0"
+                    Background="{DynamicResource HeaderBackground}"
+                    BorderBrush="{DynamicResource PanelBorder}"
+                    BorderThickness="0,0,0,1"
+                    Padding="20,8,8,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <TextBlock Text="⚠"
+                                   FontSize="30"
+                                   Foreground="{DynamicResource ErrorColor}"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,12,0"/>
+                        <TextBlock Text="AKTİF ALARMLAR"
+                                   FontSize="24"
+                                   FontWeight="Bold"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock x:Name="CountText"
+                                   Text="(0)"
+                                   FontSize="24"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource ErrorColor}"
+                                   VerticalAlignment="Center"
+                                   Margin="10,0,0,0"/>
+                    </StackPanel>
+
+                    <!-- Dokunmatik için büyük kapat düğmesi (72x72) -->
+                    <Button x:Name="CloseButton"
+                            Grid.Column="1"
+                            Width="72"
+                            Height="72"
+                            Content="✕"
+                            FontSize="34"
+                            Style="{DynamicResource MenuButtonStyle}"
+                            HorizontalContentAlignment="Center"
+                            Padding="0"
+                            Margin="0"
+                            Click="CloseButton_Click"/>
+                </Grid>
+            </Border>
+
+            <!-- SÜTUN BAŞLIKLARI -->
+            <Grid Grid.Row="1"
+                  Margin="20,12,20,6">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="90"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="230"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" Text="NO" FontSize="13" FontWeight="Bold"
+                           Foreground="{DynamicResource SecondaryText}"/>
+                <TextBlock Grid.Column="1" Text="ALARM" FontSize="13" FontWeight="Bold"
+                           Foreground="{DynamicResource SecondaryText}"/>
+                <TextBlock Grid.Column="2" Text="BAŞLANGIÇ" FontSize="13" FontWeight="Bold"
+                           Foreground="{DynamicResource SecondaryText}"/>
+            </Grid>
+
+            <!-- ALARM LİSTESİ -->
+            <Grid Grid.Row="2" Margin="20,0,20,0">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              PanningMode="VerticalOnly">
+                    <ItemsControl x:Name="AlarmList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{DynamicResource CardBackground}"
+                                        BorderBrush="{DynamicResource PanelBorder}"
+                                        BorderThickness="1"
+                                        CornerRadius="4"
+                                        Padding="0,12"
+                                        Margin="0,0,0,6">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="90"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="230"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0"
+                                                   Text="{Binding No}"
+                                                   FontSize="20"
+                                                   FontWeight="Bold"
+                                                   Foreground="{DynamicResource ErrorColor}"
+                                                   Margin="12,0,0,0"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="1"
+                                                   Text="{Binding Metin}"
+                                                   FontSize="20"
+                                                   TextWrapping="Wrap"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2"
+                                                   Text="{Binding BaslangicText}"
+                                                   FontSize="16"
+                                                   Foreground="{DynamicResource SecondaryText}"
+                                                   VerticalAlignment="Center"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <TextBlock x:Name="EmptyText"
+                           Text="Aktif alarm yok"
+                           FontSize="22"
+                           Foreground="{DynamicResource OkColor}"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Visibility="Collapsed"/>
+            </Grid>
+
+            <!-- ALT: DURUM + RESET -->
+            <Border Grid.Row="3"
+                    Background="{DynamicResource HeaderBackground}"
+                    BorderBrush="{DynamicResource PanelBorder}"
+                    BorderThickness="0,1,0,0"
+                    Padding="20,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock x:Name="StatusText"
+                               Text="Reset için butonu basılı tutun."
+                               FontSize="15"
+                               TextWrapping="Wrap"
+                               VerticalAlignment="Center"
+                               Foreground="{DynamicResource SecondaryText}"/>
+
+                    <!-- Basılı tutma (push button) reset.
+                         Button yerine Border: basma/bırakma olayları
+                         doğrudan yönetilir, dokunmatikte "basılı tut =
+                         sağ tık" gecikmesi kapatılır. -->
+                    <Border x:Name="ResetButton"
+                            Grid.Column="1"
+                            Width="280"
+                            Height="80"
+                            CornerRadius="6"
+                            Background="{DynamicResource AccentColor}"
+                            Cursor="Hand"
+                            Stylus.IsPressAndHoldEnabled="False"
+                            Stylus.IsFlicksEnabled="False"
+                            MouseLeftButtonDown="ResetButton_MouseLeftButtonDown"
+                            MouseLeftButtonUp="ResetButton_MouseLeftButtonUp"
+                            LostMouseCapture="ResetButton_LostMouseCapture"
+                            TouchDown="ResetButton_TouchDown"
+                            TouchUp="ResetButton_TouchUp"
+                            LostTouchCapture="ResetButton_LostTouchCapture">
+                        <TextBlock x:Name="ResetButtonText"
+                                   Text="ALARM RESET"
+                                   FontSize="24"
+                                   FontWeight="Bold"
+                                   Foreground="White"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

@@ -53,6 +53,7 @@
       <HintPath>..\packages\System.Memory.4.5.4\lib\net461\System.Memory.dll</HintPath>
     </Reference>
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
     </Reference>
@@ -95,7 +96,20 @@
     <Compile Include="Pages\TabakYuklePage.xaml.cs">
       <DependentUpon>TabakYuklePage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Services\AlarmHistoryStore.cs" />
+    <Compile Include="Services\AlarmService.cs" />
+    <Compile Include="Services\AlarmTextProvider.cs" />
+    <Compile Include="Services\AppLogger.cs" />
     <Compile Include="Services\PlcService.cs" />
+    <Compile Include="Services\PlcTags.cs" />
+    <Compile Include="Services\PlcWriteQueue.cs" />
+    <Compile Include="Windows\AktifAlarmlarWindow.xaml.cs">
+      <DependentUpon>AktifAlarmlarWindow.xaml</DependentUpon>
+    </Compile>
+    <Page Include="Windows\AktifAlarmlarWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Pages\AlarmGecmisiPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -167,6 +181,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Alarm metinleri: derlemede uygulama dizinine kopyalanır. -->
+    <Content Include="AlarmMetinleri.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="WhatsApp Image 2025-01-02 at 19.45.08-Photoroom.png" />

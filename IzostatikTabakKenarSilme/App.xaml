@@ -7,6 +7,59 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Themes/DarkTheme.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+
+            <!-- Temadan bağımsız ortak stiller. Tema değişiminde yalnızca
+                 MergedDictionaries temizlendiği için bunlar korunur;
+                 renkleri DynamicResource ile aktif temadan alırlar. -->
+
+            <!-- Dokunmatik uyumlu işlem butonu. Tag="Active" iken seçili
+                 (vurgulu) görünür: aktif mod, seçili filtre vb. -->
+            <Style x:Key="ActionButtonStyle" TargetType="{x:Type Button}">
+                <Setter Property="FontSize" Value="15"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryText}"/>
+                <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource PanelBorder}"/>
+                <Setter Property="Padding" Value="14,0"/>
+                <Setter Property="MinHeight" Value="48"/>
+                <Setter Property="Margin" Value="4"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Stylus.IsPressAndHoldEnabled" Value="False"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type Button}">
+                            <Border x:Name="ButtonBorder"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="4"
+                                    Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="Tag" Value="Active">
+                                    <Setter TargetName="ButtonBorder"
+                                            Property="Background"
+                                            Value="{DynamicResource AccentColor}"/>
+                                    <Setter TargetName="ButtonBorder"
+                                            Property="BorderBrush"
+                                            Value="{DynamicResource AccentColor}"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="ButtonBorder"
+                                            Property="Background"
+                                            Value="{DynamicResource AccentColor}"/>
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="Opacity" Value="0.5"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

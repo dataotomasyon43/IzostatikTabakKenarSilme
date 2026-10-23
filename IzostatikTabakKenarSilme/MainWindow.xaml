@@ -96,6 +96,44 @@
                             Margin="8,4,4,4"
                             Click="ThemeButton_Click" FontSize="24" HorizontalAlignment="Center"/>
                 </WrapPanel>
+
+                <!-- ÇALIŞMA MODU BUTONLARI: tıklanınca Mode tag'ine
+                     CommandParameter'daki değer yazılır.
+                     0 Kapalı, 1 Güvenli, 2 Manuel, 3 Otomatik -->
+                <UniformGrid x:Name="ModeButtonsPanel"
+                             Grid.Row="1"
+                             Rows="1"
+                             Columns="4"
+                             VerticalAlignment="Center">
+                    <Button x:Name="ModeKapaliButton"
+                            Content="KAPALI"
+                            CommandParameter="0"
+                            Style="{StaticResource ActionButtonStyle}"
+                            MinWidth="100"
+                            Height="52"
+                            Click="ModeButton_Click"/>
+                    <Button x:Name="ModeGuvenliButton"
+                            Content="GÜVENLİ"
+                            CommandParameter="1"
+                            Style="{StaticResource ActionButtonStyle}"
+                            MinWidth="100"
+                            Height="52"
+                            Click="ModeButton_Click"/>
+                    <Button x:Name="ModeManuelButton"
+                            Content="MANUEL"
+                            CommandParameter="2"
+                            Style="{StaticResource ActionButtonStyle}"
+                            MinWidth="100"
+                            Height="52"
+                            Click="ModeButton_Click"/>
+                    <Button x:Name="ModeOtomatikButton"
+                            Content="OTOMATİK"
+                            CommandParameter="3"
+                            Style="{StaticResource ActionButtonStyle}"
+                            MinWidth="100"
+                            Height="52"
+                            Click="ModeButton_Click"/>
+                </UniformGrid>
                     </Grid>
             </Grid>
         </Border>
@@ -170,7 +208,9 @@
                 BorderThickness="0,1,0,0"
                 Padding="12,4">
                 <DockPanel>
-                    <TextBlock Text="Sistem hazır"
+                    <TextBlock x:Name="StatusBarMessageText"
+                           Text="Sistem hazır"
+                           TextTrimming="CharacterEllipsis"
                            Foreground="{DynamicResource SecondaryText}"/>
                     <TextBlock x:Name="StatusBarPlcText"
                            DockPanel.Dock="Right"

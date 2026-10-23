@@ -164,6 +164,39 @@ namespace IzostatikTabakKenarSilme.Services
             }
         }
 
+        // ---------------- YAZMA ----------------
+        // Yazma metotları yalnızca operatörün açık bir eylemiyle (mod
+        // butonu, alarm reset) çağrılır; otomatik olarak hiçbir yerden
+        // çağrılmaz.
+        //
+        // Yazmadan önce tag bir kez okunur: libplctag, Omron için yazma
+        // isteğinde kullanılacak CIP veri tipini okuma yanıtından alır.
+        // Okuma yapılmadan yazma bazı sürümlerde hata verebilir.
+
+        // INT: 16 bit signed
+        public void WriteIntTag(string tagName, short value)
+        {
+            lock (_sync)
+            {
+                Tag tag = Get(tagName, 2);
+                tag.Read();
+                tag.SetInt16(0, value);
+                tag.Write();
+            }
+        }
+
+        // BOOL: 1 byte (okuma ile aynı eleman boyutu)
+        public void WriteBoolTag(string tagName, bool value)
+        {
+            lock (_sync)
+            {
+                Tag tag = Get(tagName, 1);
+                tag.Read();
+                tag.SetUInt8(0, value ? (byte)1 : (byte)0);
+                tag.Write();
+            }
+        }
+
         // BOOL dizisi
         public bool[] ReadAlarmArray(string tagName, int count, int chunk = 100)
         {

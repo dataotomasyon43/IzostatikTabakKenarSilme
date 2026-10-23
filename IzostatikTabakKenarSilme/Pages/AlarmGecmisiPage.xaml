@@ -4,32 +4,168 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      xmlns:local="clr-namespace:IzostatikTabakKenarSilme.Pages"
       mc:Ignorable="d"
-      d:DesignHeight="600" d:DesignWidth="1035"
+      d:DesignHeight="540" d:DesignWidth="1240"
       Background="Transparent"
       Title="AlarmGecmisiPage">
+
+    <!-- ARIZALAR: her arıza tek satır (başlangıç, bitiş, süre, durum).
+         Kayıtlar AlarmGecmisi klasöründeki "Geldi"/"Gitti" olaylarından
+         eşleştirilir. Aktif arızalar en üstte, süreleri canlı akar. -->
+    <Page.Resources>
+        <!-- Liste sütunları (başlık ve satırlar aynı genişlikleri kullanır) -->
+        <GridLength x:Key="ColDurum">130</GridLength>
+        <GridLength x:Key="ColNo">64</GridLength>
+        <GridLength x:Key="ColZaman">178</GridLength>
+        <GridLength x:Key="ColSure">118</GridLength>
+
+        <Style x:Key="HeaderCellStyle" TargetType="{x:Type TextBlock}">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryText}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="CellStyle" TargetType="{x:Type TextBlock}">
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+        </Style>
+
+        <Style x:Key="MonoCellStyle" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource CellStyle}">
+            <Setter Property="FontFamily" Value="Consolas"/>
+        </Style>
+
+        <!-- Özet kutucuğu (sağ üst) -->
+        <Style x:Key="StatBoxStyle" TargetType="{x:Type Border}">
+            <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource PanelBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="14,6"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
+            <Setter Property="MinWidth" Value="104"/>
+        </Style>
+        <Style x:Key="StatLabelStyle" TargetType="{x:Type TextBlock}">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryText}"/>
+        </Style>
+        <Style x:Key="StatValueStyle" TargetType="{x:Type TextBlock}">
+            <Setter Property="FontSize" Value="22"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontFamily" Value="Consolas"/>
+        </Style>
+
+        <!-- Satır: seçim yok, alt çizgi; aktif arızada hafif kırmızı zemin
+             ve solda kırmızı şerit. -->
+        <Style x:Key="RowContainerStyle" TargetType="{x:Type ListBoxItem}">
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                        <Grid Height="46">
+                            <Border x:Name="Tint"
+                                    Background="{DynamicResource ErrorColor}"
+                                    Opacity="0"/>
+                            <Border x:Name="Bar"
+                                    Background="{DynamicResource ErrorColor}"
+                                    Width="4"
+                                    HorizontalAlignment="Left"
+                                    Visibility="Collapsed"/>
+                            <Border BorderBrush="{DynamicResource PanelBorder}"
+                                    BorderThickness="0,0,0,1"/>
+                            <ContentPresenter/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                <Setter TargetName="Tint" Property="Opacity" Value="0.10"/>
+                                <Setter TargetName="Bar" Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- İnce, temaya uyan kaydırma çubuğu (dokunmatikte parmakla
+             kaydırılır; çubuk yalnızca konumu gösterir). -->
+        <Style x:Key="ThinScrollBarStyle" TargetType="{x:Type ScrollBar}">
+            <Setter Property="Width" Value="8"/>
+            <Setter Property="MinWidth" Value="8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ScrollBar}">
+                        <Track x:Name="PART_Track"
+                               Orientation="{TemplateBinding Orientation}"
+                               IsDirectionReversed="True">
+                            <Track.Thumb>
+                                <Thumb>
+                                    <Thumb.Template>
+                                        <ControlTemplate TargetType="{x:Type Thumb}">
+                                            <Border Background="{DynamicResource PanelBorder}"
+                                                    CornerRadius="4"/>
+                                        </ControlTemplate>
+                                    </Thumb.Template>
+                                </Thumb>
+                            </Track.Thumb>
+                        </Track>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Page.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Başlık -->
-        <StackPanel Grid.Row="0" Margin="0,0,0,10">
-            <TextBlock Text="Alarm Geçmişi"
-                       FontSize="25"
-                       FontWeight="Bold"/>
-            <TextBlock Text="Gelen ve giden alarmlar (tarih, saat, alarm)"
-                       Margin="0,5,0,0"
-                       Foreground="{DynamicResource SecondaryText}"/>
-        </StackPanel>
+        <!-- Başlık + özet -->
+        <Grid Grid.Row="0" Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-        <!-- Filtre ve işlem butonları -->
-        <Grid Grid.Row="1" Margin="-4,0,-4,6">
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="Arızalar"
+                           FontSize="25"
+                           FontWeight="Bold"/>
+                <TextBlock x:Name="SubtitleText"
+                           Text="Arıza başlangıç ve bitiş kayıtları"
+                           Margin="0,5,0,0"
+                           Foreground="{DynamicResource SecondaryText}"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <Border Style="{StaticResource StatBoxStyle}">
+                    <StackPanel>
+                        <TextBlock Text="AKTİF" Style="{StaticResource StatLabelStyle}"/>
+                        <TextBlock x:Name="ActiveCountText" Text="0" Style="{StaticResource StatValueStyle}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource StatBoxStyle}">
+                    <StackPanel>
+                        <TextBlock Text="ARIZA SAYISI" Style="{StaticResource StatLabelStyle}"/>
+                        <TextBlock x:Name="TotalCountText" Text="—" Style="{StaticResource StatValueStyle}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource StatBoxStyle}" MinWidth="150">
+                    <StackPanel>
+                        <TextBlock Text="ARIZALI SÜRE" Style="{StaticResource StatLabelStyle}"/>
+                        <TextBlock x:Name="TotalDurationText" Text="—" Style="{StaticResource StatValueStyle}"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
+
+        <!-- Aralık filtresi ve işlemler -->
+        <Grid Grid.Row="1" Margin="-4,0,-4,10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
@@ -76,62 +212,155 @@
             </StackPanel>
         </Grid>
 
-        <!-- Kayıt sayısı / durum -->
+        <!-- Liste -->
+        <Border Grid.Row="2"
+                Background="{DynamicResource CardBackground}"
+                BorderBrush="{DynamicResource PanelBorder}"
+                BorderThickness="1"
+                CornerRadius="8">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="38"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Sütun başlıkları (sağda kaydırma çubuğu payı) -->
+                <Border BorderBrush="{DynamicResource PanelBorder}"
+                        BorderThickness="0,0,0,1"
+                        Padding="16,0,16,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="{StaticResource ColDurum}"/>
+                            <ColumnDefinition Width="{StaticResource ColNo}"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="{StaticResource ColZaman}"/>
+                            <ColumnDefinition Width="{StaticResource ColZaman}"/>
+                            <ColumnDefinition Width="{StaticResource ColSure}"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="DURUM" Style="{StaticResource HeaderCellStyle}"/>
+                        <TextBlock Grid.Column="1" Text="NO" Style="{StaticResource HeaderCellStyle}"/>
+                        <TextBlock Grid.Column="2" Text="ARIZA" Style="{StaticResource HeaderCellStyle}"/>
+                        <TextBlock Grid.Column="3" Text="BAŞLANGIÇ" Style="{StaticResource HeaderCellStyle}"/>
+                        <TextBlock Grid.Column="4" Text="BİTİŞ" Style="{StaticResource HeaderCellStyle}"/>
+                        <TextBlock Grid.Column="5" Text="SÜRE" Style="{StaticResource HeaderCellStyle}" HorizontalAlignment="Right"/>
+                    </Grid>
+                </Border>
+
+                <ListBox x:Name="FaultList"
+                         Grid.Row="1"
+                         Background="Transparent"
+                         BorderThickness="0"
+                         Padding="0"
+                         Foreground="{DynamicResource PrimaryText}"
+                         ItemContainerStyle="{StaticResource RowContainerStyle}"
+                         ManipulationBoundaryFeedback="FaultList_ManipulationBoundaryFeedback"
+                         VirtualizingPanel.IsVirtualizing="True"
+                         VirtualizingPanel.VirtualizationMode="Recycling"
+                         VirtualizingPanel.ScrollUnit="Pixel">
+                    <ListBox.Resources>
+                        <Style TargetType="{x:Type ScrollBar}" BasedOn="{StaticResource ThinScrollBarStyle}"/>
+                    </ListBox.Resources>
+
+                    <!-- Kenarlıksız şablon; dokunmatik kaydırma açıkça
+                         ScrollViewer'da (parmakla dikey kaydırma). -->
+                    <ListBox.Template>
+                        <ControlTemplate TargetType="{x:Type ListBox}">
+                            <ScrollViewer PanningMode="VerticalOnly"
+                                          CanContentScroll="True"
+                                          HorizontalScrollBarVisibility="Disabled"
+                                          VerticalScrollBarVisibility="Auto"
+                                          Focusable="False">
+                                <ItemsPresenter/>
+                            </ScrollViewer>
+                        </ControlTemplate>
+                    </ListBox.Template>
+
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="16,0,8,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="{StaticResource ColDurum}"/>
+                                    <ColumnDefinition Width="{StaticResource ColNo}"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="{StaticResource ColZaman}"/>
+                                    <ColumnDefinition Width="{StaticResource ColZaman}"/>
+                                    <ColumnDefinition Width="{StaticResource ColSure}"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Durum rozeti -->
+                                <Border x:Name="Badge"
+                                        Grid.Column="0"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Center"
+                                        CornerRadius="11"
+                                        Padding="10,2"
+                                        BorderThickness="1"
+                                        BorderBrush="{DynamicResource PanelBorder}">
+                                    <TextBlock x:Name="BadgeText"
+                                               Text="{Binding DurumText}"
+                                               FontSize="12"
+                                               FontWeight="Bold"
+                                               Foreground="{DynamicResource SecondaryText}"/>
+                                </Border>
+
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding No}"
+                                           Style="{StaticResource MonoCellStyle}"
+                                           Foreground="{DynamicResource SecondaryText}"/>
+                                <TextBlock x:Name="FaultText"
+                                           Grid.Column="2"
+                                           Text="{Binding Metin}"
+                                           Margin="0,0,12,0"
+                                           Style="{StaticResource CellStyle}"/>
+                                <TextBlock Grid.Column="3"
+                                           Text="{Binding BaslangicText}"
+                                           Style="{StaticResource MonoCellStyle}"/>
+                                <TextBlock Grid.Column="4"
+                                           Text="{Binding BitisText}"
+                                           Style="{StaticResource MonoCellStyle}"/>
+                                <TextBlock x:Name="DurationText"
+                                           Grid.Column="5"
+                                           Text="{Binding SureText}"
+                                           HorizontalAlignment="Right"
+                                           Style="{StaticResource MonoCellStyle}"/>
+                            </Grid>
+
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                    <Setter TargetName="Badge" Property="Background" Value="{DynamicResource ErrorColor}"/>
+                                    <Setter TargetName="Badge" Property="BorderBrush" Value="{DynamicResource ErrorColor}"/>
+                                    <Setter TargetName="BadgeText" Property="Foreground" Value="White"/>
+                                    <Setter TargetName="FaultText" Property="FontWeight" Value="Bold"/>
+                                    <Setter TargetName="DurationText" Property="Foreground" Value="{DynamicResource ErrorColor}"/>
+                                    <Setter TargetName="DurationText" Property="FontWeight" Value="Bold"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsUnknownEnd}" Value="True">
+                                    <Setter TargetName="BadgeText" Property="Foreground" Value="{DynamicResource WarningColor}"/>
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <!-- Boş liste -->
+                <TextBlock x:Name="EmptyText"
+                           Grid.Row="1"
+                           Text="Bu aralıkta arıza kaydı yok."
+                           FontSize="16"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Foreground="{DynamicResource SecondaryText}"
+                           Visibility="Collapsed"/>
+            </Grid>
+        </Border>
+
+        <!-- Bilgi satırı: en sık arıza / hata -->
         <TextBlock x:Name="InfoText"
-                   Grid.Row="2"
-                   Margin="0,0,0,8"
+                   Grid.Row="3"
+                   Margin="0,8,0,0"
+                   FontSize="13"
+                   TextTrimming="CharacterEllipsis"
                    Text="Yükleniyor..."
                    Foreground="{DynamicResource SecondaryText}"/>
-
-        <!-- Geçmiş listesi -->
-        <DataGrid x:Name="HistoryGrid"
-                  Grid.Row="3"
-                  AutoGenerateColumns="False"
-                  IsReadOnly="True"
-                  CanUserAddRows="False"
-                  CanUserDeleteRows="False"
-                  CanUserReorderColumns="False"
-                  HeadersVisibility="Column"
-                  GridLinesVisibility="Horizontal"
-                  SelectionMode="Single"
-                  SelectionUnit="FullRow"
-                  RowHeight="40"
-                  FontSize="15"
-                  ScrollViewer.PanningMode="VerticalOnly"
-                  EnableRowVirtualization="True">
-
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Tarih / Saat"
-                                    Binding="{Binding Zaman}"
-                                    Width="190"/>
-
-                <DataGridTextColumn Header="No"
-                                    Binding="{Binding No}"
-                                    Width="70"/>
-
-                <DataGridTextColumn Header="Alarm"
-                                    Binding="{Binding Alarm}"
-                                    Width="*"/>
-
-                <DataGridTextColumn Header="Durum"
-                                    Binding="{Binding Durum}"
-                                    Width="110">
-                    <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="{x:Type TextBlock}">
-                            <Setter Property="FontWeight" Value="Bold"/>
-                            <Setter Property="VerticalAlignment" Value="Center"/>
-                            <Style.Triggers>
-                                <Trigger Property="Text" Value="Geldi">
-                                    <Setter Property="Foreground" Value="{DynamicResource ErrorColor}"/>
-                                </Trigger>
-                                <Trigger Property="Text" Value="Gitti">
-                                    <Setter Property="Foreground" Value="{DynamicResource OkColor}"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </DataGridTextColumn.ElementStyle>
-                </DataGridTextColumn>
-            </DataGrid.Columns>
-        </DataGrid>
     </Grid>
 </Page>

@@ -915,7 +915,7 @@ namespace IzostatikTabakKenarSilme
 
                 case "Arizalar":
                     MainFrame.Navigate(new Pages.AlarmGecmisiPage(
-                        _alarmService.History, ShowActiveAlarms));
+                        _alarmService, ShowActiveAlarms));
                     SetActiveMenu(MenuArizalarButton);
                     break;
 

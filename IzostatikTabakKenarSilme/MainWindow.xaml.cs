@@ -643,20 +643,20 @@ namespace IzostatikTabakKenarSilme
             try
             {
                 _ezSwitch.SetLamp(1, 0xF1, 0xF3, 0xF5, LampMode.Sabit, send: false); // Kapalı  #F1F3F5
-                _ezSwitch.SetLamp(2, 0x5C, 0xC8, 0x72, LampMode.Sabit, send: false); // Güvenli #5CC872
-                _ezSwitch.SetLamp(3, 0xF2, 0x8C, 0x28, LampMode.Sabit, send: false); // Manuel  #F28C28
-                _ezSwitch.SetLamp(4, 0x4D, 0xA3, 0xFF, LampMode.Sabit, send: false); // Otomatik #4DA3FF
+                _ezSwitch.SetLamp(2, 0x00, 0xff, 0x00, LampMode.Sabit, send: false); // Güvenli #5CC872
+                _ezSwitch.SetLamp(3, 0xFF, 0x72, 0x00, LampMode.Sabit, send: false); // Manuel  #F28C28
+                _ezSwitch.SetLamp(4, 0x00, 0x00, 0xFF, LampMode.Sabit, send: false); // Otomatik #4DA3FF
 
                 switch (action)
                 {
                     case Ez5Action.Reset:   // arıza: kırmızı flaş (mod 0x02)
-                        _ezSwitch.SetLamp(5, 0xFF, 0x00, 0x00, LampMode.FlasHizli, send: false);
-                        break;
-                    case Ez5Action.Stop:    // çalışıyor: kırmızı sabit
                         _ezSwitch.SetLamp(5, 0xFF, 0x00, 0x00, LampMode.Sabit, send: false);
                         break;
-                    default:                // beklemede: beyaz sabit
-                        _ezSwitch.SetLamp(5, 0xFF, 0xFF, 0xFF, LampMode.Sabit, send: false);
+                    case Ez5Action.Stop:    // çalışıyor: kırmızı sabit
+                        _ezSwitch.SetLamp(5, 0xFF, 0x00, 0x00, LampMode.FlasHizli, send: false);
+                        break;
+                    default:                // beklemede: yeşil sabit
+                        _ezSwitch.SetLamp(5, 0x00, 0xFF, 0x00, LampMode.FlasHizli, send: false);
                         break;
                 }
 

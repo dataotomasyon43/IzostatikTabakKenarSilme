@@ -20,6 +20,7 @@ namespace IzostatikTabakKenarSilme.Controls
 
         private double? _value;
         private bool _busy;
+        private bool _readOnly;
 
         public ParameterField()
         {
@@ -48,6 +49,38 @@ namespace IzostatikTabakKenarSilme.Controls
         // Ondalık hane sayısı (0: tam sayı).
         public int Decimals { get; set; }
 
+        // Değer kutusu ve birim sütunu genişliği (dar kartlar için).
+        public double ValueWidth
+        {
+            get => ValueColumn.Width.Value;
+            set => ValueColumn.Width = new GridLength(value);
+        }
+
+        public double UnitWidth
+        {
+            get => UnitColumn.Width.Value;
+            set => UnitColumn.Width = new GridLength(value);
+        }
+
+        // Değer yazısının boyu (varsayılan 26; dar kutularda küçültülür).
+        public double ValueFontSize
+        {
+            get => ValueText.FontSize;
+            set => ValueText.FontSize = value;
+        }
+
+        // Yalnız gösterge (ör. aktüel pozisyon): basılamaz, soluk görünmez.
+        public bool IsReadOnly
+        {
+            get => _readOnly;
+            set
+            {
+                _readOnly = value;
+                ValueButton.IsHitTestVisible = !value;
+                UpdateEnabled();
+            }
+        }
+
         public double? Value => _value;
 
         // PLC'den okunan değeri gösterir (null: bilinmiyor).
@@ -67,12 +100,12 @@ namespace IzostatikTabakKenarSilme.Controls
 
         private void UpdateEnabled()
         {
-            ValueButton.IsEnabled = _value.HasValue && !_busy;
+            ValueButton.IsEnabled = _readOnly || (_value.HasValue && !_busy);
         }
 
         private void ValueButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!_value.HasValue || _busy)
+            if (_readOnly || !_value.HasValue || _busy)
                 return;
 
             double? entered = NumericKeypadWindow.Ask(

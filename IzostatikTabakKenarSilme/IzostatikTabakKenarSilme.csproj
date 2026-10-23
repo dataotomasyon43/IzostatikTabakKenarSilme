@@ -91,6 +91,11 @@
       <DependentUpon>CanliIzlemePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\HoldButton.cs" />
+    <Compile Include="Controls\PlcPushButton.cs" />
+    <Compile Include="Controls\PlcToggleButton.cs" />
+    <Compile Include="Pages\TransferYuklemePage.xaml.cs">
+      <DependentUpon>TransferYuklemePage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\ParameterField.xaml.cs">
       <DependentUpon>ParameterField.xaml</DependentUpon>
     </Compile>
@@ -145,6 +150,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\ParameterField.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\TransferYuklemePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -220,6 +229,7 @@
     <!-- Logonun vektör kaynağı (uygulama Controls/LogoView'ı kullanır;
          bu dosya başka yerlerde kullanım içindir, derlemeye girmez). -->
     <None Include="Assets\logo.svg" />
+    <Resource Include="Assets\TransferYukleme.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="WhatsApp Image 2025-01-02 at 19.45.08-Photoroom.png" />

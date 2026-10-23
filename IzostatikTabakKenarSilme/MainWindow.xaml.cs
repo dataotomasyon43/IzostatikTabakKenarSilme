@@ -954,7 +954,8 @@ namespace IzostatikTabakKenarSilme
             {
                 new Pages.SectionItem("VibrasyonMerkezleme", "Vibrasyon Merkezleme",
                     () => new Pages.VibrasyonPage(_plcService, _commands, _machineState)),
-                Station("TransferYukleme", "Transfer Yükleme"),
+                new Pages.SectionItem("TransferYukleme", "Transfer Yükleme",
+                    () => new Pages.TransferYuklemePage(_plcService, _commands, _machineState)),
                 Station("DonerTabla", "Döner Tabla"),
                 Station("GirisCikisBomse", "Giriş Çıkış Bomse"),
                 Station("CapakKirma", "Çapak Kırma"),

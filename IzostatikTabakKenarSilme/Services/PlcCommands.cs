@@ -117,6 +117,18 @@ namespace IzostatikTabakKenarSilme.Services
             return _queue.Enqueue(() => _plc.WriteBoolTag(tag, value));
         }
 
+        // Basılı tutma (push) butonu: bas → TRUE, bırak → FALSE (FALSE
+        // başarısız olursa tekrar denenir).
+        public Task PressMomentaryAsync(string tag)
+        {
+            return _queue.Enqueue(() => _plc.WriteBoolTag(tag, true));
+        }
+
+        public Task ReleaseMomentaryAsync(string tag)
+        {
+            return ReleaseAsync(tag);
+        }
+
         // Basılı tutma bitini FALSE'a çeker; hata olursa tekrar dener.
         private Task ReleaseAsync(string tag)
         {

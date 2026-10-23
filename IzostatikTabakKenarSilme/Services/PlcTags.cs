@@ -42,6 +42,38 @@
         public const string MerkezlemeSensor = "I_Merkezleme_Sens";
         public const string VibrasyonInvHata = "I_Vib_Inv_Hata";
 
+        // ---------------- AYARLAR: Transfer Yükleme (GTR) ----------------
+        // Parametreler
+        public const string GtrHizBos = "HMI_GTR_Oto_Bos_Hiz";            // INT, %
+        public const string GtrIvmeBos = "HMI_GTR_Oto_Bos_Acc";           // INT, %
+        public const string GtrHizDolu = "HMI_GTR_Oto_Dolu_Hiz";          // INT, %
+        public const string GtrIvmeDolu = "HMI_GTR_Oto_Dolu_Acc";         // INT, %
+        public const string GtrAlmaPoz = "HMI_GTR_Tabak_Alma_Pos";        // REAL, mm
+        public const string GtrBirakmaPoz = "HMI_GTR_Tabak_Birakma_Pos";  // REAL, mm
+        public const string GtrVakumSure = "HMI_GTR_Vakum_T";             // REAL, s
+        public const string GtrUflemeSure = "HMI_GTR_Ufleme_T";           // REAL, s
+        public const string GtrPrestenAlmaSure = "HMI_GTR_Tabak_Alma_T";  // REAL, s
+        // Göstergeler (yalnız okunur)
+        public const string GtrAktPoz = "HMI_GTR_Akt_Poz";                // REAL, mm
+        public const string GtrPiston1Yukarida = "I_GTR_Pist1_Yukarida";
+        public const string GtrPiston1Baski = "I_GTR_Pist1_Baski";
+        public const string GtrPiston2Yukarida = "I_GTR_Pist2_Yukarida";
+        public const string GtrPiston2Baski = "I_GTR_Pist2_Baski";
+        // Basılı tutma (bas TRUE, bırak FALSE)
+        public const string GtrAlmaPozOgren = "HMI_GTR_Tabak_Alma_Poz_Ogren";
+        public const string GtrBirakmaPozOgren = "HMI_GTR_Tabak_Birakma_Poz_Ogren";
+        public const string GtrAlmayaGit = "HMI_GTR_Alma_PozGit";
+        public const string GtrBirakmayaGit = "HMI_GTR_Birakma_PozGit";
+        public const string GtrKonveyore = "HMI_GTR_Konvde";
+        public const string GtrGobege = "HMI_GTR_Tablada";
+        // Kalıcı (bir basış TRUE, bir basış FALSE)
+        public const string GtrPiston1Asagi = "HMI_GTR_Piston_Asagi_V_Man";
+        public const string GtrPiston2Asagi = "HMI_GTR_Piston2_Asagi_V_Man";
+        public const string GtrPiston1Vakum = "HMI_GTR_Piston1_Vakum_Man";
+        public const string GtrPiston2Vakum = "HMI_GTR_Piston2_Vakum_Man";
+        public const string GtrPiston1Ufleme = "HMI_GTR_Piston1_Ufleme_Man";
+        public const string GtrPiston2Ufleme = "HMI_GTR_Piston2_Ufleme_Man";
+
         // BOOL — alarm reset (basılı tutma: TRUE, bırakınca FALSE)
         public const string Reset = "HMI_Reset";
 

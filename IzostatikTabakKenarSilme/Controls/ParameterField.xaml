@@ -1,10 +1,11 @@
 ﻿<UserControl x:Class="IzostatikTabakKenarSilme.Controls.ParameterField"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Height="64">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- Bir ayar satırı: ad · değer kutusu · birim.
-         Değer kutusuna basınca sayı klavyesi açılır. -->
+         Değer kutusuna basınca sayı klavyesi açılır.
+         Satır yüksekliği ve yazı boyu kullanan sayfadaki stilden gelir
+         (Height, FontSize); burada yerel değer verilmez ki stil ezilmesin. -->
     <UserControl.Resources>
         <Style x:Key="ValueBoxStyle" TargetType="{x:Type Button}">
             <Setter Property="Cursor" Value="Hand"/>
@@ -23,7 +24,7 @@
                                     Background="{DynamicResource AccentColor}"
                                     CornerRadius="6"
                                     Opacity="0"/>
-                            <ContentPresenter Margin="14,0"
+                            <ContentPresenter Margin="10,0"
                                               HorizontalAlignment="Right"
                                               VerticalAlignment="Center"/>
                         </Grid>
@@ -47,18 +48,18 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="170"/>
-            <ColumnDefinition Width="56"/>
+            <ColumnDefinition x:Name="ValueColumn" Width="170"/>
+            <ColumnDefinition x:Name="UnitColumn" Width="56"/>
         </Grid.ColumnDefinitions>
 
+        <!-- Yazı boyu UserControl FontSize'ından -->
         <TextBlock x:Name="LabelText"
-                   FontSize="17"
                    VerticalAlignment="Center"
                    TextTrimming="CharacterEllipsis"/>
 
         <Button x:Name="ValueButton"
                 Grid.Column="1"
-                Height="54"
+                Margin="0,5"
                 Style="{StaticResource ValueBoxStyle}"
                 Click="ValueButton_Click">
             <TextBlock x:Name="ValueText"
@@ -71,7 +72,7 @@
 
         <TextBlock x:Name="UnitText"
                    Grid.Column="2"
-                   Margin="12,0,0,0"
+                   Margin="10,0,0,0"
                    FontSize="16"
                    VerticalAlignment="Center"
                    Foreground="{DynamicResource SecondaryText}"/>

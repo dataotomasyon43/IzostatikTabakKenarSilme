@@ -1,28 +1,27 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace IzostatikTabakKenarSilme.Pages
 {
     /// <summary>
-    /// AyarlarPage.xaml etkileşim mantığı
+    /// Ayarlar: sistem, bakım ve servis araçları.
+    /// Canlı İzleme buradan açılır (ana pencere sayfayı değiştirir).
     /// </summary>
     public partial class AyarlarPage : Page
     {
-        public AyarlarPage()
+        private readonly Action _openLiveMonitor;
+
+        public AyarlarPage(Action openLiveMonitor)
         {
+            _openLiveMonitor = openLiveMonitor;
+
             InitializeComponent();
+        }
+
+        private void LiveMonitorButton_Click(object sender, RoutedEventArgs e)
+        {
+            _openLiveMonitor?.Invoke();
         }
     }
 }

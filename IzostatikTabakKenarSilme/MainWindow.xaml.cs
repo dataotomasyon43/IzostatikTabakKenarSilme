@@ -77,7 +77,7 @@ namespace IzostatikTabakKenarSilme
 
             _alarmService.Initialize();
 
-            MainFrame.Navigate(new Pages.AnaEkranPage());
+            NavigateTo("Otomatik");
 
             _alarmTickerTimer.Start();
 
@@ -584,39 +584,71 @@ namespace IzostatikTabakKenarSilme
             ThemeMoonIcon.Visibility = _isDarkTheme ? Visibility.Collapsed : Visibility.Visible;
         }
 
+        // ---------------- Üst menü ve sayfa geçişleri ----------------
+
+        // Menü butonları: sayfa anahtarı CommandParameter'da
+        // (Tag, seçili görünüm için "Active" olarak kullanılır).
         private void MenuButton_Click(object sender, RoutedEventArgs e)
         {
-            var button = sender as Button;
+            if (sender is Button button && button.CommandParameter is string key)
+                NavigateTo(key);
+        }
 
-            if (button == null)
-                return;
-
-            switch (button.Tag as string)
+        // Sayfa anahtarına göre içeriği değiştirir ve menüde ilgili
+        // butonu seçili gösterir.
+        //   Otomatik, Manuel, TabakAyarlari, AlarmGecmisi, Ayarlar
+        //   CanliIzleme: Ayarlar içinden açılır; menüde Ayarlar seçili kalır.
+        private void NavigateTo(string key)
+        {
+            switch (key)
             {
-                case "Home":
-                    MainFrame.Navigate(new Pages.AnaEkranPage());
+                case "Otomatik":
+                    MainFrame.Navigate(new Pages.OtomatikPage());
+                    SetActiveMenu(MenuOtomatikButton);
                     break;
 
-                case "TabakYukle":
-                    MainFrame.Navigate(new Pages.TabakYuklePage());
+                case "Manuel":
+                    MainFrame.Navigate(new Pages.ManuelPage());
+                    SetActiveMenu(MenuManuelButton);
                     break;
 
-                case "CanliIzleme":
-                    MainFrame.Navigate(new Pages.CanliIzlemePage(_plcService));
-                    break;
-
-                case "Receteler":
-                    MainFrame.Navigate(new Pages.RecetelerPage());
-                    break;
-
-                case "Ayarlar":
-                    MainFrame.Navigate(new Pages.AyarlarPage());
+                case "TabakAyarlari":
+                    MainFrame.Navigate(new Pages.TabakAyarlariPage());
+                    SetActiveMenu(MenuTabakAyarlariButton);
                     break;
 
                 case "AlarmGecmisi":
                     MainFrame.Navigate(new Pages.AlarmGecmisiPage(
                         _alarmService.History, ShowActiveAlarms));
+                    SetActiveMenu(MenuAlarmGecmisiButton);
                     break;
+
+                case "Ayarlar":
+                    MainFrame.Navigate(new Pages.AyarlarPage(
+                        () => NavigateTo("CanliIzleme")));
+                    SetActiveMenu(MenuAyarlarButton);
+                    break;
+
+                case "CanliIzleme":
+                    MainFrame.Navigate(new Pages.CanliIzlemePage(_plcService));
+                    SetActiveMenu(MenuAyarlarButton);
+                    break;
+
+                default:
+                    AppLogger.Warn($"Bilinmeyen sayfa anahtarı: {key}");
+                    break;
+            }
+        }
+
+        private void SetActiveMenu(Button active)
+        {
+            foreach (Button b in new[]
+            {
+                MenuOtomatikButton, MenuManuelButton, MenuTabakAyarlariButton,
+                MenuAlarmGecmisiButton, MenuAyarlarButton
+            })
+            {
+                b.Tag = b == active ? "Active" : null;
             }
         }
     }

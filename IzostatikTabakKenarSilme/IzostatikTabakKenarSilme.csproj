@@ -81,8 +81,8 @@
     <Compile Include="Pages\AlarmGecmisiPage.xaml.cs">
       <DependentUpon>AlarmGecmisiPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Pages\AnaEkranPage.xaml.cs">
-      <DependentUpon>AnaEkranPage.xaml</DependentUpon>
+    <Compile Include="Pages\OtomatikPage.xaml.cs">
+      <DependentUpon>OtomatikPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\AyarlarPage.xaml.cs">
       <DependentUpon>AyarlarPage.xaml</DependentUpon>
@@ -90,11 +90,11 @@
     <Compile Include="Pages\CanliIzlemePage.xaml.cs">
       <DependentUpon>CanliIzlemePage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Pages\RecetelerPage.xaml.cs">
-      <DependentUpon>RecetelerPage.xaml</DependentUpon>
+    <Compile Include="Pages\ManuelPage.xaml.cs">
+      <DependentUpon>ManuelPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Pages\TabakYuklePage.xaml.cs">
-      <DependentUpon>TabakYuklePage.xaml</DependentUpon>
+    <Compile Include="Pages\TabakAyarlariPage.xaml.cs">
+      <DependentUpon>TabakAyarlariPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\LogoView.xaml.cs">
       <DependentUpon>LogoView.xaml</DependentUpon>
@@ -121,7 +121,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Pages\AnaEkranPage.xaml">
+    <Page Include="Pages\OtomatikPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -133,11 +133,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Pages\RecetelerPage.xaml">
+    <Page Include="Pages\ManuelPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Pages\TabakYuklePage.xaml">
+    <Page Include="Pages\TabakAyarlariPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

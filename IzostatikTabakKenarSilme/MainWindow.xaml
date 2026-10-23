@@ -87,7 +87,8 @@
                             BorderThickness="1"
                             CornerRadius="4"
                             Padding="10,7"
-                            Margin="4">
+                            Margin="4"
+                                Width="130" Height="50">
                             <StackPanel>
                                 <TextBlock Text="PLC BAĞLANTISI"
                                        FontSize="10"
@@ -96,7 +97,7 @@
                                        Text="● Bağlantı bekleniyor"
                                        Foreground="{DynamicResource WarningColor}"
                                        FontWeight="Bold"
-                                       Margin="0,3,0,0"/>
+                                       Margin="0,3,0,0" FontSize="10"/>
                             </StackPanel>
                         </Border>
 
@@ -105,7 +106,7 @@
                             BorderThickness="1"
                             CornerRadius="4"
                             Padding="10,7"
-                            Margin="4">
+                            Margin="4" Width="119" Height="50">
                             <StackPanel>
                                 <TextBlock Text="ÇALIŞMA MODU"
                                        FontSize="10"
@@ -122,7 +123,7 @@
                         <Button x:Name="ThemeButton"
                                 ToolTip="Tema değiştir"
                                 AutomationProperties.Name="Tema değiştir"
-                                Click="ThemeButton_Click">
+                                Click="ThemeButton_Click" Width="50" Height="50">
                             <StackPanel>
                                 <Grid Width="30" Height="30" HorizontalAlignment="Center">
                                     <Viewbox x:Name="ThemeSunIcon">
@@ -136,7 +137,6 @@
                                         </Canvas>
                                     </Viewbox>
                                 </Grid>
-                                <TextBlock Text="TEMA" Style="{StaticResource IconLabelStyle}"/>
                             </StackPanel>
                         </Button>
                     </WrapPanel>

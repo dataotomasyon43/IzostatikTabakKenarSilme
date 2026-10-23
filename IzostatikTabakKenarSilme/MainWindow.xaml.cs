@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading;
@@ -68,6 +69,15 @@ namespace IzostatikTabakKenarSilme
             InitializeComponent();
 
             _alarmTickerTimer.Tick += (s, e) => UpdateAlarmTicker(advance: true);
+
+            // Frame, nesneyle açılan her sayfayı geri gitme geçmişinde
+            // tutar. Geri gitme kullanılmadığı ve HMI günlerce açık kaldığı
+            // için geçmiş her geçişte temizlenir (bellek birikmesin).
+            MainFrame.Navigated += (s, e) =>
+            {
+                while (MainFrame.CanGoBack)
+                    MainFrame.RemoveBackEntry();
+            };
 
             Loaded += MainWindow_Loaded;
             Closing += MainWindow_Closing;
@@ -672,10 +682,15 @@ namespace IzostatikTabakKenarSilme
                 NavigateTo(key);
         }
 
+        // Bölüm sayfalarında (AYARLAR, ÜRETİM) son seçilen alt sayfa;
+        // sekmeye geri dönülünce aynı alt sayfa açılır.
+        private readonly Dictionary<string, string> _lastSubPage =
+            new Dictionary<string, string>();
+
         // Sayfa anahtarına göre içeriği değiştirir ve menüde ilgili
         // butonu seçili gösterir.
-        //   Otomatik, Manuel, TabakAyarlari, AlarmGecmisi, Ayarlar
-        //   CanliIzleme: Ayarlar içinden açılır; menüde Ayarlar seçili kalır.
+        //   Otomatik, Ayarlar, Uretim, Arizalar, Genel
+        //   GelismisAyarlar, CanliIzleme: Genel içinden açılır (menüde GENEL seçili).
         private void NavigateTo(string key)
         {
             switch (key)
@@ -685,31 +700,38 @@ namespace IzostatikTabakKenarSilme
                     SetActiveMenu(MenuOtomatikButton);
                     break;
 
-                case "Manuel":
-                    MainFrame.Navigate(new Pages.ManuelPage());
-                    SetActiveMenu(MenuManuelButton);
+                case "Ayarlar":
+                    MainFrame.Navigate(CreateSection("Ayarlar", AyarlarItems()));
+                    SetActiveMenu(MenuAyarlarButton);
                     break;
 
-                case "TabakAyarlari":
-                    MainFrame.Navigate(new Pages.TabakAyarlariPage());
-                    SetActiveMenu(MenuTabakAyarlariButton);
+                case "Uretim":
+                    MainFrame.Navigate(CreateSection("Uretim", UretimItems()));
+                    SetActiveMenu(MenuUretimButton);
                     break;
 
-                case "AlarmGecmisi":
+                case "Arizalar":
                     MainFrame.Navigate(new Pages.AlarmGecmisiPage(
                         _alarmService.History, ShowActiveAlarms));
-                    SetActiveMenu(MenuAlarmGecmisiButton);
+                    SetActiveMenu(MenuArizalarButton);
                     break;
 
-                case "Ayarlar":
-                    MainFrame.Navigate(new Pages.AyarlarPage(
+                case "Genel":
+                    MainFrame.Navigate(new Pages.GenelPage(
+                        () => NavigateTo("GelismisAyarlar"),
                         () => NavigateTo("CanliIzleme")));
-                    SetActiveMenu(MenuAyarlarButton);
+                    SetActiveMenu(MenuGenelButton);
+                    break;
+
+                case "GelismisAyarlar":
+                    MainFrame.Navigate(new Pages.PlaceholderPage(
+                        "Gelişmiş Ayarlar", "Servo tork limitleri"));
+                    SetActiveMenu(MenuGenelButton);
                     break;
 
                 case "CanliIzleme":
                     MainFrame.Navigate(new Pages.CanliIzlemePage(_plcService));
-                    SetActiveMenu(MenuAyarlarButton);
+                    SetActiveMenu(MenuGenelButton);
                     break;
 
                 default:
@@ -718,12 +740,61 @@ namespace IzostatikTabakKenarSilme
             }
         }
 
+        private Pages.SectionPage CreateSection(string sectionKey, IList<Pages.SectionItem> items)
+        {
+            _lastSubPage.TryGetValue(sectionKey, out string last);
+
+            return new Pages.SectionPage(items, last,
+                selected => _lastSubPage[sectionKey] = selected);
+        }
+
+        // AYARLAR: istasyon sayfaları (parametreler + manuel butonlar).
+        // İçerikleri sırayla doldurulacak; şimdilik yer tutucu.
+        private static IList<Pages.SectionItem> AyarlarItems()
+        {
+            return new[]
+            {
+                Station("VibrasyonMerkezleme", "Vibrasyon Merkezleme"),
+                Station("TransferYukleme", "Transfer Yükleme"),
+                Station("DonerTabla", "Döner Tabla"),
+                Station("GirisCikisBomse", "Giriş Çıkış Bomse"),
+                Station("CapakKirma", "Çapak Kırma"),
+                Station("Zimpara1", "Zımpara-1"),
+                Station("Zimpara2", "Zımpara-2"),
+                Station("Sunger1", "Sünger-1"),
+                Station("Sunger2", "Sünger-2"),
+                Station("Sunger3", "Sünger-3"),
+                Station("TransferBosaltma", "Transfer Boşaltma"),
+                Station("CikisKonveyor", "Çıkış Konveyör")
+            };
+        }
+
+        // ÜRETİM: form, reçete ve servo ayarları.
+        private static IList<Pages.SectionItem> UretimItems()
+        {
+            return new[]
+            {
+                new Pages.SectionItem("Form", "Form",
+                    () => new Pages.PlaceholderPage("Form", "Tabak formu seçimi ve düzenleme")),
+                new Pages.SectionItem("Recete", "Reçete",
+                    () => new Pages.PlaceholderPage("Reçete", "Reçete yükleme ve düzenleme")),
+                new Pages.SectionItem("Servo", "Servo",
+                    () => new Pages.PlaceholderPage("Servo", "Servo üretim ayarları"))
+            };
+        }
+
+        private static Pages.SectionItem Station(string key, string title)
+        {
+            return new Pages.SectionItem(key, title,
+                () => new Pages.PlaceholderPage(title, "İstasyon ayarları ve manuel kumanda"));
+        }
+
         private void SetActiveMenu(Button active)
         {
             foreach (Button b in new[]
             {
-                MenuOtomatikButton, MenuManuelButton, MenuTabakAyarlariButton,
-                MenuAlarmGecmisiButton, MenuAyarlarButton
+                MenuOtomatikButton, MenuAyarlarButton, MenuUretimButton,
+                MenuArizalarButton, MenuGenelButton
             })
             {
                 b.Tag = b == active ? "Active" : null;

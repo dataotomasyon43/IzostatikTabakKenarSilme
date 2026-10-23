@@ -346,8 +346,10 @@
             </Grid>
         </Border>
 
-        <!-- ÜST MENÜ (yatay): sayfa geçişleri. Seçili sayfanın butonu
-             Tag="Active" ile vurgulanır (MainWindow.SetActiveMenu). -->
+        <!-- ÜST MENÜ (yatay): OTOMATİK, AYARLAR, ÜRETİM, ARIZALAR ve
+             sağda yalnızca simgeyle GENEL. Seçili sekme Tag="Active"
+             ile vurgulanır (MainWindow.SetActiveMenu). AYARLAR ve ÜRETİM
+             sayfalarında sağda dikey alt menü vardır (Pages/SectionPage). -->
         <Border Grid.Row="1"
                 Background="{DynamicResource SidebarBackground}"
                 BorderBrush="{DynamicResource PanelBorder}"
@@ -377,22 +379,22 @@
                         </StackPanel>
                     </Button>
 
-                    <Button x:Name="MenuManuelButton"
-                            CommandParameter="Manuel"
+                    <Button x:Name="MenuAyarlarButton"
+                            CommandParameter="Ayarlar"
                             Style="{StaticResource TopMenuButtonStyle}"
                             Click="MenuButton_Click">
                         <StackPanel Orientation="Horizontal">
                             <Viewbox Width="24" Height="24">
                                 <Canvas Width="24" Height="24">
-                                    <Path Style="{StaticResource MenuIconPathStyle}" Data="M7,12.5 V6 A1.5,1.5 0 0 1 10,6 V11.5 M10,11 V4.5 A1.5,1.5 0 0 1 13,4.5 V11 M13,11 V5.5 A1.5,1.5 0 0 1 16,5.5 V11.5 M16,12 V8.5 A1.5,1.5 0 0 1 19,8.5 V15 A6.5,6.5 0 0 1 12.5,21.5 H12 A6.5,6.5 0 0 1 6.8,18.9 L3.6,15.4 A1.5,1.5 0 0 1 5.9,13.5 L7,14.6"/>
+                                    <Path Style="{StaticResource MenuIconPathStyle}" Data="M4,6 H7 M11,6 H20 M7,6 A2,2 0 1 0 11,6 A2,2 0 1 0 7,6 Z M4,12 H13 M17,12 H20 M13,12 A2,2 0 1 0 17,12 A2,2 0 1 0 13,12 Z M4,18 H5 M9,18 H20 M5,18 A2,2 0 1 0 9,18 A2,2 0 1 0 5,18 Z"/>
                                 </Canvas>
                             </Viewbox>
-                            <TextBlock Text="MANUEL" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="AYARLAR" Margin="10,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
-                    <Button x:Name="MenuTabakAyarlariButton"
-                            CommandParameter="TabakAyarlari"
+                    <Button x:Name="MenuUretimButton"
+                            CommandParameter="Uretim"
                             Style="{StaticResource TopMenuButtonStyle}"
                             Click="MenuButton_Click">
                         <StackPanel Orientation="Horizontal">
@@ -401,32 +403,32 @@
                                     <Path Style="{StaticResource MenuIconPathStyle}" Data="M21,12 A9,9 0 1 1 3,12 A9,9 0 1 1 21,12 Z M17,12 A5,5 0 1 1 7,12 A5,5 0 1 1 17,12 Z"/>
                                 </Canvas>
                             </Viewbox>
-                            <TextBlock Text="TABAK AYARLARI" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="ÜRETİM" Margin="10,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
-                    <Button x:Name="MenuAlarmGecmisiButton"
-                            CommandParameter="AlarmGecmisi"
+                    <Button x:Name="MenuArizalarButton"
+                            CommandParameter="Arizalar"
                             Style="{StaticResource TopMenuButtonStyle}"
                             Click="MenuButton_Click">
                         <StackPanel Orientation="Horizontal">
                             <Viewbox Width="24" Height="24">
                                 <Canvas Width="24" Height="24">
-                                    <Path Style="{StaticResource MenuIconPathStyle}" Data="M3.63,13.48 A8.5,8.5 0 1 0 4.64,7.75 M4.64,3.8 L4.64,7.75 L8.6,7.75 M12,7.5 L12,12 L15.2,14.2"/>
+                                    <Path Style="{StaticResource MenuIconPathStyle}" Data="M18,16 V11 A6,6 0 0 0 6,11 V16 L4,18 H20 Z M10,21 H14 M12,3 V5"/>
                                 </Canvas>
                             </Viewbox>
-                            <TextBlock Text="ALARM GEÇMİŞİ" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="ARIZALAR" Margin="10,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
                 </StackPanel>
 
-                <!-- Ayarlar: yalnızca simge (Canlı İzleme bu sayfanın içinde) -->
-                <Button x:Name="MenuAyarlarButton"
+                <!-- GENEL: yalnızca simge (Gelişmiş Ayarlar, Servis / Canlı İzleme) -->
+                <Button x:Name="MenuGenelButton"
                         Grid.Column="1"
-                        CommandParameter="Ayarlar"
-                        ToolTip="Ayarlar"
-                        AutomationProperties.Name="Ayarlar"
+                        CommandParameter="Genel"
+                        ToolTip="Genel"
+                        AutomationProperties.Name="Genel"
                         Style="{StaticResource TopMenuButtonStyle}"
                         MinWidth="0"
                         Width="64"

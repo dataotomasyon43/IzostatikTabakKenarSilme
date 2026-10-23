@@ -87,22 +87,30 @@
     <Compile Include="Pages\OtomatikPage.xaml.cs">
       <DependentUpon>OtomatikPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Pages\AyarlarPage.xaml.cs">
-      <DependentUpon>AyarlarPage.xaml</DependentUpon>
+    <Compile Include="Pages\GenelPage.xaml.cs">
+      <DependentUpon>GenelPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\CanliIzlemePage.xaml.cs">
       <DependentUpon>CanliIzlemePage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Pages\ManuelPage.xaml.cs">
-      <DependentUpon>ManuelPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Pages\TabakAyarlariPage.xaml.cs">
-      <DependentUpon>TabakAyarlariPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\LogoView.xaml.cs">
       <DependentUpon>LogoView.xaml</DependentUpon>
     </Compile>
     <Page Include="Controls\LogoView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Compile Include="Pages\PlaceholderPage.xaml.cs">
+      <DependentUpon>PlaceholderPage.xaml</DependentUpon>
+    </Compile>
+    <Page Include="Pages\PlaceholderPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Compile Include="Pages\SectionPage.xaml.cs">
+      <DependentUpon>SectionPage.xaml</DependentUpon>
+    </Compile>
+    <Page Include="Pages\SectionPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -130,19 +138,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Pages\AyarlarPage.xaml">
+    <Page Include="Pages\GenelPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\CanliIzlemePage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Pages\ManuelPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Pages\TabakAyarlariPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

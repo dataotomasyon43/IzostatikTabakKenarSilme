@@ -1,4 +1,4 @@
-﻿<Page x:Class="IzostatikTabakKenarSilme.Pages.AyarlarPage"
+﻿<Page x:Class="IzostatikTabakKenarSilme.Pages.GenelPage"
       Foreground="{DynamicResource PrimaryText}"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -7,7 +7,7 @@
       mc:Ignorable="d"
       d:DesignHeight="560" d:DesignWidth="1240"
       Background="Transparent"
-      Title="AyarlarPage">
+      Title="GenelPage">
 
     <Page.Resources>
         <!-- Ayar kutucuğu: simge + başlık + açıklama (dokunmatik, 280x110) -->
@@ -31,27 +31,48 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="0,0,0,16">
-            <TextBlock Text="Ayarlar"
+            <TextBlock Text="Genel"
                        FontSize="25"
                        FontWeight="Bold"/>
-            <TextBlock Text="Sistem, bakım ve servis araçları"
+            <TextBlock Text="Gelişmiş ayarlar ve servis araçları"
                        Margin="0,5,0,0"
                        Foreground="{DynamicResource SecondaryText}"/>
         </StackPanel>
 
-        <TextBlock Grid.Row="1"
-                   Text="SERVİS"
-                   FontSize="11"
-                   FontWeight="Bold"
-                   Margin="0,0,0,8"
-                   Foreground="{DynamicResource SecondaryText}"/>
-
-        <WrapPanel Grid.Row="2" VerticalAlignment="Top">
+        <!-- Kutucuklar: Gelişmiş Ayarlar, Canlı İzleme (servis) -->
+        <WrapPanel Grid.Row="1" VerticalAlignment="Top">
+            <!-- Gelişmiş Ayarlar: servo tork limitleri vb. -->
+            <Button x:Name="AdvancedSettingsButton"
+                    Style="{StaticResource SettingsTileStyle}"
+                    Click="AdvancedSettingsButton_Click">
+                <Grid Width="244">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Viewbox Width="40" Height="40" VerticalAlignment="Center">
+                        <Canvas Width="24" Height="24">
+                            <Path Data="M4,6 H7 M11,6 H20 M7,6 A2,2 0 1 0 11,6 A2,2 0 1 0 7,6 Z M4,12 H13 M17,12 H20 M13,12 A2,2 0 1 0 17,12 A2,2 0 1 0 13,12 Z M4,18 H5 M9,18 H20 M5,18 A2,2 0 1 0 9,18 A2,2 0 1 0 5,18 Z"/>
+                        </Canvas>
+                    </Viewbox>
+                    <StackPanel Grid.Column="1"
+                                Margin="14,0,0,0"
+                                VerticalAlignment="Center">
+                        <TextBlock Text="Gelişmiş Ayarlar"
+                                   FontSize="17"
+                                   FontWeight="Bold"/>
+                        <TextBlock Text="Servo tork limitleri"
+                                   FontSize="12"
+                                   TextWrapping="Wrap"
+                                   Margin="0,4,0,0"
+                                   Foreground="{DynamicResource SecondaryText}"/>
+                    </StackPanel>
+                </Grid>
+            </Button>
             <!-- Canlı İzleme: PLC tag okuma ve haberleşme testi -->
             <Button x:Name="LiveMonitorButton"
                     Style="{StaticResource SettingsTileStyle}"

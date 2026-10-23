@@ -14,9 +14,9 @@
          (SectionItem listesi) oluşturulur. -->
     <Page.Resources>
         <!-- Alt menü butonu: seçiliyken (Tag="Active") solda vurgu çizgisi,
-             vurgu renginde yazı ve hafif dolgu. Dokunmatik: 40 px yükseklik. -->
+             vurgu renginde yazı ve hafif dolgu. Yükseklik sabit değil:
+             UniformGrid satırını doldurur (bkz. SubMenuPanel). -->
         <Style x:Key="SubMenuButtonStyle" TargetType="{x:Type Button}">
-            <Setter Property="Height" Value="40"/>
             <Setter Property="Margin" Value="0,0,0,3"/>
             <Setter Property="Padding" Value="16,0,8,0"/>
             <Setter Property="FontSize" Value="13"/>
@@ -80,10 +80,11 @@
                NavigationUIVisibility="Hidden"
                Background="Transparent"/>
 
-        <ScrollViewer Grid.Column="2"
-                      VerticalScrollBarVisibility="Auto"
-                      PanningMode="VerticalOnly">
-            <StackPanel x:Name="SubMenuPanel"/>
-        </ScrollViewer>
+        <!-- Alt menü: kaydırma yok. Alan her zaman en az 12 eşit satıra
+             bölünür (Rows koddan); butonlar mevcut yüksekliğe sığar.
+             Az öğeli bölümlerde butonlar aynı boyda üstte durur. -->
+        <UniformGrid x:Name="SubMenuPanel"
+                     Grid.Column="2"
+                     Columns="1"/>
     </Grid>
 </Page>

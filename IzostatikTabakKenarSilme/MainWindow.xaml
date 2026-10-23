@@ -8,6 +8,9 @@
         MinHeight="600"
         MinWidth="950"
         WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        WindowState="Maximized"
         Background="{DynamicResource AppBackground}"
         Foreground="{DynamicResource PrimaryText}">
 
@@ -444,7 +447,8 @@
         </Border>
 
         <!-- ALT EKRANLAR -->
-        <Grid Grid.Row="2" Margin="20">
+        <!-- İçerik alanı: dikey boşluk 14 px. -->
+        <Grid Grid.Row="2" Margin="20,14">
             <Frame x:Name="MainFrame"
                    NavigationUIVisibility="Hidden"
                    Background="Transparent"/>
@@ -496,10 +500,18 @@
                     </DockPanel>
                 </Grid>
 
-                <StackPanel Grid.Column="1"
+                <!-- PLC durumu. Dokununca uygulama kapanır (tam ekran HMI'da
+                     başlık çubuğu olmadığı için çıkış buradan yapılır).
+                     Background="Transparent": tüm alan dokunmaya duyarlı. -->
+                <StackPanel x:Name="StatusBarPlcPanel"
+                            Grid.Column="1"
                             Orientation="Horizontal"
                             VerticalAlignment="Center"
-                            Margin="24,0,0,0">
+                            Margin="24,0,0,0"
+                            Background="Transparent"
+                            Cursor="Hand"
+                            ToolTip="Uygulamayı kapat"
+                            MouseLeftButtonUp="StatusBarPlcPanel_MouseLeftButtonUp">
                     <Ellipse x:Name="StatusBarPlcDot"
                              Width="8"
                              Height="8"

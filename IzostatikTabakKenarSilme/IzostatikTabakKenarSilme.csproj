@@ -87,9 +87,6 @@
     <Compile Include="Pages\OtomatikPage.xaml.cs">
       <DependentUpon>OtomatikPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Pages\GenelPage.xaml.cs">
-      <DependentUpon>GenelPage.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Pages\CanliIzlemePage.xaml.cs">
       <DependentUpon>CanliIzlemePage.xaml</DependentUpon>
     </Compile>
@@ -135,10 +132,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\OtomatikPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Pages\GenelPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

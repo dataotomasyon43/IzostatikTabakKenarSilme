@@ -489,6 +489,15 @@ namespace IzostatikTabakKenarSilme
 
         // ---------------- Alt çubuk ----------------
 
+        // Sağ alttaki PLC durumuna dokununca uygulama kapanır. Kapanışta
+        // (Closing/Closed) reset FALSE yazması, lambaların söndürülmesi ve
+        // PLC bağlantısının kapatılması normal şekilde yapılır.
+        private void StatusBarPlcPanel_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            AppLogger.Info("Uygulama alt çubuktaki PLC durumundan kapatıldı.");
+            Close();
+        }
+
         // Sağdaki sabit PLC durumu: renkli nokta + metin.
         private void SetFooterPlcStatus(string text, string dotColorKey, string textColorKey)
         {
@@ -690,7 +699,7 @@ namespace IzostatikTabakKenarSilme
         // Sayfa anahtarına göre içeriği değiştirir ve menüde ilgili
         // butonu seçili gösterir.
         //   Otomatik, Ayarlar, Uretim, Arizalar, Genel
-        //   GelismisAyarlar, CanliIzleme: Genel içinden açılır (menüde GENEL seçili).
+        //   (Ayarlar, Uretim, Genel: sağda alt menülü bölüm sayfası)
         private void NavigateTo(string key)
         {
             switch (key)
@@ -717,20 +726,7 @@ namespace IzostatikTabakKenarSilme
                     break;
 
                 case "Genel":
-                    MainFrame.Navigate(new Pages.GenelPage(
-                        () => NavigateTo("GelismisAyarlar"),
-                        () => NavigateTo("CanliIzleme")));
-                    SetActiveMenu(MenuGenelButton);
-                    break;
-
-                case "GelismisAyarlar":
-                    MainFrame.Navigate(new Pages.PlaceholderPage(
-                        "Gelişmiş Ayarlar", "Servo tork limitleri"));
-                    SetActiveMenu(MenuGenelButton);
-                    break;
-
-                case "CanliIzleme":
-                    MainFrame.Navigate(new Pages.CanliIzlemePage(_plcService));
+                    MainFrame.Navigate(CreateSection("Genel", GenelItems()));
                     SetActiveMenu(MenuGenelButton);
                     break;
 
@@ -780,6 +776,18 @@ namespace IzostatikTabakKenarSilme
                     () => new Pages.PlaceholderPage("Reçete", "Reçete yükleme ve düzenleme")),
                 new Pages.SectionItem("Servo", "Servo",
                     () => new Pages.PlaceholderPage("Servo", "Servo üretim ayarları"))
+            };
+        }
+
+        // GENEL: gelişmiş ayarlar ve servis (Canlı İzleme).
+        private IList<Pages.SectionItem> GenelItems()
+        {
+            return new[]
+            {
+                new Pages.SectionItem("GelismisAyarlar", "Gelişmiş Ayarlar",
+                    () => new Pages.PlaceholderPage("Gelişmiş Ayarlar", "Servo tork limitleri")),
+                new Pages.SectionItem("CanliIzleme", "Canlı İzleme",
+                    () => new Pages.CanliIzlemePage(_plcService))
             };
         }
 

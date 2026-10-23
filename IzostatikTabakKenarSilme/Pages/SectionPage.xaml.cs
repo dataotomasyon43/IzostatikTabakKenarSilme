@@ -28,6 +28,9 @@ namespace IzostatikTabakKenarSilme.Pages
     /// </summary>
     public partial class SectionPage : Page
     {
+        // Alt menünün bölündüğü en az satır sayısı (en kalabalık bölüm: AYARLAR, 12).
+        private const int MinRows = 12;
+
         private readonly IList<SectionItem> _items;
         private readonly Action<string> _onSelected;
         private readonly Dictionary<string, Button> _buttons =
@@ -51,6 +54,10 @@ namespace IzostatikTabakKenarSilme.Pages
                 while (ContentFrame.CanGoBack)
                     ContentFrame.RemoveBackEntry();
             };
+
+            // Satır sayısı en az MinRows: tüm bölümlerde buton boyu aynı kalır
+            // ve 12 istasyonluk AYARLAR kaydırmasız sığar.
+            SubMenuPanel.Rows = Math.Max(_items.Count, MinRows);
 
             var style = (Style)FindResource("SubMenuButtonStyle");
 

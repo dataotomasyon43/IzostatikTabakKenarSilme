@@ -30,7 +30,7 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                    
+
                 <Grid Grid.Column="0">
                     <Image x:Name="Logo" HorizontalAlignment="Left" Width="150" Height="130" Source="/WhatsApp Image 2025-01-02 at 19.45.08-Photoroom.png"  />
                 </Grid>
@@ -46,47 +46,47 @@
                                Margin="0,3,0,0"/>
                 </StackPanel>
 
-                    <Grid Grid.Column="2">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="60"/>
-                            <RowDefinition Height="60"/>
-                        </Grid.RowDefinitions>
-               <WrapPanel Grid.Row="0"
+                <Grid Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="60"/>
+                        <RowDefinition Height="60"/>
+                    </Grid.RowDefinitions>
+                    <WrapPanel Grid.Row="0"
                            VerticalAlignment="Center">
-                    <Border Background="{DynamicResource CardBackground}"
+                        <Border Background="{DynamicResource CardBackground}"
                             BorderBrush="{DynamicResource PanelBorder}"
                             BorderThickness="1"
                             CornerRadius="4"
                             Padding="10,7"
                             Margin="4">
-                        <StackPanel>
-                            <TextBlock Text="PLC BAĞLANTISI"
+                            <StackPanel>
+                                <TextBlock Text="PLC BAĞLANTISI"
                                        FontSize="10"
                                        Foreground="{DynamicResource SecondaryText}"/>
-                            <TextBlock x:Name="PlcStatusText"
+                                <TextBlock x:Name="PlcStatusText"
                                        Text="● Bağlantı bekleniyor"
                                        Foreground="{DynamicResource WarningColor}"
                                        FontWeight="Bold"
                                        Margin="0,3,0,0"/>
-                        </StackPanel>
-                    </Border>
+                            </StackPanel>
+                        </Border>
 
-                    <Border Background="{DynamicResource CardBackground}"
+                        <Border Background="{DynamicResource CardBackground}"
                             BorderBrush="{DynamicResource PanelBorder}"
                             BorderThickness="1"
                             CornerRadius="4"
                             Padding="10,7"
                             Margin="4">
-                        <StackPanel>
-                            <TextBlock Text="ÇALIŞMA MODU"
+                            <StackPanel>
+                                <TextBlock Text="ÇALIŞMA MODU"
                                        FontSize="10"
                                        Foreground="{DynamicResource SecondaryText}"/>
-                            <TextBlock x:Name="ModeText"
+                                <TextBlock x:Name="ModeText"
                                        Text="-"
                                        FontWeight="Bold"
                                        Margin="0,3,0,0"/>
-                        </StackPanel>
-                    </Border>
+                            </StackPanel>
+                        </Border>
 
                         <Button x:Name="ThemeButton" Style="{DynamicResource MenuButtonStyle}"
                                 
@@ -95,93 +95,93 @@
                             Width="60"
                             Margin="8,4,4,4"
                             Click="ThemeButton_Click" FontSize="24" HorizontalAlignment="Center"/>
-                </WrapPanel>
+                    </WrapPanel>
 
-                <!-- ÇALIŞMA MODU BUTONLARI: tıklanınca Mode tag'ine
+                    <!-- ÇALIŞMA MODU BUTONLARI: tıklanınca Mode tag'ine
                      CommandParameter'daki değer yazılır.
                      0 Kapalı, 1 Güvenli, 2 Manuel, 3 Otomatik -->
-                <!-- Kare (52x52) simgeli butonlar. Simgeler 24x24 SVG yol
+                    <!-- Kare (52x52) simgeli butonlar. Simgeler 24x24 SVG yol
                      verisidir; çizgi rengi butonun Foreground'undan gelir,
                      böylece aktif modda (Tag="Active") beyaza döner. -->
-                <StackPanel x:Name="ModeButtonsPanel"
+                    <StackPanel x:Name="ModeButtonsPanel"
                             Grid.Row="1"
                             Orientation="Horizontal"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Center">
-                    <StackPanel.Resources>
-                        <Style TargetType="{x:Type Button}"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center" Width="326">
+                        <StackPanel.Resources>
+                            <Style TargetType="{x:Type Button}"
                                BasedOn="{StaticResource ActionButtonStyle}">
-                            <Setter Property="Width" Value="52"/>
-                            <Setter Property="Height" Value="52"/>
-                            <Setter Property="MinHeight" Value="0"/>
-                            <Setter Property="Padding" Value="0"/>
-                        </Style>
-                        <Style TargetType="{x:Type Path}">
-                            <Setter Property="Stroke"
+                                <Setter Property="Width" Value="52"/>
+                                <Setter Property="Height" Value="52"/>
+                                <Setter Property="MinHeight" Value="0"/>
+                                <Setter Property="Padding" Value="0"/>
+                            </Style>
+                            <Style TargetType="{x:Type Path}">
+                                <Setter Property="Stroke"
                                     Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"/>
-                            <Setter Property="StrokeThickness" Value="2.2"/>
-                            <Setter Property="StrokeStartLineCap" Value="Round"/>
-                            <Setter Property="StrokeEndLineCap" Value="Round"/>
-                            <Setter Property="StrokeLineJoin" Value="Round"/>
-                        </Style>
-                    </StackPanel.Resources>
+                                <Setter Property="StrokeThickness" Value="2.2"/>
+                                <Setter Property="StrokeStartLineCap" Value="Round"/>
+                                <Setter Property="StrokeEndLineCap" Value="Round"/>
+                                <Setter Property="StrokeLineJoin" Value="Round"/>
+                            </Style>
+                        </StackPanel.Resources>
 
-                    <!-- 0: Kapalı — güç simgesi -->
-                    <Button x:Name="ModeKapaliButton"
+                        <!-- 0: Kapalı — güç simgesi -->
+                        <Button x:Name="ModeKapaliButton"
                             CommandParameter="0"
                             ToolTip="Kapalı"
                             AutomationProperties.Name="Kapalı"
-                            Click="ModeButton_Click">
-                        <Viewbox Width="30" Height="30">
-                            <Canvas Width="24" Height="24">
-                                <Path Data="M12,3 L12,11 M7.1,6.2 A7.5,7.5 0 1 0 16.9,6.2"/>
-                            </Canvas>
-                        </Viewbox>
-                    </Button>
+                            Click="ModeButton_Click" Width="73">
+                            <Viewbox Width="45" Height="45">
+                                <Canvas Width="24" Height="24">
+                                    <Path Data="M12,3 L12,11 M7.1,6.2 A7.5,7.5 0 1 0 16.9,6.2"/>
+                                </Canvas>
+                            </Viewbox>
+                        </Button>
 
-                    <!-- 1: Güvenli — kalkan + onay -->
-                    <Button x:Name="ModeGuvenliButton"
+                        <!-- 1: Güvenli — kalkan + onay -->
+                        <Button x:Name="ModeGuvenliButton"
                             CommandParameter="1"
                             ToolTip="Güvenli Mod"
                             AutomationProperties.Name="Güvenli Mod"
-                            Click="ModeButton_Click">
-                        <Viewbox Width="30" Height="30">
-                            <Canvas Width="24" Height="24">
-                                <Path Data="M12,2.5 L19.5,5.5 V11 C19.5,15.8 16.3,19.8 12,21.5 C7.7,19.8 4.5,15.8 4.5,11 V5.5 Z M8.5,12 L11,14.5 L15.5,9.5"/>
-                            </Canvas>
-                        </Viewbox>
-                    </Button>
+                            Click="ModeButton_Click" Width="73">
+                            <Viewbox Width="45" Height="45">
+                                <Canvas Width="24" Height="24">
+                                    <Path Data="M12,2.5 L19.5,5.5 V11 C19.5,15.8 16.3,19.8 12,21.5 C7.7,19.8 4.5,15.8 4.5,11 V5.5 Z M8.5,12 L11,14.5 L15.5,9.5"/>
+                                </Canvas>
+                            </Viewbox>
+                        </Button>
 
-                    <!-- 2: Manuel — el -->
-                    <Button x:Name="ModeManuelButton"
+                        <!-- 2: Manuel — el -->
+                        <Button x:Name="ModeManuelButton"
                             CommandParameter="2"
                             ToolTip="Manuel Mod"
                             AutomationProperties.Name="Manuel Mod"
-                            Click="ModeButton_Click">
-                        <Viewbox Width="30" Height="30">
-                            <Canvas Width="24" Height="24">
-                                <Path Data="M7,12.5 V6 A1.5,1.5 0 0 1 10,6 V11.5 M10,11 V4.5 A1.5,1.5 0 0 1 13,4.5 V11 M13,11 V5.5 A1.5,1.5 0 0 1 16,5.5 V11.5 M16,12 V8.5 A1.5,1.5 0 0 1 19,8.5 V15 A6.5,6.5 0 0 1 12.5,21.5 H12 A6.5,6.5 0 0 1 6.8,18.9 L3.6,15.4 A1.5,1.5 0 0 1 5.9,13.5 L7,14.6"/>
-                            </Canvas>
-                        </Viewbox>
-                    </Button>
+                            Click="ModeButton_Click" Width="73">
+                            <Viewbox Width="45" Height="45">
+                                <Canvas Width="24" Height="24">
+                                    <Path Data="M7,12.5 V6 A1.5,1.5 0 0 1 10,6 V11.5 M10,11 V4.5 A1.5,1.5 0 0 1 13,4.5 V11 M13,11 V5.5 A1.5,1.5 0 0 1 16,5.5 V11.5 M16,12 V8.5 A1.5,1.5 0 0 1 19,8.5 V15 A6.5,6.5 0 0 1 12.5,21.5 H12 A6.5,6.5 0 0 1 6.8,18.9 L3.6,15.4 A1.5,1.5 0 0 1 5.9,13.5 L7,14.6"/>
+                                </Canvas>
+                            </Viewbox>
+                        </Button>
 
-                    <!-- 3: Otomatik — döngü + oynat -->
-                    <Button x:Name="ModeOtomatikButton"
+                        <!-- 3: Otomatik — döngü + oynat -->
+                        <Button x:Name="ModeOtomatikButton"
                             CommandParameter="3"
                             ToolTip="Otomatik Mod"
                             AutomationProperties.Name="Otomatik Mod"
-                            Click="ModeButton_Click">
-                        <Viewbox Width="30" Height="30">
-                            <Canvas Width="24" Height="24">
-                                <Path Data="M20,12 A8,8 0 1 1 17.66,6.34 M17.9,2.6 L17.66,6.34 L13.9,6.1"/>
-                                <Path Data="M10,8.5 L15.5,12 L10,15.5 Z"
+                            Click="ModeButton_Click" Width="73">
+                            <Viewbox Width="45" Height="45">
+                                <Canvas Width="24" Height="24">
+                                    <Path Data="M20,12 A8,8 0 1 1 17.66,6.34 M17.9,2.6 L17.66,6.34 L13.9,6.1"/>
+                                    <Path Data="M10,8.5 L15.5,12 L10,15.5 Z"
                                       Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"
                                       StrokeThickness="1"/>
-                            </Canvas>
-                        </Viewbox>
-                    </Button>
-                </StackPanel>
-                    </Grid>
+                                </Canvas>
+                            </Viewbox>
+                        </Button>
+                    </StackPanel>
+                </Grid>
             </Grid>
         </Border>
 
@@ -249,21 +249,21 @@
         </Grid>
 
         <!-- ALT DURUM ÇUBUĞU -->
-            <Border Grid.Row="2"
+        <Border Grid.Row="2"
                 Background="{DynamicResource HeaderBackground}"
                 BorderBrush="{DynamicResource PanelBorder}"
                 BorderThickness="0,1,0,0"
                 Padding="12,4">
-                <DockPanel>
-                    <TextBlock x:Name="StatusBarMessageText"
+            <DockPanel>
+                <TextBlock x:Name="StatusBarMessageText"
                            Text="Sistem hazır"
                            TextTrimming="CharacterEllipsis"
                            Foreground="{DynamicResource SecondaryText}"/>
-                    <TextBlock x:Name="StatusBarPlcText"
+                <TextBlock x:Name="StatusBarPlcText"
                            DockPanel.Dock="Right"
                            Text="PLC: Bağlantı bekleniyor"
                            Foreground="{DynamicResource SecondaryText}"/>
-                </DockPanel>
-            </Border>
-        </Grid>
+            </DockPanel>
+        </Border>
+    </Grid>
 </Window>

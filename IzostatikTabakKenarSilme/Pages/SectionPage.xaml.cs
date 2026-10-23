@@ -29,7 +29,7 @@ namespace IzostatikTabakKenarSilme.Pages
     public partial class SectionPage : Page
     {
         // Alt menünün bölündüğü en az satır sayısı (en kalabalık bölüm: AYARLAR, 12).
-        private const int MinRows = 12;
+        public const int MinRows = 12;
 
         private readonly IList<SectionItem> _items;
         private readonly Action<string> _onSelected;

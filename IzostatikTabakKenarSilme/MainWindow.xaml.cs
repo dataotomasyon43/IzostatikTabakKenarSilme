@@ -897,7 +897,9 @@ namespace IzostatikTabakKenarSilme
             switch (key)
             {
                 case "Otomatik":
-                    MainFrame.Navigate(new Pages.OtomatikPage(_plcService, _commands, _machineState));
+                    MainFrame.Navigate(new Pages.OtomatikPage(
+                        _plcService, _commands, _machineState,
+                        AyarlarItems(), OpenAyarlar));
                     SetActiveMenu(MenuOtomatikButton);
                     break;
 
@@ -926,6 +928,14 @@ namespace IzostatikTabakKenarSilme
                     AppLogger.Warn($"Bilinmeyen sayfa anahtarı: {key}");
                     break;
             }
+        }
+
+        // AYARLAR sekmesini verilen alt sayfayla açar (Otomatik sayfasındaki
+        // kısayollar).
+        private void OpenAyarlar(string subKey)
+        {
+            _lastSubPage["Ayarlar"] = subKey;
+            NavigateTo("Ayarlar");
         }
 
         private Pages.SectionPage CreateSection(string sectionKey, IList<Pages.SectionItem> items)

@@ -12,61 +12,8 @@
     <!-- Sağda dikey alt menü olan bölüm sayfası (AYARLAR, ÜRETİM).
          Alt sayfalar soldaki ContentFrame'de açılır. Öğeler koddan
          (SectionItem listesi) oluşturulur. -->
-    <Page.Resources>
-        <!-- Alt menü butonu: seçiliyken (Tag="Active") solda vurgu çizgisi,
-             vurgu renginde yazı ve hafif dolgu. Yükseklik sabit değil:
-             UniformGrid satırını doldurur (bkz. SubMenuPanel). -->
-        <Style x:Key="SubMenuButtonStyle" TargetType="{x:Type Button}">
-            <Setter Property="Margin" Value="0,0,0,3"/>
-            <Setter Property="Padding" Value="16,0,8,0"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Focusable" Value="False"/>
-            <Setter Property="Stylus.IsPressAndHoldEnabled" Value="False"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Button}">
-                        <Grid>
-                            <Border x:Name="Frame"
-                                    Background="{DynamicResource CardBackground}"
-                                    BorderBrush="{DynamicResource PanelBorder}"
-                                    BorderThickness="1"
-                                    CornerRadius="4"/>
-                            <Border x:Name="Tint"
-                                    Background="{DynamicResource AccentColor}"
-                                    CornerRadius="4"
-                                    Opacity="0"/>
-                            <Border x:Name="Bar"
-                                    Background="{DynamicResource AccentColor}"
-                                    Width="4"
-                                    HorizontalAlignment="Left"
-                                    CornerRadius="4,0,0,4"
-                                    Visibility="Collapsed"/>
-                            <ContentPresenter HorizontalAlignment="Left"
-                                              VerticalAlignment="Center"
-                                              Margin="{TemplateBinding Padding}"/>
-                        </Grid>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Tint" Property="Opacity" Value="0.06"/>
-                            </Trigger>
-                            <Trigger Property="Tag" Value="Active">
-                                <Setter TargetName="Tint" Property="Opacity" Value="0.10"/>
-                                <Setter TargetName="Bar" Property="Visibility" Value="Visible"/>
-                                <Setter TargetName="Frame" Property="BorderBrush" Value="{DynamicResource AccentColor}"/>
-                                <Setter Property="Foreground" Value="{DynamicResource AccentColor}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Tint" Property="Opacity" Value="0.18"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </Page.Resources>
+    <!-- Alt menü buton stili (SubMenuButtonStyle) App.xaml'da: Otomatik
+         sayfasındaki ayar kısayolları da aynı stili kullanır. -->
 
     <Grid>
         <Grid.ColumnDefinitions>

@@ -39,13 +39,19 @@ namespace IzostatikTabakKenarSilme.Pages
         // Yazması süren aç/kapa butonları (çift basmada iki yazma yarışmasın).
         private readonly HashSet<Button> _busyToggles = new HashSet<Button>();
 
-        public OtomatikPage(PlcService plc, PlcCommands commands, MachineState state)
+        // settingsItems: sağdaki kısayol menüsü (AYARLAR alt sayfaları).
+        // openSetting: kısayola basılınca çağrılır; AYARLAR sekmesini ilgili
+        // alt sayfayla açar (ana pencere).
+        public OtomatikPage(PlcService plc, PlcCommands commands, MachineState state,
+            IEnumerable<SectionItem> settingsItems, Action<string> openSetting)
         {
             _plc = plc ?? throw new ArgumentNullException(nameof(plc));
             _commands = commands ?? throw new ArgumentNullException(nameof(commands));
             _state = state ?? throw new ArgumentNullException(nameof(state));
 
             InitializeComponent();
+
+            BuildSettingsMenu(settingsItems, openSetting);
 
             // Boşaltma butonları ilk okuma gelene kadar devre dışı.
             SetBosaltmaState(null, null);
@@ -71,6 +77,30 @@ namespace IzostatikTabakKenarSilme.Pages
 
             ShiftResetButton.Pressed += (s, e) => Run(_commands.PressShiftResetAsync(), "Vardiya sıfırla");
             ShiftResetButton.Released += (s, e) => Run(_commands.ReleaseShiftResetAsync(), "Vardiya sıfırla bırak");
+        }
+
+        // ---------------- AYARLAR kısayolları ----------------
+
+        // AYARLAR sayfasındaki alt menünün aynısı (aynı stil ve satır
+        // düzeni); burada seçili öğe yok, basınca AYARLAR'a geçilir.
+        private void BuildSettingsMenu(IEnumerable<SectionItem> items, Action<string> openSetting)
+        {
+            if (items == null || openSetting == null)
+                return;
+
+            var style = (Style)FindResource("SubMenuButtonStyle");
+            int count = 0;
+
+            foreach (SectionItem item in items)
+            {
+                string key = item.Key;
+                var button = new Button { Content = item.Title, Style = style };
+                button.Click += (s, e) => openSetting(key);
+                SettingsMenuPanel.Children.Add(button);
+                count++;
+            }
+
+            SettingsMenuPanel.Rows = Math.Max(count, SectionPage.MinRows);
         }
 
         // ---------------- Makine durumu (ana pencereden) ----------------

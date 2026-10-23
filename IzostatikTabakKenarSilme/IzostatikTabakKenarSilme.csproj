@@ -96,6 +96,13 @@
     <Compile Include="Pages\TabakYuklePage.xaml.cs">
       <DependentUpon>TabakYuklePage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\LogoView.xaml.cs">
+      <DependentUpon>LogoView.xaml</DependentUpon>
+    </Compile>
+    <Page Include="Controls\LogoView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Compile Include="Services\AlarmHistoryStore.cs" />
     <Compile Include="Services\AlarmService.cs" />
     <Compile Include="Services\AlarmTextProvider.cs" />
@@ -187,6 +194,9 @@
     <Content Include="AlarmMetinleri.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <!-- Logonun vektör kaynağı (uygulama Controls/LogoView'ı kullanır;
+         bu dosya başka yerlerde kullanım içindir, derlemeye girmez). -->
+    <None Include="Assets\logo.svg" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="WhatsApp Image 2025-01-02 at 19.45.08-Photoroom.png" />

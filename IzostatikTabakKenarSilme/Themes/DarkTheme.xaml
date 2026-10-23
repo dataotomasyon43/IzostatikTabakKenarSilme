@@ -20,6 +20,10 @@
     <SolidColorBrush x:Key="ModeManuelColor" Color="#F28C28"/>
     <SolidColorBrush x:Key="ModeOtomatikColor" Color="#4DA3FF"/>
 
+    <!-- Logo renkleri (Controls/LogoView). Koyu temada yaylar beyaz. -->
+    <SolidColorBrush x:Key="LogoMarkColor" Color="#F1F3F5"/>
+    <SolidColorBrush x:Key="LogoAccentColor" Color="#D4A604"/>
+
     <Style x:Key="MenuButtonStyle" TargetType="{x:Type Button}">
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
         <Setter Property="Padding" Value="12,13"/>

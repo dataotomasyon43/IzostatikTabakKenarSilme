@@ -45,6 +45,9 @@ namespace IzostatikTabakKenarSilme
         private bool? _plcConnected;
         private short? _lastMode;
         private bool? _alarmReadOk;
+        private bool? _autoCycle;          // null: okunamadı / bilinmiyor
+        private bool? _autoCycleReadOk;
+        private string _machineState;      // son gösterilen makine durumu (log için)
 
         public MainWindow()
         {
@@ -132,7 +135,44 @@ namespace IzostatikTabakKenarSilme
                         ShowPlcDisconnected(ex);
                     }
 
-                    // 2) Alarm dizisi (yalnızca bağlantı varken)
+                    // 2) Çalışıyor biti (yalnızca bağlantı varken)
+                    if (connected)
+                    {
+                        try
+                        {
+                            bool running = await Task.Run(
+                                () => _plcService.ReadBoolTag(PlcTags.AutoCycle));
+
+                            if (ct.IsCancellationRequested)
+                                break;
+
+                            _autoCycle = running;
+
+                            if (_autoCycleReadOk == false)
+                                AppLogger.Info($"{PlcTags.AutoCycle} yeniden okunabiliyor.");
+
+                            _autoCycleReadOk = true;
+                        }
+                        catch (ObjectDisposedException)
+                        {
+                            break;
+                        }
+                        catch (Exception ex)
+                        {
+                            if (ct.IsCancellationRequested)
+                                break;
+
+                            _autoCycle = null;
+
+                            if (_autoCycleReadOk != false)
+                            {
+                                _autoCycleReadOk = false;
+                                AppLogger.Warn($"{PlcTags.AutoCycle} okunamadı: {FriendlyPlcError(ex)} [{ex.GetType().Name}: {ex.Message}]");
+                            }
+                        }
+                    }
+
+                    // 3) Alarm dizisi (yalnızca bağlantı varken)
                     if (connected)
                     {
                         try
@@ -157,6 +197,9 @@ namespace IzostatikTabakKenarSilme
                             ShowAlarmReadError(ex);
                         }
                     }
+
+                    // 4) Makine durumu kartı (bağlantı, arıza, çalışma, mod)
+                    UpdateMachineState();
                 }
                 catch (Exception ex)
                 {
@@ -282,12 +325,11 @@ namespace IzostatikTabakKenarSilme
 
         private void ShowPlcConnected(short mode)
         {
-            PlcStatusText.Text = "● Bağlı";
-            PlcStatusText.SetResourceReference(
-                TextBlock.ForegroundProperty, "OkColor");
-            PlcStatusText.ToolTip = null;
+            MachineStateCard.ToolTip = null;
 
             ModeText.Text = MachineModes.ToText(mode);
+            ModeText.SetResourceReference(
+                TextBlock.ForegroundProperty, ModeColorKey(mode) ?? "PrimaryText");
             HighlightModeButton(mode);
 
             StatusBarPlcText.Text = $"PLC: {_plcService.IpAddress} bağlı";
@@ -311,15 +353,15 @@ namespace IzostatikTabakKenarSilme
         {
             string error = FriendlyPlcError(ex);
 
-            PlcStatusText.Text = "● Bağlı değil";
-            PlcStatusText.SetResourceReference(
-                TextBlock.ForegroundProperty, "ErrorColor");
-            PlcStatusText.ToolTip = error;
+            MachineStateCard.ToolTip = error;
 
-            // Bağlantı yokken son bilinen modu göstermek yanıltıcı olur.
+            // Bağlantı yokken son bilinen modu / çalışma durumunu göstermek
+            // yanıltıcı olur.
             ModeText.Text = "-";
+            ModeText.SetResourceReference(TextBlock.ForegroundProperty, "PrimaryText");
             HighlightModeButton(null);
             _lastMode = null;
+            _autoCycle = null;
 
             StatusBarPlcText.Text = $"PLC: {_plcService.IpAddress} bağlantı yok";
 
@@ -330,6 +372,93 @@ namespace IzostatikTabakKenarSilme
                 _plcConnected = false;
                 AppLogger.Warn($"PLC bağlantısı yok ({_plcService.IpAddress}): {error} [{ex.GetType().Name}: {ex.Message}]");
                 ShowSystemMessage("PLC bağlantı hatası: " + error, isError: true);
+            }
+        }
+
+        // ---------------- Makine durumu ----------------
+
+        // Öncelik: Bağlantı yok > Arıza Var > Çalışıyor > Hazır.
+        //   Arıza: Alm dizisinde en az bir aktif alarm.
+        //   Çalışıyor: AutoCycle = TRUE.
+        // Kenarlık: arızada kırmızı; aksi hâlde Manuel turuncu,
+        // Otomatik mavi, diğer modlarda varsayılan.
+        private void UpdateMachineState()
+        {
+            string text;
+            string textColor;
+            string borderColor = null;   // null: varsayılan kenarlık
+
+            int alarmCount = _alarmService.ActiveAlarms.Count;
+
+            if (_plcConnected != true)
+            {
+                text = _plcConnected == null ? "● Bağlantı bekleniyor" : "● Bağlantı yok";
+                textColor = _plcConnected == null ? "WarningColor" : "ErrorColor";
+                borderColor = _plcConnected == null ? null : "ErrorColor";
+            }
+            else if (alarmCount > 0)
+            {
+                text = $"● Arıza Var ({alarmCount})";
+                textColor = "ErrorColor";
+                borderColor = "ErrorColor";
+            }
+            else
+            {
+                if (_autoCycle == true)
+                {
+                    text = "● Çalışıyor";
+                    textColor = "ModeOtomatikColor";
+                }
+                else
+                {
+                    text = "● Hazır";
+                    textColor = "OkColor";
+                }
+
+                if (_lastMode == MachineModes.Manuel)
+                    borderColor = "ModeManuelColor";
+                else if (_lastMode == MachineModes.Otomatik)
+                    borderColor = "ModeOtomatikColor";
+            }
+
+            MachineStateText.Text = text;
+            MachineStateText.SetResourceReference(TextBlock.ForegroundProperty, textColor);
+
+            // Renkli kenarlık 2 px; kartın dış ölçüsü değişmesin diye iç
+            // boşluk 1 px azaltılır.
+            if (borderColor == null)
+            {
+                MachineStateCard.SetResourceReference(Border.BorderBrushProperty, "PanelBorder");
+                MachineStateCard.BorderThickness = new Thickness(1);
+                MachineStateCard.Padding = new Thickness(10, 7, 10, 7);
+            }
+            else
+            {
+                MachineStateCard.SetResourceReference(Border.BorderBrushProperty, borderColor);
+                MachineStateCard.BorderThickness = new Thickness(2);
+                MachineStateCard.Padding = new Thickness(9, 6, 9, 6);
+            }
+
+            // Yalnızca durum değiştiğinde logla (arıza sayısı hariç).
+            string stateKey = text.StartsWith("● Arıza") ? "● Arıza Var" : text;
+
+            if (_machineState != stateKey)
+            {
+                _machineState = stateKey;
+                AppLogger.Info($"Makine durumu: {stateKey.TrimStart('●', ' ')}");
+            }
+        }
+
+        // Moda karşılık gelen tema rengi anahtarı; bilinmeyen mod için null.
+        private static string ModeColorKey(short mode)
+        {
+            switch (mode)
+            {
+                case MachineModes.Kapali: return "ModeKapaliColor";
+                case MachineModes.Guvenli: return "ModeGuvenliColor";
+                case MachineModes.Manuel: return "ModeManuelColor";
+                case MachineModes.Otomatik: return "ModeOtomatikColor";
+                default: return null;
             }
         }
 

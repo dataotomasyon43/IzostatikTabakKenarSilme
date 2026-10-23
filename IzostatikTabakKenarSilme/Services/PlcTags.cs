@@ -7,6 +7,9 @@
         // INT — 0 Kapalı, 1 Güvenli Mod, 2 Manuel Mod, 3 Otomatik Mod
         public const string Mode = "Mode";
 
+        // BOOL — makine çalışıyor (otomatik çevrim aktif)
+        public const string AutoCycle = "AutoCycle";
+
         // BOOL — alarm reset (basılı tutma: TRUE, bırakınca FALSE)
         public const string Reset = "HMI_Reset";
 

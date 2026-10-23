@@ -54,16 +54,68 @@
 
                     <!-- Başlıktaki simgeli butonların ortak stili (mod butonları
                          ve tema butonu). Simge üstte, küçük etiket altta.
-                         Simge çizgileri ve etiket rengi butonun Foreground'undan
-                         gelir; aktif modda (Tag="Active") beyaza döner. -->
+
+                         Renk: butonun Foreground'u. Simge çizgisi, etiket,
+                         aktif kenarlık, dolgu ve alt çizgi hep bu renkten gelir;
+                         her mod butonu kendi rengini Foreground ile verir.
+
+                         Aktif (Tag="Active"): 2 px renkli kenarlık + hafif
+                         renk dolgusu + altta renkli çizgi. -->
                     <Grid.Resources>
-                        <Style TargetType="{x:Type Button}"
-                               BasedOn="{StaticResource ActionButtonStyle}">
+                        <Style TargetType="{x:Type Button}">
                             <Setter Property="Width" Value="73"/>
                             <Setter Property="Height" Value="58"/>
-                            <Setter Property="MinHeight" Value="0"/>
                             <Setter Property="Padding" Value="0"/>
                             <Setter Property="Margin" Value="4,2"/>
+                            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}"/>
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <Setter Property="Focusable" Value="False"/>
+                            <Setter Property="Stylus.IsPressAndHoldEnabled" Value="False"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type Button}">
+                                        <Grid>
+                                            <Border x:Name="Frame"
+                                                    Background="{DynamicResource CardBackground}"
+                                                    BorderBrush="{DynamicResource PanelBorder}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="6"/>
+                                            <Border x:Name="Tint"
+                                                    Background="{TemplateBinding Foreground}"
+                                                    CornerRadius="6"
+                                                    Opacity="0"/>
+                                            <Border x:Name="Bar"
+                                                    Background="{TemplateBinding Foreground}"
+                                                    Height="4"
+                                                    VerticalAlignment="Bottom"
+                                                    CornerRadius="0,0,6,6"
+                                                    Visibility="Collapsed"/>
+                                            <ContentPresenter HorizontalAlignment="Center"
+                                                              VerticalAlignment="Center"
+                                                              Margin="{TemplateBinding Padding}"/>
+                                        </Grid>
+                                        <ControlTemplate.Triggers>
+                                            <!-- Sıra önemli: sonraki tetikleyici öncekini ezer. -->
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="Tint" Property="Opacity" Value="0.08"/>
+                                            </Trigger>
+                                            <Trigger Property="Tag" Value="Active">
+                                                <Setter TargetName="Frame" Property="BorderBrush"
+                                                        Value="{Binding Foreground, RelativeSource={RelativeSource TemplatedParent}}"/>
+                                                <Setter TargetName="Frame" Property="BorderThickness" Value="2"/>
+                                                <Setter TargetName="Tint" Property="Opacity" Value="0.18"/>
+                                                <Setter TargetName="Bar" Property="Visibility" Value="Visible"/>
+                                            </Trigger>
+                                            <Trigger Property="IsPressed" Value="True">
+                                                <Setter TargetName="Tint" Property="Opacity" Value="0.32"/>
+                                            </Trigger>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter Property="Opacity" Value="0.5"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
                         </Style>
                         <Style TargetType="{x:Type Path}">
                             <Setter Property="Stroke"
@@ -82,7 +134,11 @@
                     </Grid.Resources>
                     <WrapPanel Grid.Row="0"
                            VerticalAlignment="Center">
-                        <Border Background="{DynamicResource CardBackground}"
+                        <!-- MAKİNE DURUMU: Bağlantı yok / Arıza Var / Çalışıyor / Hazır.
+                             Kenarlık rengi ve kalınlığı koddan (UpdateMachineState)
+                             ayarlanır; tasarım ve boyut PLC kartıyla aynı. -->
+                        <Border x:Name="MachineStateCard"
+                            Background="{DynamicResource CardBackground}"
                             BorderBrush="{DynamicResource PanelBorder}"
                             BorderThickness="1"
                             CornerRadius="4"
@@ -90,10 +146,10 @@
                             Margin="4"
                                 Width="130" Height="50">
                             <StackPanel>
-                                <TextBlock Text="PLC BAĞLANTISI"
+                                <TextBlock Text="MAKİNE DURUMU"
                                        FontSize="10"
                                        Foreground="{DynamicResource SecondaryText}"/>
-                                <TextBlock x:Name="PlcStatusText"
+                                <TextBlock x:Name="MachineStateText"
                                        Text="● Bağlantı bekleniyor"
                                        Foreground="{DynamicResource WarningColor}"
                                        FontWeight="Bold"
@@ -145,8 +201,8 @@
                      CommandParameter'daki değer yazılır.
                      0 Kapalı, 1 Güvenli, 2 Manuel, 3 Otomatik -->
                     <!-- Simgeli butonlar (stil yukarıdaki Grid.Resources'ta). Simgeler 24x24 SVG yol
-                     verisidir; çizgi rengi butonun Foreground'undan gelir,
-                     böylece aktif modda (Tag="Active") beyaza döner. -->
+                     verisidir; renk butonun Foreground'undan gelir:
+                     Kapalı beyaz, Güvenli yeşil, Manuel turuncu, Otomatik mavi. -->
                     <StackPanel x:Name="ModeButtonsPanel"
                             Grid.Row="1"
                             Orientation="Horizontal"
@@ -155,6 +211,7 @@
 
                         <!-- 0: Kapalı — güç simgesi -->
                         <Button x:Name="ModeKapaliButton"
+                            Foreground="{DynamicResource ModeKapaliColor}"
                             CommandParameter="0"
                             ToolTip="Kapalı"
                             AutomationProperties.Name="Kapalı"
@@ -171,6 +228,7 @@
 
                         <!-- 1: Güvenli — kalkan + onay -->
                         <Button x:Name="ModeGuvenliButton"
+                            Foreground="{DynamicResource ModeGuvenliColor}"
                             CommandParameter="1"
                             ToolTip="Güvenli Mod"
                             AutomationProperties.Name="Güvenli Mod"
@@ -187,6 +245,7 @@
 
                         <!-- 2: Manuel — el -->
                         <Button x:Name="ModeManuelButton"
+                            Foreground="{DynamicResource ModeManuelColor}"
                             CommandParameter="2"
                             ToolTip="Manuel Mod"
                             AutomationProperties.Name="Manuel Mod"
@@ -203,6 +262,7 @@
 
                         <!-- 3: Otomatik — döngü + oynat -->
                         <Button x:Name="ModeOtomatikButton"
+                            Foreground="{DynamicResource ModeOtomatikColor}"
                             CommandParameter="3"
                             ToolTip="Otomatik Mod"
                             AutomationProperties.Name="Otomatik Mod"

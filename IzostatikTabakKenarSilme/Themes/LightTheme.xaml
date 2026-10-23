@@ -14,6 +14,13 @@
     <SolidColorBrush x:Key="OkColor" Color="#1E7B34"/>
     <SolidColorBrush x:Key="ErrorColor" Color="#C62828"/>
 
+    <!-- Çalışma modu renkleri (mod butonları, mod yazısı, makine durumu kenarlığı).
+         Kapalı açık temada beyaz zeminde görünmeyeceği için koyu gri. -->
+    <SolidColorBrush x:Key="ModeKapaliColor" Color="#3A424D"/>
+    <SolidColorBrush x:Key="ModeGuvenliColor" Color="#1E8E3E"/>
+    <SolidColorBrush x:Key="ModeManuelColor" Color="#E07A10"/>
+    <SolidColorBrush x:Key="ModeOtomatikColor" Color="#1565C0"/>
+
     <Style x:Key="MenuButtonStyle" TargetType="{x:Type Button}">
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
         <Setter Property="Padding" Value="12,13"/>

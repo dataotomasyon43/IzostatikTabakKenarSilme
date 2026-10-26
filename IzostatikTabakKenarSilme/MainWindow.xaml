@@ -198,8 +198,10 @@
                            VerticalAlignment="Center">
                         <!-- MAKİNE DURUMU: Bağlantı yok / Arıza Var / Çalışıyor / Hazır.
                              Kenarlık rengi ve kalınlığı koddan (UpdateMachineState)
-                             ayarlanır; tasarım ve boyut PLC kartıyla aynı. -->
+                             ayarlanır; tasarım ve boyut PLC kartıyla aynı.
+                             Arıza varken dokununca Aktif Alarmlar penceresi açılır. -->
                         <Border x:Name="MachineStateCard"
+                            MouseLeftButtonUp="MachineStateCard_MouseLeftButtonUp"
                             Background="{DynamicResource CardBackground}"
                             BorderBrush="{DynamicResource PanelBorder}"
                             BorderThickness="1"
@@ -473,8 +475,12 @@
                                VerticalAlignment="Center"
                                Foreground="{DynamicResource SecondaryText}"/>
 
-                    <!-- Arıza akışı: [ARIZA 2/3]  [12] Arıza açıklaması -->
+                    <!-- Arıza akışı: [ARIZA 2/3]  [12] Arıza açıklaması.
+                         Dokununca Aktif Alarmlar penceresi açılır. -->
                     <DockPanel x:Name="AlarmTickerPanel"
+                               Background="Transparent"
+                               Cursor="Hand"
+                               MouseLeftButtonUp="MachineStateCard_MouseLeftButtonUp"
                                Visibility="Collapsed"
                                LastChildFill="True">
                         <Border DockPanel.Dock="Left"

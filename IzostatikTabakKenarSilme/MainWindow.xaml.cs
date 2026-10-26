@@ -334,6 +334,14 @@ namespace IzostatikTabakKenarSilme
             }
         }
 
+        // Makine durumu kartı ve alt bardaki arıza akışı: arıza varken
+        // Aktif Alarmlar penceresini açar.
+        private void MachineStateCard_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (_plcConnected == true && _alarmService.ActiveAlarms.Count > 0)
+                ShowActiveAlarms();
+        }
+
         // ---------------- Çalışma modu ----------------
 
         // Mod butonları: Mode tag'ine butonun CommandParameter değerini yazar.
@@ -789,6 +797,11 @@ namespace IzostatikTabakKenarSilme
             }
 
             MachineStateText.Text = text;
+
+            // Arıza varken kart tıklanabilir (Aktif Alarmlar)
+            MachineStateCard.Cursor = _plcConnected == true && alarmCount > 0
+                ? System.Windows.Input.Cursors.Hand
+                : null;
             MachineStateText.SetResourceReference(TextBlock.ForegroundProperty, textColor);
 
             // Renkli kenarlık 2 px; kartın dış ölçüsü değişmesin diye iç

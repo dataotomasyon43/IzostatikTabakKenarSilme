@@ -964,7 +964,8 @@ namespace IzostatikTabakKenarSilme
                     () => new Pages.CapakKirmaPage(_plcService, _commands, _machineState)),
                 new Pages.SectionItem("Zimpara1", "Zımpara-1",
                     () => new Pages.BomseIstasyonPage(_plcService, _commands, _machineState, Zimpara1Config())),
-                Station("Zimpara2", "Zımpara-2"),
+                new Pages.SectionItem("Zimpara2", "Zımpara-2",
+                    () => new Pages.BomseIstasyonPage(_plcService, _commands, _machineState, Zimpara2Config())),
                 Station("Sunger1", "Sünger-1"),
                 Station("Sunger2", "Sünger-2"),
                 Station("Sunger3", "Sünger-3"),
@@ -1030,6 +1031,40 @@ namespace IzostatikTabakKenarSilme
                 Teach = PlcTags.Zim1Teach,
                 ModJogP = PlcTags.Zim1ModJogP,
                 ModJogN = PlcTags.Zim1ModJogN
+            };
+        }
+
+        // Zımpara-2 (istasyon 4, Bomse 4)
+        private static Pages.BomseIstasyonConfig Zimpara2Config()
+        {
+            return new Pages.BomseIstasyonConfig
+            {
+                Title = "Zımpara-2",
+                Subtitle = "Bomse, taşlama ve modül ayarları, manuel kumanda",
+                ImageAsset = "/Assets/Zimpara2.png",
+
+                BomseBasPoz = PlcTags.Zim2BomseBasPoz,
+                BomseAktPoz = PlcTags.Zim2BomseAktPoz,
+                BitisAci = PlcTags.Zim2BitisAci,
+                GeriCekilmeAci = PlcTags.Zim2ModGeriCekilmeAci,
+                TurSure = PlcTags.Zim2TurSure,
+                TurSayi = PlcTags.Zim2TurSayi,
+                BomseYon = PlcTags.Zim2BomseYon,
+                BomseJogP = PlcTags.Zim2BomseJogP,
+                BomseJogN = PlcTags.Zim2BomseJogN,
+
+                ToolHizLabel = "Taşlama Hızı",
+                ToolHiz = PlcTags.Zim2TaslamaHiz,
+                ToolYon = PlcTags.Zim2TaslamaYon,
+                ToolStartText = "ZIMPARA DÖN",
+                ToolStart = PlcTags.Zim2ManStart,
+
+                ModHiz = PlcTags.Zim2ModHiz,
+                ModAktPoz = PlcTags.Zim2ModAktPoz,
+                ModBasPoz = PlcTags.Zim2ModBasPoz,
+                Teach = PlcTags.Zim2Teach,
+                ModJogP = PlcTags.Zim2ModJogP,
+                ModJogN = PlcTags.Zim2ModJogN
             };
         }
 

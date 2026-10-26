@@ -174,7 +174,7 @@
 
         <!-- ================= MANUEL BUTONLAR =================
              Turuncu: basılı tuttukça (bas TRUE, bırak FALSE).
-             Takım butonu (ör. ZIMPARA DÖN) kalıcı: bir basış açar, bir basış kapatır. -->
+             Takım butonu (ör. ZIMPARA DÖN) kalıcı: bir basış açar, bir basış kapatır (açıkken yeşil). -->
         <UniformGrid x:Name="ButtonsPanel" Grid.Row="2" Rows="1" Columns="5" Margin="-4,10,-4,0" Height="68">
             <controls:PlcPushButton x:Name="BomseIleriButton" Content="BOMSE İLERİ DÖN"
                                     Style="{StaticResource PushButtonStyle}"/>

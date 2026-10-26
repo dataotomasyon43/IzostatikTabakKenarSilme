@@ -14,6 +14,7 @@
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -314,6 +315,7 @@
     <!-- Logonun vektör kaynağı (uygulama Controls/LogoView'ı kullanır;
          bu dosya başka yerlerde kullanım içindir, derlemeye girmez). -->
     <None Include="Assets\logo.svg" />
+    <Resource Include="Assets\AppIcon.ico" />
     <Resource Include="Assets\TransferYukleme.png" />
     <Resource Include="Assets\TransferBosaltma.png" />
     <Resource Include="Assets\CikisKonveyor.png" />

@@ -207,6 +207,18 @@ namespace IzostatikTabakKenarSilme.Services
             }
         }
 
+        // LREAL: 64 bit floating point
+        public void WriteLRealTag(string tagName, double value)
+        {
+            lock (_sync)
+            {
+                Tag tag = Get(tagName, 8);
+                tag.Read();
+                tag.SetFloat64(0, value);
+                tag.Write();
+            }
+        }
+
         // BOOL: 1 byte (okuma ile aynı eleman boyutu)
         public void WriteBoolTag(string tagName, bool value)
         {

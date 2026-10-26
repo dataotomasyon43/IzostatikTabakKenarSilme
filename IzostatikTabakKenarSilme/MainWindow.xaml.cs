@@ -999,7 +999,7 @@ namespace IzostatikTabakKenarSilme
             return new[]
             {
                 new Pages.SectionItem("GelismisAyarlar", "Gelişmiş Ayarlar",
-                    () => new Pages.PlaceholderPage("Gelişmiş Ayarlar", "Servo tork limitleri")),
+                    () => new Pages.GelismisAyarlarPage(_plcService, _commands, _machineState)),
                 new Pages.SectionItem("CanliIzleme", "Canlı İzleme",
                     () => new Pages.CanliIzlemePage(_plcService))
             };

@@ -249,6 +249,25 @@
         public const string KonvDonmeSure = "HMI_Cikis_Konv_T";           // REAL, s
         public const string KonvManStart = "HMI_Cikis_Konveyoru_Man_Start"; // basılı tutma
 
+        // ---------------- GENEL: Gelişmiş Ayarlar (servo tork limitleri) ----------------
+        // LREAL, % (Omron MC_SetTorqueLimit: 0,1-1000,0 %). Sıra eski ekrandaki gibi.
+        public const string TorkGtr = "HMI_AxGTR_Trq";
+        public const string TorkCtr = "HMI_AxCTR_Trq";
+        public const string TorkBomse1 = "HMI_AxBomse1_Trq";
+        public const string TorkBomse2 = "HMI_AxBomse2_Trq";
+        public const string TorkBomse3 = "HMI_AxBomse3_Trq";
+        public const string TorkBomse4 = "HMI_AxBomse4_Trq";
+        public const string TorkBomse5 = "HMI_AxBomse5_Trq";
+        public const string TorkBomse6 = "HMI_AxBomse6_Trq";
+        public const string TorkBomse7 = "HMI_AxBomse7_Trq";
+        public const string TorkBomse8 = "HMI_AxBomse8_Trq";
+        public const string TorkModCapak = "HMI_AxModCapak_Trq";
+        public const string TorkModZim1 = "HMI_AxModZim1_Trq";
+        public const string TorkModZim2 = "HMI_AxModZim2_Trq";
+        public const string TorkModSun1 = "HMI_AxModSun1_Trq";
+        public const string TorkModSun2 = "HMI_AxModSun2_Trq";
+        public const string TorkModSun3 = "HMI_AxModSun3_Trq";
+
         // BOOL — alarm reset (basılı tutma: TRUE, bırakınca FALSE)
         public const string Reset = "HMI_Reset";
 

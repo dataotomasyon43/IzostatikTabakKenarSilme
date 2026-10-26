@@ -99,6 +99,9 @@
     <Compile Include="Pages\CikisKonveyorPage.xaml.cs">
       <DependentUpon>CikisKonveyorPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\GelismisAyarlarPage.xaml.cs">
+      <DependentUpon>GelismisAyarlarPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\CapakKirmaPage.xaml.cs">
       <DependentUpon>CapakKirmaPage.xaml</DependentUpon>
     </Compile>
@@ -176,6 +179,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\CikisKonveyorPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\GelismisAyarlarPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

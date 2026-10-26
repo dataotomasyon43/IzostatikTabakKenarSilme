@@ -1,0 +1,88 @@
+﻿<Page x:Class="IzostatikTabakKenarSilme.Pages.GelismisAyarlarPage"
+      Foreground="{DynamicResource PrimaryText}"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:controls="clr-namespace:IzostatikTabakKenarSilme.Controls"
+      mc:Ignorable="d"
+      d:DesignHeight="538" d:DesignWidth="1024"
+      Background="Transparent"
+      Title="GelismisAyarlarPage">
+
+    <!-- GENEL > Gelişmiş Ayarlar: servo tork limitleri (HMI_Ax*_Trq, LREAL, %).
+         Solda transferler ve bomseler, sağda modüller (eski ekrandaki sıra).
+         Satırlar koddan oluşturulur. -->
+    <Page.Resources>
+        <Style x:Key="CardStyle" TargetType="{x:Type Border}">
+            <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource PanelBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="18,8"/>
+        </Style>
+        <Style x:Key="CardTitleStyle" TargetType="{x:Type TextBlock}">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryText}"/>
+            <Setter Property="Margin" Value="0,0,0,2"/>
+        </Style>
+        <Style TargetType="{x:Type controls:ParameterField}">
+            <Setter Property="Height" Value="41"/>
+            <Setter Property="FontSize" Value="15"/>
+        </Style>
+    </Page.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Başlık -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBlock Text="Gelişmiş Ayarlar"
+                       FontSize="25"
+                       FontWeight="Bold"
+                       VerticalAlignment="Bottom"/>
+            <TextBlock Text="Servo tork limitleri (% nominal tork)"
+                       Margin="16,0,0,4"
+                       VerticalAlignment="Bottom"
+                       Foreground="{DynamicResource SecondaryText}"/>
+        </StackPanel>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="14"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- ================= TRANSFER + BOMSE ================= -->
+            <Border Grid.Column="0" Style="{StaticResource CardStyle}" VerticalAlignment="Top">
+                <StackPanel>
+                    <TextBlock Text="TRANSFER VE BOMSE SERVOLARI" Style="{StaticResource CardTitleStyle}"/>
+                    <StackPanel x:Name="LeftPanel"/>
+                </StackPanel>
+            </Border>
+
+            <!-- ================= MODÜLLER ================= -->
+            <Border Grid.Column="2" Style="{StaticResource CardStyle}" VerticalAlignment="Top">
+                <StackPanel>
+                    <TextBlock Text="MODÜL SERVOLARI" Style="{StaticResource CardTitleStyle}"/>
+                    <StackPanel x:Name="RightPanel"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Sayfa durumu -->
+        <TextBlock x:Name="PageStatusText"
+                   Grid.Row="2"
+                   Margin="0,6,0,0"
+                   FontSize="13"
+                   TextTrimming="CharacterEllipsis"
+                   Foreground="{DynamicResource SecondaryText}"
+                   Text="Tork limiti değişikliğini makinede deneyerek doğrulayın; çok düşük değer ekseni hareket edemez hale getirebilir."/>
+    </Grid>
+</Page>

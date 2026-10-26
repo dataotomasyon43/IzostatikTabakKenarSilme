@@ -10,9 +10,12 @@
       Background="Transparent"
       Title="ServoAyarPage">
 
-    <!-- ÜRETİM > Servo: tabak formuna bağlı bomse hız ayarları (oranlı mod,
-         köşe hızı) ve modül geri mesafeleri; istasyon grubu başına bir kart.
-         Kartlar koddan oluşturulur. -->
+    <!-- ÜRETİM > Servo, iki görünüm:
+         1) tabak formuna bağlı bomse hız ayarları (oranlı mod, köşe hızı) ve
+            modül geri mesafeleri; istasyon grubu başına bir kart,
+         2) jog hız/ivme, eksen referans butonları + aktüel pozisyonlar,
+            bomse bypass.
+         Kartlar ve butonlar koddan oluşturulur. -->
     <Page.Resources>
         <Style x:Key="CardStyle" TargetType="{x:Type Border}">
             <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
@@ -32,6 +35,26 @@
             <Setter Property="Margin" Value="3"/>
             <Setter Property="Padding" Value="4,0"/>
         </Style>
+        <!-- Referans butonları (basılı tutma) turuncu -->
+        <Style x:Key="PushStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource CommandButtonStyle}">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="Padding" Value="4,0"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentColor}"/>
+        </Style>
+        <Style x:Key="BypassStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource CommandButtonStyle}">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Height" Value="46"/>
+            <Setter Property="Margin" Value="3"/>
+            <Setter Property="Padding" Value="2,0"/>
+        </Style>
+        <Style x:Key="TabStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource CommandButtonStyle}">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="MinWidth" Value="170"/>
+            <Setter Property="Margin" Value="6,0,0,0"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentColor}"/>
+        </Style>
     </Page.Resources>
 
     <Grid>
@@ -41,25 +64,71 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-            <TextBlock Text="Servo"
-                       FontSize="25"
-                       FontWeight="Bold"
-                       VerticalAlignment="Bottom"/>
-            <TextBlock Text="Forma göre bomse hızı (oranlı mod, köşe hızı) ve modül geri mesafeleri"
-                       Margin="16,0,0,4"
-                       VerticalAlignment="Bottom"
-                       Foreground="{DynamicResource SecondaryText}"/>
-        </StackPanel>
+        <Grid Grid.Row="0" Margin="0,0,0,10">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Servo"
+                           FontSize="25"
+                           FontWeight="Bold"
+                           VerticalAlignment="Bottom"/>
+                <TextBlock x:Name="SubtitleText"
+                           Margin="16,0,0,4"
+                           VerticalAlignment="Bottom"
+                           Foreground="{DynamicResource SecondaryText}"/>
+            </StackPanel>
 
+            <!-- Görünüm seçimi -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="FormTabButton" Content="FORM HIZ · GERİ MESAFE"
+                        Style="{StaticResource TabStyle}" Click="FormTab_Click"/>
+                <Button x:Name="JogTabButton" Content="JOG · REFERANS · BYPASS"
+                        Style="{StaticResource TabStyle}" Click="JogTab_Click"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Görünüm 1: form hız ayarları ve geri mesafeler -->
         <UniformGrid x:Name="CardsPanel" Grid.Row="1" Columns="3" Rows="1" Margin="-6,0"/>
+
+        <!-- Görünüm 2: jog ayarları, referans, bypass (eski HMI'daki gibi) -->
+        <Grid x:Name="JogView" Grid.Row="1" Visibility="Collapsed">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="340"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <Border Style="{StaticResource CardStyle}" Margin="0">
+                    <StackPanel x:Name="JogPanel">
+                        <TextBlock Text="JOG AYARLARI" FontSize="12" FontWeight="Bold" Margin="0,0,0,2"
+                                   Foreground="{DynamicResource SecondaryText}"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource CardStyle}" Margin="0,10,0,0">
+                    <StackPanel>
+                        <TextBlock Text="BOMSE BYPASS" FontSize="12" FontWeight="Bold" Margin="0,0,0,4"
+                                   Foreground="{DynamicResource SecondaryText}"/>
+                        <UniformGrid x:Name="BypassPanel" Columns="4" Margin="-3,0"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <Border Grid.Column="2" Style="{StaticResource CardStyle}" Margin="0" VerticalAlignment="Top">
+                <StackPanel>
+                    <TextBlock Text="REFERANS (basılı tut) · AKTÜEL POZİSYON" FontSize="12" FontWeight="Bold" Margin="0,0,0,4"
+                               Foreground="{DynamicResource SecondaryText}"/>
+                    <UniformGrid x:Name="ModulRefPanel" Columns="4" Margin="-4,0"/>
+                    <Border Height="1" Margin="0,8" Background="{DynamicResource PanelBorder}"/>
+                    <UniformGrid x:Name="BomseRefPanel" Columns="4" Margin="-4,0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
 
         <TextBlock x:Name="PageStatusText"
                    Grid.Row="2"
                    Margin="0,8,0,0"
                    FontSize="13"
                    TextWrapping="Wrap"
-                   Foreground="{DynamicResource SecondaryText}"
-                   Text="Oranlı mod: bomse hızı tabağın şekline göre değişir; köşede Köşe Hızı %, düz kenarda %100. Köşeler Hızlı açıkken tersi. Geri dönüş pozisyonu = kurs + başlama poz + geri mesafe (PLC hesaplar)."/>
+                   Foreground="{DynamicResource SecondaryText}"/>
     </Grid>
 </Page>

@@ -304,6 +304,30 @@
         public const string Sun2GeriPoz = "HMI_Sun2_GeriPoz";            // REAL, mm, gösterge
         public const string Sun3GeriPoz = "HMI_Sun3_GeriPoz";            // REAL, mm, gösterge
 
+        // ---------------- ÜRETİM: Servo (jog, referans, bypass) ----------------
+        public const string ModulJogHiz = "HMI_Modul_Jog_Hiz";           // INT, %
+        public const string ModulJogIvme = "HMI_Modul_Jog_AccDec";       // INT, %
+        public const string TransJogHiz = "HMI_JogTrans_Vel";            // REAL, % (GTR, CTR)
+        public const string TransJogIvme = "HMI_JogTrans_Acc";           // REAL, % (GTR, CTR)
+        public const string BomseJogHiz = "HMI_BomJogVel";               // INT, %
+        public const string BomseJogIvme = "HMI_BomJogAccDec";           // INT, %
+
+        // Referans (home) — basılı tutma: TRUE, bırakınca FALSE
+        public const string CpkModReferans = "HMI_CpkMod_Referans";      // BOOL
+        public const string Zim1ModReferans = "HMI_Zim1Mod_Referans";    // BOOL
+        public const string Zim2ModReferans = "HMI_Zim2Mod_Referans";    // BOOL
+        public const string Sun1ModReferans = "HMI_Sun1Mod_Referans";    // BOOL
+        public const string Sun2ModReferans = "HMI_Sun2Mod_Referans";    // BOOL
+        public const string Sun3ModReferans = "HMI_Sun3Mod_Referans";    // BOOL
+        public const string GtrReferans = "HMI_GTR_Referans";            // BOOL
+        public const string CtrReferans = "HMI_CTR_Referans";            // BOOL
+
+        // Bomse eksenleri 1..8: 1 Giriş, 2 Çapak, 3 Zım1, 4 Zım2,
+        // 5 Sün1, 6 Sün2, 7 Sün3, 8 Çıkış.
+        public static string BomseReferans(int n) => $"HMI_Bomse[{n}].Ref";       // BOOL, basılı tutma
+        public static string BomseByPass(int n) => $"HMI_Bomse[{n}].ByPass";      // BOOL, kalıcı
+        public static string BomseAktPoz(int n) => $"HMI_Bomse[{n}].Akt_Poz";     // REAL, °, gösterge
+
         // BOOL — alarm reset (basılı tutma: TRUE, bırakınca FALSE)
         public const string Reset = "HMI_Reset";
 

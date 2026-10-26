@@ -13,9 +13,13 @@ using IzostatikTabakKenarSilme.Services;
 namespace IzostatikTabakKenarSilme.Pages
 {
     /// <summary>
-    /// ÜRETİM > Servo: istasyon grubu başına (Çapak Kırma, Zımparalar,
-    /// Süngerler) oranlı mod, köşeler hızlı, köşe hızı, geri mesafe ve
-    /// PLC'nin hesapladığı geri dönüş pozisyonları.
+    /// ÜRETİM > Servo, iki görünüm:
+    ///  1) istasyon grubu başına (Çapak Kırma, Zımparalar, Süngerler) oranlı
+    ///     mod, köşeler hızlı, köşe hızı, geri mesafe ve PLC'nin hesapladığı
+    ///     geri dönüş pozisyonları;
+    ///  2) jog hız/ivme ayarları, eksen referans butonları (basılı tutma)
+    ///     ile aktüel pozisyonlar ve bomse bypass (kalıcı) butonları.
+    /// Yalnız görünen görünümün değerleri okunur.
     ///
     /// Okuma yalnız sayfa açıkken (1 sn); yazma yalnız operatör değer
     /// onaylayınca / butona basınca. Ek koşullar PLC tarafında.
@@ -46,7 +50,22 @@ namespace IzostatikTabakKenarSilme.Pages
             public ParameterField Field;
             public string Tag;
             public string Group;
+            public bool IsInt;
         }
+
+        // Referans butonu + üstünde eksenin aktüel pozisyonu
+        private sealed class RefAxis
+        {
+            public string Name, RefTag, PosTag;
+            public TextBlock PosText;
+        }
+
+        private const string FormHint =
+            "Oranlı mod: bomse hızı tabağın şekline göre değişir; köşede Köşe Hızı %, düz kenarda %100. " +
+            "Köşeler Hızlı açıkken tersi. Geri dönüş pozisyonu = kurs + başlama poz + geri mesafe (PLC hesaplar).";
+
+        private const string JogHint =
+            "Referans: buton basılı tutulduğu sürece TRUE, bırakınca FALSE. Bypass: kalıcı, açıkken yeşil. Ek koşullar PLC tarafında.";
 
         private readonly PlcService _plc;
         private readonly PlcCommands _commands;
@@ -56,6 +75,12 @@ namespace IzostatikTabakKenarSilme.Pages
         private readonly List<Param> _params = new List<Param>();
         private readonly HashSet<ParameterField> _writingFields = new HashSet<ParameterField>();
 
+        // Görünüm 2
+        private readonly List<Param> _jogParams = new List<Param>();
+        private readonly List<RefAxis> _refAxes = new List<RefAxis>();
+        private readonly List<PlcToggleButton> _bypassButtons = new List<PlcToggleButton>();
+
+        private bool _jogView;
         private bool? _readOk;
 
         public ServoAyarPage(PlcService plc, PlcCommands commands, MachineState state)
@@ -98,7 +123,8 @@ namespace IzostatikTabakKenarSilme.Pages
             foreach (Group g in _groups)
                 CardsPanel.Children.Add(BuildCard(g));
 
-            ShowUnknown();
+            BuildJogView();
+            SelectView(jog: false);
 
             new PagePoller(this, PollInterval, PollAsync, OnReadError);
         }
@@ -192,12 +218,146 @@ namespace IzostatikTabakKenarSilme.Pages
 
             f.ValueEntered += (s, v) =>
             {
-                Param p = _params.FirstOrDefault(x => x.Field == f);
+                Param p = _params.FirstOrDefault(x => x.Field == f) ?? _jogParams.FirstOrDefault(x => x.Field == f);
                 if (p != null)
                     WriteParameter(p, v);
             };
 
             return f;
+        }
+
+        // ---------------- Görünüm 2: jog, referans, bypass ----------------
+
+        private void BuildJogView()
+        {
+            AddJog("Modül Jog Hızı", PlcTags.ModulJogHiz, true);
+            AddJog("GTR CTR Jog Hızı", PlcTags.TransJogHiz, false);
+            AddJog("Modül Jog İvme", PlcTags.ModulJogIvme, true);
+            AddJog("GTR CTR Jog İvme", PlcTags.TransJogIvme, false);
+            AddJog("Bomse Jog Hızı", PlcTags.BomseJogHiz, true);
+            AddJog("Bomse Jog İvme", PlcTags.BomseJogIvme, true);
+
+            // Eski HMI'daki sıra
+            AddRef(ModulRefPanel, "Çapak Mod", PlcTags.CpkModReferans, PlcTags.CpkModAktPoz);
+            AddRef(ModulRefPanel, "Zım1 Mod", PlcTags.Zim1ModReferans, PlcTags.Zim1ModAktPoz);
+            AddRef(ModulRefPanel, "Zım2 Mod", PlcTags.Zim2ModReferans, PlcTags.Zim2ModAktPoz);
+            AddRef(ModulRefPanel, "Sün1 Mod", PlcTags.Sun1ModReferans, PlcTags.Sun1ModAktPoz);
+            AddRef(ModulRefPanel, "Sün2 Mod", PlcTags.Sun2ModReferans, PlcTags.Sun2ModAktPoz);
+            AddRef(ModulRefPanel, "GTR", PlcTags.GtrReferans, PlcTags.GtrAktPoz);
+            AddRef(ModulRefPanel, "CTR", PlcTags.CtrReferans, PlcTags.CtrAktPoz);
+            AddRef(ModulRefPanel, "Sün3 Mod", PlcTags.Sun3ModReferans, PlcTags.Sun3ModAktPoz);
+
+            string[] bomse = { "Giriş", "Çapak", "Zım1", "Zım2", "Sün1", "Sün2", "Sün3", "Çıkış" };
+
+            for (int n = 1; n <= bomse.Length; n++)
+            {
+                AddRef(BomseRefPanel, "Bomse " + bomse[n - 1], PlcTags.BomseReferans(n), PlcTags.BomseAktPoz(n));
+                AddBypass(n, bomse[n - 1]);
+            }
+        }
+
+        private void AddJog(string label, string tag, bool isInt)
+        {
+            ParameterField f = Field(label, "%", 0, 0, 100);
+            _jogParams.Add(new Param { Field = f, Tag = tag, Group = "Jog", IsInt = isInt });
+            JogPanel.Children.Add(f);
+        }
+
+        private void AddRef(Panel panel, string name, string refTag, string posTag)
+        {
+            var pos = new TextBlock
+            {
+                Text = "—",
+                FontSize = 22,
+                FontFamily = new System.Windows.Media.FontFamily("Consolas"),
+                FontWeight = FontWeights.Bold,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(8, 0, 8, 0)
+            };
+            pos.SetResourceReference(TextBlock.ForegroundProperty, "PrimaryText");
+
+            var posBox = new Border
+            {
+                Child = pos,
+                Height = 38,
+                CornerRadius = new CornerRadius(6),
+                BorderThickness = new Thickness(1),
+                Margin = new Thickness(0, 0, 0, 4)
+            };
+            posBox.SetResourceReference(Border.BackgroundProperty, "AppBackground");
+            posBox.SetResourceReference(Border.BorderBrushProperty, "PanelBorder");
+
+            var button = new PlcPushButton
+            {
+                Content = name.ToUpper(Tr) + " REF",
+                PlcTag = refTag,
+                Description = name + " Referans",
+                Commands = _commands,
+                Style = (Style)FindResource("PushStyle")
+            };
+            button.CommandFailed += (s, m) => ShowStatus(m, isError: true);
+
+            var tile = new StackPanel { Margin = new Thickness(4) };
+            tile.Children.Add(posBox);
+            tile.Children.Add(button);
+            panel.Children.Add(tile);
+
+            _refAxes.Add(new RefAxis { Name = name, RefTag = refTag, PosTag = posTag, PosText = pos });
+        }
+
+        private void AddBypass(int n, string name)
+        {
+            var text = new TextBlock
+            {
+                Text = $"AX{n}\n{name.ToUpper(Tr)}",
+                TextAlignment = TextAlignment.Center,
+                LineHeight = 15,
+                LineStackingStrategy = LineStackingStrategy.BlockLineHeight
+            };
+
+            var b = new PlcToggleButton
+            {
+                Content = text,
+                PlcTag = PlcTags.BomseByPass(n),
+                Description = $"Bomse Ax{n} ({name}) ByPass",
+                Commands = _commands,
+                Style = (Style)FindResource("BypassStyle")
+            };
+            b.CommandFailed += (s, m) => ShowStatus(m, isError: true);
+
+            _bypassButtons.Add(b);
+            BypassPanel.Children.Add(b);
+        }
+
+        private void FormTab_Click(object sender, RoutedEventArgs e)
+        {
+            SelectView(jog: false);
+        }
+
+        private void JogTab_Click(object sender, RoutedEventArgs e)
+        {
+            SelectView(jog: true);
+        }
+
+        private void SelectView(bool jog)
+        {
+            _jogView = jog;
+
+            CardsPanel.Visibility = jog ? Visibility.Collapsed : Visibility.Visible;
+            JogView.Visibility = jog ? Visibility.Visible : Visibility.Collapsed;
+
+            FormTabButton.Tag = jog ? null : "Active";
+            JogTabButton.Tag = jog ? "Active" : null;
+
+            SubtitleText.Text = jog
+                ? "Jog hız / ivme, eksen referansı, bomse bypass"
+                : "Forma göre bomse hızı (oranlı mod, köşe hızı) ve modül geri mesafeleri";
+
+            // Görünüm değişince eski görünümün değerleri bayat kalmasın
+            ShowUnknown();
+            _readOk = null;
+            ShowStatus(string.Empty, isError: false);
         }
 
         // ---------------- Okuma ----------------
@@ -207,6 +367,12 @@ namespace IzostatikTabakKenarSilme.Pages
             if (!_state.IsConnected)
             {
                 ShowUnknown();
+                return;
+            }
+
+            if (_jogView)
+            {
+                await PollJogAsync(ct);
                 return;
             }
 
@@ -272,8 +438,48 @@ namespace IzostatikTabakKenarSilme.Pages
             }
         }
 
+        private async Task PollJogAsync(CancellationToken ct)
+        {
+            var jogReads = _jogParams.Select(p => new { p.Tag, p.IsInt }).ToList();
+            var posTags = _refAxes.Select(a => a.PosTag).ToList();
+            var bypassTags = _bypassButtons.Select(b => b.PlcTag).ToList();
+
+            var data = await Task.Run(() => new
+            {
+                Jog = jogReads.Select(r => r.IsInt ? (double)_plc.ReadIntTag(r.Tag) : _plc.ReadRealTag(r.Tag)).ToList(),
+                Pos = posTags.Select(t => _plc.ReadRealTag(t)).ToList(),
+                Bypass = bypassTags.Select(t => _plc.ReadBoolTag(t)).ToList()
+            }, ct);
+
+            if (ct.IsCancellationRequested || !_jogView)
+                return;
+
+            for (int i = 0; i < _jogParams.Count; i++)
+                ShowField(_jogParams[i].Field, data.Jog[i]);
+
+            for (int i = 0; i < _refAxes.Count; i++)
+                _refAxes[i].PosText.Text = data.Pos[i].ToString("F2", Tr);
+
+            for (int i = 0; i < _bypassButtons.Count; i++)
+                _bypassButtons[i].SetState(data.Bypass[i]);
+
+            if (_readOk == false)
+                ShowStatus(string.Empty, isError: false);
+
+            _readOk = true;
+        }
+
         private void ShowUnknown()
         {
+            foreach (Param p in _jogParams)
+                ShowField(p.Field, null);
+
+            foreach (RefAxis a in _refAxes)
+                a.PosText.Text = "—";
+
+            foreach (PlcToggleButton b in _bypassButtons)
+                b.SetState(null);
+
             foreach (Group g in _groups)
             {
                 g.OranliButton.SetState(null);
@@ -309,7 +515,10 @@ namespace IzostatikTabakKenarSilme.Pages
 
             try
             {
-                await _commands.WriteRealAsync(param.Tag, (float)value);
+                if (param.IsInt)
+                    await _commands.WriteIntAsync(param.Tag, (short)Math.Round(value));
+                else
+                    await _commands.WriteRealAsync(param.Tag, (float)value);
 
                 AppLogger.Info($"Parametre yazıldı: {description}");
                 ShowStatus($"Kaydedildi: {param.Group} {field.Label} = {newText}{unit}", isError: false);
@@ -330,7 +539,7 @@ namespace IzostatikTabakKenarSilme.Pages
         private void ShowStatus(string message, bool isError)
         {
             PageStatusText.Text = string.IsNullOrEmpty(message)
-                ? string.Empty
+                ? (_jogView ? JogHint : FormHint)
                 : $"{DateTime.Now:HH:mm:ss}  {message}";
 
             PageStatusText.SetResourceReference(

@@ -989,7 +989,7 @@ namespace IzostatikTabakKenarSilme
                 new Pages.SectionItem("Recete", "Reçete",
                     () => new Pages.PlaceholderPage("Reçete", "Reçete yükleme ve düzenleme")),
                 new Pages.SectionItem("Servo", "Servo",
-                    () => new Pages.PlaceholderPage("Servo", "Servo üretim ayarları"))
+                    () => new Pages.ServoAyarPage(_plcService, _commands, _machineState))
             };
         }
 

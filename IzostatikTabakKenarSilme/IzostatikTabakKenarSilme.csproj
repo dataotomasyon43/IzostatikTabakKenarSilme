@@ -102,6 +102,9 @@
     <Compile Include="Pages\GelismisAyarlarPage.xaml.cs">
       <DependentUpon>GelismisAyarlarPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\ServoAyarPage.xaml.cs">
+      <DependentUpon>ServoAyarPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\TabakYuklePage.xaml.cs">
       <DependentUpon>TabakYuklePage.xaml</DependentUpon>
     </Compile>
@@ -191,6 +194,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\GelismisAyarlarPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ServoAyarPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

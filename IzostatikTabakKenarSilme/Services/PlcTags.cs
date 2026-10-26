@@ -279,6 +279,31 @@
         public const string ReceteYukle = "HMI_Recete_Yukle";
         public const string ReceteYuklendi = "HMI_Recete_Yuklendi";
 
+        // ---------------- ÜRETİM: Servo (form hız ayarları) ----------------
+        // Recminmaxprog: bomse hızına cam mesafesine göre override
+        //   ScaleTrans(mesafe, maxcam → Köşe Hızı %, mincam → %100)
+        //   Köşeler Hızlı TRUE ise ters (mincam → Köşe Hızı, maxcam → %100).
+        // Oranlı mod MC_SetOverride'ı açar. GeriPoz = (maxson-minson)/10000
+        //   + modül başlama poz + geri mesafe (PLC hesaplar).
+        public const string CpkOranliMod = "HMI_OranliMod_Cpk";          // BOOL
+        public const string ZimOranliMod = "HMI_OranliMod_Zim";          // BOOL
+        public const string SunOranliMod = "HMI_OranliMod_Sun";          // BOOL
+        public const string CpkKoselerHizli = "HMI_Cpk_Koseler_Hizli";   // BOOL
+        public const string ZimKoselerHizli = "HMI_Zim_Koseler_Hizli";   // BOOL
+        public const string SunKoselerHizli = "HMI_Sun_Koseler_Hizli";   // BOOL
+        public const string CpkKoseHiz = "HMI_Form_Kose_Hiz_Cpk";        // REAL, %
+        public const string ZimKoseHiz = "HMI_Form_Kose_Hiz";            // REAL, %
+        public const string SunKoseHiz = "HMI_Form_Kose_Hiz_Sun";        // REAL, %
+        public const string CpkGeriMesafe = "HMI_Cpk_Geri_Mesafe";       // REAL, mm
+        public const string ZimGeriMesafe = "HMI_Zimparalar_Geri_Mesafe"; // REAL, mm
+        public const string SunGeriMesafe = "HMI_Sungerler_Geri_Mesafe"; // REAL, mm
+        public const string CpkGeriPoz = "HMI_CpkMod_GeriPoz";           // REAL, mm, gösterge
+        public const string Zim1GeriPoz = "HMI_Zim1_GeriPoz";            // REAL, mm, gösterge
+        public const string Zim2GeriPoz = "HMI_Zim2_GeriPoz";            // REAL, mm, gösterge
+        public const string Sun1GeriPoz = "HMI_Sun1_GeriPoz";            // REAL, mm, gösterge
+        public const string Sun2GeriPoz = "HMI_Sun2_GeriPoz";            // REAL, mm, gösterge
+        public const string Sun3GeriPoz = "HMI_Sun3_GeriPoz";            // REAL, mm, gösterge
+
         // BOOL — alarm reset (basılı tutma: TRUE, bırakınca FALSE)
         public const string Reset = "HMI_Reset";
 

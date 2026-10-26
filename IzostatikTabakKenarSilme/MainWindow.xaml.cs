@@ -87,16 +87,9 @@ namespace IzostatikTabakKenarSilme
         // kopyalanınca (HMI PC'si) kenarlıksız tam ekran açılır.
         private bool _windowed;
 
-        private static bool IsRunningFromBinFolder()
-        {
-            string dir = AppDomain.CurrentDomain.BaseDirectory ?? string.Empty;
-            string[] parts = dir.Split(new[] { '\\', '/' }, StringSplitOptions.RemoveEmptyEntries);
-            return parts.Any(p => string.Equals(p, "bin", StringComparison.OrdinalIgnoreCase));
-        }
-
         private void ApplyWindowMode()
         {
-            _windowed = IsRunningFromBinFolder();
+            _windowed = AppEnvironment.IsDevelopment;
 
             WindowStyle = WindowStyle.None;
             ResizeMode = ResizeMode.NoResize;

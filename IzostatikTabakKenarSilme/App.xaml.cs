@@ -24,10 +24,32 @@ namespace IzostatikTabakKenarSilme
             TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
 
             AppLogger.DeleteOldLogs();
-            AppLogger.Info("Uygulama başlatıldı.");
+
+            // Tek kopya: açılışta otomatik başlarken operatör de açarsa ikinci
+            // kopya PLC'ye ikinci bağlantı açmasın, sessizce kapansın.
+            _singleInstance = new System.Threading.Mutex(true, SingleInstanceName, out bool firstInstance);
+            if (!firstInstance)
+            {
+                AppLogger.Warn("Uygulama zaten çalışıyor; ikinci kopya kapatıldı.");
+                Environment.Exit(0);
+                return;
+            }
+
+            // Windows açılışında Run kaydıyla başlatılınca çalışma klasörü
+            // System32 olur; göreli yol kullanan bir şey yanlış yere bakmasın.
+            Environment.CurrentDirectory = AppDomain.CurrentDomain.BaseDirectory;
+
+            AppLogger.Info($"Uygulama başlatıldı ({(AppEnvironment.IsDevelopment ? "geliştirme, bin klasörü" : "saha kurulumu")}): {AppDomain.CurrentDomain.BaseDirectory}");
+
+            // Saha kurulumunda kendini Windows açılışına ekler (yol değiştiyse günceller).
+            if (!AppEnvironment.IsDevelopment)
+                AutoStart.EnsureRegistered();
 
             base.OnStartup(e);
         }
+
+        private const string SingleInstanceName = "IzostatikTabakKenarSilme_TekKopya";
+        private static System.Threading.Mutex _singleInstance;
 
         // Kapanış: ana pencere kapanınca (ShutdownMode=OnMainWindowClose)
         // PLC bağlantısı, buton modülü ve yazma kuyruğu MainWindow.Closed'da

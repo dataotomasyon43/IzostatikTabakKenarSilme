@@ -105,6 +105,9 @@
     <Compile Include="Pages\DonerTablaPage.xaml.cs">
       <DependentUpon>DonerTablaPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\TransferBosaltmaPage.xaml.cs">
+      <DependentUpon>TransferBosaltmaPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\TransferYuklemePage.xaml.cs">
       <DependentUpon>TransferYuklemePage.xaml</DependentUpon>
     </Compile>
@@ -178,6 +181,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\DonerTablaPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\TransferBosaltmaPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -258,6 +265,7 @@
          bu dosya başka yerlerde kullanım içindir, derlemeye girmez). -->
     <None Include="Assets\logo.svg" />
     <Resource Include="Assets\TransferYukleme.png" />
+    <Resource Include="Assets\TransferBosaltma.png" />
     <Resource Include="Assets\DonerTabla.png" />
     <Resource Include="Assets\GirisCikisBomse.png" />
     <Resource Include="Assets\CapakKirma.png" />

@@ -214,6 +214,32 @@
         public const string Sun3ModJogP = "HMI_Sun3_Modul_PJog";                 // basılı tutma
         public const string Sun3ModJogN = "HMI_Sun3_Modul_NJog";                 // basılı tutma
 
+        // ---------------- AYARLAR: Transfer Boşaltma (CTR) ----------------
+        // Parametreler
+        public const string CtrHizBos = "HMI_CTR_Oto_Bos_Hiz";            // INT, %
+        public const string CtrIvmeBos = "HMI_CTR_Oto_Bos_Acc";           // INT, %
+        public const string CtrHizDolu = "HMI_CTR_Oto_Dolu_Hiz";          // INT, %
+        public const string CtrIvmeDolu = "HMI_CTR_Oto_Dolu_Acc";         // INT, %
+        public const string CtrAlmaPoz = "HMI_CTR_Tabak_Alma_Pos";        // REAL, mm
+        public const string CtrBirakmaPoz = "HMI_CTR_Tabak_Birakma_Pos";  // REAL, mm
+        public const string CtrVakumSure = "HMI_CTR_Vakum_T";             // REAL, s
+        public const string CtrUflemeSure = "HMI_CTR_Ufleme_T";           // REAL, s
+        // Göstergeler (yalnız okunur)
+        public const string CtrAktPoz = "HMI_CTR_Akt_Poz";                // REAL, mm
+        public const string CtrPiston1Yukarida = "I_CTR_Piston_Yukarida";
+        public const string CtrPiston1Baski = "I_CTR_Piston_Baski";
+        // Basılı tutma (bas TRUE, bırak FALSE)
+        public const string CtrAlmaPozOgren = "HMI_CTR_Tabak_Alma_Poz_Ogren";
+        public const string CtrBirakmaPozOgren = "HMI_CTR_Tabak_Birakma_Poz_Ogren";
+        public const string CtrAlmayaGit = "HMI_CTR_Alma_PozGit";
+        public const string CtrBirakmayaGit = "HMI_CTR_Birakma_PozGit";
+        public const string CtrGobege = "HMI_CTR_Tablada";
+        public const string CtrIstifTablaya = "HMI_CTR_Konvde";
+        // Kalıcı (bir basış TRUE, bir basış FALSE)
+        public const string CtrPiston1Asagi = "HMI_CTR_Piston_Asagi_V_Man";
+        public const string CtrPiston1Vakum = "HMI_CTR_Piston_Vakum_Man";
+        public const string CtrPiston1Ufleme = "HMI_CTR_Piston_Ufleme_Man";
+
         // BOOL — alarm reset (basılı tutma: TRUE, bırakınca FALSE)
         public const string Reset = "HMI_Reset";
 

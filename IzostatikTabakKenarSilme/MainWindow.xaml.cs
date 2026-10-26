@@ -974,7 +974,8 @@ namespace IzostatikTabakKenarSilme
                     () => new Pages.BomseIstasyonPage(_plcService, _commands, _machineState, Sunger3Config())),
                 new Pages.SectionItem("TransferBosaltma", "Transfer Boşaltma",
                     () => new Pages.TransferBosaltmaPage(_plcService, _commands, _machineState)),
-                Station("CikisKonveyor", "Çıkış Konveyör")
+                new Pages.SectionItem("CikisKonveyor", "Çıkış Konveyör",
+                    () => new Pages.CikisKonveyorPage(_plcService, _commands, _machineState))
             };
         }
 

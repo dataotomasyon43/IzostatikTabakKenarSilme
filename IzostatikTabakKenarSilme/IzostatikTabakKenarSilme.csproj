@@ -96,6 +96,9 @@
     <Compile Include="Pages\BomseIstasyonPage.xaml.cs">
       <DependentUpon>BomseIstasyonPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\CikisKonveyorPage.xaml.cs">
+      <DependentUpon>CikisKonveyorPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\CapakKirmaPage.xaml.cs">
       <DependentUpon>CapakKirmaPage.xaml</DependentUpon>
     </Compile>
@@ -169,6 +172,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\BomseIstasyonPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\CikisKonveyorPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -266,6 +273,7 @@
     <None Include="Assets\logo.svg" />
     <Resource Include="Assets\TransferYukleme.png" />
     <Resource Include="Assets\TransferBosaltma.png" />
+    <Resource Include="Assets\CikisKonveyor.png" />
     <Resource Include="Assets\DonerTabla.png" />
     <Resource Include="Assets\GirisCikisBomse.png" />
     <Resource Include="Assets\CapakKirma.png" />

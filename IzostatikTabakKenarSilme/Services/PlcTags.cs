@@ -240,6 +240,15 @@
         public const string CtrPiston1Vakum = "HMI_CTR_Piston_Vakum_Man";
         public const string CtrPiston1Ufleme = "HMI_CTR_Piston_Ufleme_Man";
 
+        // ---------------- AYARLAR: Çıkış Konveyör ----------------
+        public const string KonvSonSensor = "I_CikisBandi_SonSens";       // gösterge
+        public const string KonvHiz = "HMI_Cikis_Konveyoru_Hiz";          // INT, % (0-99)
+        public const string KonvYon = "HMI_Cikis_Konveyoru_Yon";          // BOOL, kalıcı ("geri")
+        public const string IstifAktuel = "HMI_Istif_Akt";                // INT, gösterge
+        public const string IstifAdet = "HMI_Istif_Adet";                 // INT, hedef adet
+        public const string KonvDonmeSure = "HMI_Cikis_Konv_T";           // REAL, s
+        public const string KonvManStart = "HMI_Cikis_Konveyoru_Man_Start"; // basılı tutma
+
         // BOOL — alarm reset (basılı tutma: TRUE, bırakınca FALSE)
         public const string Reset = "HMI_Reset";
 

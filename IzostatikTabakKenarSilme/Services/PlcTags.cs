@@ -64,8 +64,9 @@
         public const string GtrBirakmaPozOgren = "HMI_GTR_Tabak_Birakma_Poz_Ogren";
         public const string GtrAlmayaGit = "HMI_GTR_Alma_PozGit";
         public const string GtrBirakmayaGit = "HMI_GTR_Birakma_PozGit";
-        public const string GtrKonveyore = "HMI_GTR_Konvde";
-        public const string GtrGobege = "HMI_GTR_Tablada";
+        // Jog (MC_MoveJog, Manuel modda; pistonlar yukarıda olmalı — PLC kontrol eder)
+        public const string GtrKonveyore = "HMI_GTR_JogN";                // NegativeEnable
+        public const string GtrGobege = "HMI_GTR_JogP";                   // PositiveEnable
         // Kalıcı (bir basış TRUE, bir basış FALSE)
         public const string GtrPiston1Asagi = "HMI_GTR_Piston_Asagi_V_Man";
         public const string GtrPiston2Asagi = "HMI_GTR_Piston2_Asagi_V_Man";
@@ -233,8 +234,10 @@
         public const string CtrBirakmaPozOgren = "HMI_CTR_Tabak_Birakma_Poz_Ogren";
         public const string CtrAlmayaGit = "HMI_CTR_Alma_PozGit";
         public const string CtrBirakmayaGit = "HMI_CTR_Birakma_PozGit";
-        public const string CtrGobege = "HMI_CTR_Tablada";
-        public const string CtrIstifTablaya = "HMI_CTR_Konvde";
+        // Jog (MC_MoveJog, Manuel modda; piston yukarıda olmalı — PLC kontrol eder)
+        // Yön GTR ile aynı varsayıldı (göbeğe = JogP); makinede doğrulanacak.
+        public const string CtrGobege = "HMI_CTR_JogP";                   // PositiveEnable
+        public const string CtrIstifTablaya = "HMI_CTR_JogN";             // NegativeEnable
         // Kalıcı (bir basış TRUE, bir basış FALSE)
         public const string CtrPiston1Asagi = "HMI_CTR_Piston_Asagi_V_Man";
         public const string CtrPiston1Vakum = "HMI_CTR_Piston_Vakum_Man";

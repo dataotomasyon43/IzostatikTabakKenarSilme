@@ -259,6 +259,7 @@ namespace IzostatikTabakKenarSilme.Pages
         private void AddJog(string label, string tag, bool isInt)
         {
             ParameterField f = Field(label, "%", 0, 0, 100);
+            f.Height = 42; // jog + bypass kartları sol sütuna sığsın
             _jogParams.Add(new Param { Field = f, Tag = tag, Group = "Jog", IsInt = isInt });
             JogPanel.Children.Add(f);
         }

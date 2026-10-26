@@ -693,7 +693,7 @@ namespace IzostatikTabakKenarSilme
         // Yalnızca durum değişince gönderilir. Açılış animasyonu sürerken
         // dokunulmaz (animasyon bitince force ile uygulanır).
         // Seçili olmayan mod lambalarının parlaklığı (renk bileşenleri × oran).
-        private const double EzDimFactor = 0.30;
+        private const double EzDimFactor = 0.05;
 
         private void SetModeLamp(int lamp, short lampMode, short? currentMode, byte r, byte g, byte b)
         {

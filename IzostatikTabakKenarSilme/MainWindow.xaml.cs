@@ -627,6 +627,18 @@ namespace IzostatikTabakKenarSilme
         // Lamba renkleri: 1–4 mod renkleri (koyu tema tonları), 5 duruma göre.
         // Yalnızca durum değişince gönderilir. Açılış animasyonu sürerken
         // dokunulmaz (animasyon bitince force ile uygulanır).
+        // Seçili olmayan mod lambalarının parlaklığı (renk bileşenleri × oran).
+        private const double EzDimFactor = 0.30;
+
+        private void SetModeLamp(int lamp, short lampMode, short? currentMode, byte r, byte g, byte b)
+        {
+            double k = currentMode == lampMode ? 1.0 : EzDimFactor;
+
+            _ezSwitch.SetLamp(lamp,
+                (byte)Math.Round(r * k), (byte)Math.Round(g * k), (byte)Math.Round(b * k),
+                LampMode.Sabit, send: false);
+        }
+
         private void UpdateEzLamps(bool force = false)
         {
             // Kapanışta lambalar söndürüldükten sonra tekrar yakılmasın.
@@ -638,7 +650,10 @@ namespace IzostatikTabakKenarSilme
 
             Ez5Action action = CurrentEz5Action();
 
-            string state = action.ToString();
+            // Seçili mod (bağlantı yoksa bilinmiyor → hepsi sönük).
+            short? mode = _plcConnected == true ? _lastMode : null;
+
+            string state = action + "|" + (mode?.ToString() ?? "-");
 
             if (!force && state == _ezLampState)
                 return;
@@ -647,10 +662,11 @@ namespace IzostatikTabakKenarSilme
 
             try
             {
-                _ezSwitch.SetLamp(1, 0xF1, 0xF3, 0xF5, LampMode.Sabit, send: false); // Kapalı  #F1F3F5
-                _ezSwitch.SetLamp(2, 0x00, 0xff, 0x00, LampMode.Sabit, send: false); // Güvenli #5CC872
-                _ezSwitch.SetLamp(3, 0xFF, 0x72, 0x00, LampMode.Sabit, send: false); // Manuel  #F28C28
-                _ezSwitch.SetLamp(4, 0x00, 0x00, 0xFF, LampMode.Sabit, send: false); // Otomatik #4DA3FF
+                // Mod lambaları: seçili mod tam parlak, diğerleri %30.
+                SetModeLamp(1, MachineModes.Kapali, mode, 0xF1, 0xF3, 0xF5);   // Kapalı  #F1F3F5
+                SetModeLamp(2, MachineModes.Guvenli, mode, 0x00, 0xff, 0x00);  // Güvenli #5CC872
+                SetModeLamp(3, MachineModes.Manuel, mode, 0xFF, 0x72, 0x00);   // Manuel  #F28C28
+                SetModeLamp(4, MachineModes.Otomatik, mode, 0x00, 0x00, 0xFF); // Otomatik #4DA3FF
 
                 switch (action)
                 {

@@ -154,6 +154,26 @@
         public const string Zim2ModJogP = "HMI_Zim2_Modul_PJog";                 // basılı tutma
         public const string Zim2ModJogN = "HMI_Zim2_Modul_NJog";                 // basılı tutma
 
+        // ---------------- AYARLAR: Sünger-1 (istasyon 5, Bomse 5) ----------------
+        public const string Sun1BomseBasPoz = "HMI_BomseSun1_BasPoz";            // REAL, °
+        public const string Sun1BomseAktPoz = "HMI_Bomse[5].Akt_Poz";            // REAL, °, gösterge
+        public const string Sun1BitisAci = "HMI_Ist5BitisAci";                   // REAL, °
+        public const string Sun1ModGeriCekilmeAci = "HMI_Ist5ModGeriCekilmeAci"; // REAL, °
+        public const string Sun1TurSure = "HMI_Tur5Sure";                        // REAL, s
+        public const string Sun1TurSayi = "HMI_Ist5TurSayi";                     // INT, adet
+        public const string Sun1BomseYon = "HMI_Bomse5Yon";                      // BOOL, kalıcı
+        public const string Sun1BomseJogP = "HMI_Bomse[5].JogP";                 // basılı tutma
+        public const string Sun1BomseJogN = "HMI_Bomse[5].JogN";                 // basılı tutma
+        public const string Sun1SungerHiz = "HMI_Sunger1_Hiz";                   // INT, % (0-99)
+        public const string Sun1SungerYon = "HMI_Sunger1_Yon";                   // BOOL, kalıcı
+        public const string Sun1ManStart = "HMI_Sunger1_Man_Start";              // BOOL, kalıcı
+        public const string Sun1ModHiz = "HMI_Sun1Mod_OtoHiz";                   // INT, %
+        public const string Sun1ModAktPoz = "HMI_Sun1Mod_ActPos";                // REAL, mm, gösterge
+        public const string Sun1ModBasPoz = "HMI_Sun1_BasPoz";                   // REAL, mm
+        public const string Sun1Teach = "HMI_Sun1_BasPoz_Ogren";                 // basılı tutma
+        public const string Sun1ModJogP = "HMI_Sun1_Modul_PJog";                 // basılı tutma
+        public const string Sun1ModJogN = "HMI_Sun1_Modul_NJog";                 // basılı tutma
+
         // BOOL — alarm reset (basılı tutma: TRUE, bırakınca FALSE)
         public const string Reset = "HMI_Reset";
 

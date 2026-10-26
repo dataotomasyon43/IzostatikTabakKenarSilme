@@ -966,7 +966,8 @@ namespace IzostatikTabakKenarSilme
                     () => new Pages.BomseIstasyonPage(_plcService, _commands, _machineState, Zimpara1Config())),
                 new Pages.SectionItem("Zimpara2", "Zımpara-2",
                     () => new Pages.BomseIstasyonPage(_plcService, _commands, _machineState, Zimpara2Config())),
-                Station("Sunger1", "Sünger-1"),
+                new Pages.SectionItem("Sunger1", "Sünger-1",
+                    () => new Pages.BomseIstasyonPage(_plcService, _commands, _machineState, Sunger1Config())),
                 Station("Sunger2", "Sünger-2"),
                 Station("Sunger3", "Sünger-3"),
                 Station("TransferBosaltma", "Transfer Boşaltma"),
@@ -1065,6 +1066,40 @@ namespace IzostatikTabakKenarSilme
                 Teach = PlcTags.Zim2Teach,
                 ModJogP = PlcTags.Zim2ModJogP,
                 ModJogN = PlcTags.Zim2ModJogN
+            };
+        }
+
+        // Sünger-1 (istasyon 5, Bomse 5)
+        private static Pages.BomseIstasyonConfig Sunger1Config()
+        {
+            return new Pages.BomseIstasyonConfig
+            {
+                Title = "Sünger-1",
+                Subtitle = "Bomse, sünger ve modül ayarları, manuel kumanda",
+                ImageAsset = "/Assets/Sunger1.png",
+
+                BomseBasPoz = PlcTags.Sun1BomseBasPoz,
+                BomseAktPoz = PlcTags.Sun1BomseAktPoz,
+                BitisAci = PlcTags.Sun1BitisAci,
+                GeriCekilmeAci = PlcTags.Sun1ModGeriCekilmeAci,
+                TurSure = PlcTags.Sun1TurSure,
+                TurSayi = PlcTags.Sun1TurSayi,
+                BomseYon = PlcTags.Sun1BomseYon,
+                BomseJogP = PlcTags.Sun1BomseJogP,
+                BomseJogN = PlcTags.Sun1BomseJogN,
+
+                ToolHizLabel = "Sünger Hızı",
+                ToolHiz = PlcTags.Sun1SungerHiz,
+                ToolYon = PlcTags.Sun1SungerYon,
+                ToolStartText = "SÜNGER DÖN",
+                ToolStart = PlcTags.Sun1ManStart,
+
+                ModHiz = PlcTags.Sun1ModHiz,
+                ModAktPoz = PlcTags.Sun1ModAktPoz,
+                ModBasPoz = PlcTags.Sun1ModBasPoz,
+                Teach = PlcTags.Sun1Teach,
+                ModJogP = PlcTags.Sun1ModJogP,
+                ModJogN = PlcTags.Sun1ModJogN
             };
         }
 

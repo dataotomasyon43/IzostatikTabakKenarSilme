@@ -38,9 +38,11 @@
             <Setter Property="Margin" Value="0,2"/>
         </Style>
 
-        <!-- Form listesi satırı: seçiliyken vurgu şeridi -->
+        <!-- Form listesi satırı: seçiliyken vurgu şeridi.
+             Focusable kapatılmamalı: ListBoxItem tıklamada önce odak alır,
+             odak alamazsa seçim yapmaz. Kesikli odak çerçevesi gizlenir. -->
         <Style x:Key="FormItemStyle" TargetType="{x:Type ListBoxItem}">
-            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="Template">
                 <Setter.Value>

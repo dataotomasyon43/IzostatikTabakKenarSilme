@@ -126,6 +126,17 @@ namespace IzostatikTabakKenarSilme.Services
             }
         }
 
+        // WORD: 16 bit (ör. _ErrSta durum kelimeleri)
+        public ushort ReadWordTag(string tagName)
+        {
+            lock (_sync)
+            {
+                Tag tag = Get(tagName, 2);
+                tag.Read();
+                return tag.GetUInt16(0);
+            }
+        }
+
         // UDINT: 32 bit unsigned
         public uint ReadUDintTag(string tagName)
         {

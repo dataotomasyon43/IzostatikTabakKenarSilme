@@ -58,6 +58,23 @@ namespace IzostatikTabakKenarSilme.Pages
             AddTag("HMI_Recete_Yuklendi", "BOOL");
 
             AddTag("Alm", "BOOL[501]");
+
+            // ---- Sistem arızaları okuma testi ----
+            // Servo / EtherCAT / PLC hatalarının (Alm[] dışı) EtherNet/IP
+            // üzerinden okunabilir olup olmadığını görmek için. Okunamayanlar
+            // "Network Publish" kapalı demektir; o zaman PLC'de HMI
+            // değişkenine aktarmak gerekir.
+            AddTag("AxGTR.MFaultLvl.Active", "BOOL");
+            AddTag("AxGTR.MFaultLvl.Code", "DWORD");
+            AddTag("AxGTR.Obsr.Active", "BOOL");
+            AddTag("AxGTR.Obsr.Code", "DWORD");
+            AddTag("AxModZim1.MFaultLvl.Active", "BOOL");
+            AddTag("AxModZim1.MFaultLvl.Code", "DWORD");
+            AddTag("BomseCpk.MFaultLvl.Code", "DWORD");
+            AddTag("_MC_ErrSta", "WORD");
+            AddTag("_EC_ErrSta", "WORD");
+            AddTag("_PLC_ErrSta", "WORD");
+            AddTag("_ErrSta", "WORD");
         }
 
         private void AddTag(string name, string type)
@@ -180,6 +197,18 @@ namespace IzostatikTabakKenarSilme.Pages
             {
                 bool value = _plc.ReadBoolTag(tag.Name);
                 return value.ToString();
+            }
+
+            if (tag.DataType == "WORD")
+            {
+                ushort value = _plc.ReadWordTag(tag.Name);
+                return $"0x{value:X4}";
+            }
+
+            if (tag.DataType == "DWORD")
+            {
+                uint value = _plc.ReadUDintTag(tag.Name);
+                return $"0x{value:X8}";
             }
 
             if (tag.DataType.StartsWith("BOOL["))

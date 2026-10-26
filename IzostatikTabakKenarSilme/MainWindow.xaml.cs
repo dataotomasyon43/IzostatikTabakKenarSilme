@@ -102,9 +102,78 @@ namespace IzostatikTabakKenarSilme
             else
             {
                 WindowState = WindowState.Maximized;
+
+                // Görev çubuğu / Başlat düğmesi tam ekranın üstünde kalmasın.
+                // Sahibi bu pencere olan pencereler (Aktif Alarmlar, sayı
+                // klavyesi, onay kutuları) yine bunun üstünde açılır.
+                Topmost = true;
+                ContentRendered += (s, e) => StartForegroundGuard();
             }
 
             AppLogger.Info("Pencere modu: " + (_windowed ? "pencere (bin klasörü)" : "tam ekran"));
+        }
+
+        // Windows açılışında uygulama masaüstü / görev çubuğu henüz yüklenirken
+        // başlar; Windows 7 odağı vermeyebilir ve görev çubuğu üstte kalır
+        // (ilk tıklamaya kadar). İlk 20 sn boyunca saniyede bir pencere öne
+        // alınır. Aktif Alarmlar gibi bu pencereye ait bir pencere öndeyse
+        // ona dokunulmaz (alarm penceresi açık kalır, odağı alınmaz).
+        private DispatcherTimer _foregroundGuardTimer;
+        private int _foregroundGuardTicks;
+        private const int ForegroundGuardSeconds = 20;
+
+        private void StartForegroundGuard()
+        {
+            if (_foregroundGuardTimer != null)
+                return;
+
+            BringToForeground();
+
+            _foregroundGuardTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+            _foregroundGuardTimer.Tick += (s, e) =>
+            {
+                if (++_foregroundGuardTicks >= ForegroundGuardSeconds)
+                {
+                    _foregroundGuardTimer.Stop();
+                    return;
+                }
+
+                bool ownedActive = false;
+                foreach (Window w in OwnedWindows)
+                {
+                    if (w.IsActive)
+                        ownedActive = true;
+                }
+
+                if (!IsActive && !ownedActive)
+                    BringToForeground();
+            };
+            _foregroundGuardTimer.Start();
+        }
+
+        private void BringToForeground()
+        {
+            try
+            {
+                if (WindowState == WindowState.Minimized)
+                    WindowState = WindowState.Maximized;
+
+                // Topmost'u yeniden vermek pencereyi, sonradan açılan görev
+                // çubuğunun da üstüne çıkarır.
+                Topmost = false;
+                Topmost = true;
+
+                Activate();
+                Focus();
+
+                // Aktif Alarmlar bu pencereye ait olduğu için Windows onu
+                // her zaman ana pencerenin üstünde tutar; ayrıca bir şey
+                // yapmaya gerek yok.
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Warn("Pencere öne alınamadı: " + ex.Message);
+            }
         }
 
         // Pencere modunda üst başlıktan tutup taşıma. Butonlar olayı kendileri
@@ -180,6 +249,7 @@ namespace IzostatikTabakKenarSilme
         private void MainWindow_Closed(object sender, EventArgs e)
         {
             _alarmTickerTimer.Stop();
+            _foregroundGuardTimer?.Stop();
             _pollCts.Cancel();
 
             StopEzSwitch();

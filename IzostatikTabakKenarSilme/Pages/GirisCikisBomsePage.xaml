@@ -59,55 +59,46 @@
                        Foreground="{DynamicResource SecondaryText}"/>
         </StackPanel>
 
+        <!-- Giriş ve çıkış bomse yan yana (bu sayfada görsel yok) -->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="460"/>
+                <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="14"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <StackPanel Grid.Column="0">
-                <!-- ================= GİRİŞ BOMSE ================= -->
-                <Border Style="{StaticResource CardStyle}">
-                    <StackPanel>
-                        <TextBlock Text="GİRİŞ BOMSE" Style="{StaticResource CardTitleStyle}"/>
+            <!-- ================= GİRİŞ BOMSE ================= -->
+            <Border Grid.Column="0" Style="{StaticResource CardStyle}" VerticalAlignment="Top">
+                <StackPanel>
+                    <TextBlock Text="GİRİŞ BOMSE" Style="{StaticResource CardTitleStyle}"/>
 
-                        <!-- HMI_BomIn_Alma_Pos (REAL, °) -->
-                        <controls:ParameterField x:Name="GirisOffsetField"
-                                                 Label="Bomse Alma Offset" Unit="°" Decimals="1" Min="0" Max="360"
-                                                 ValueWidth="140" UnitWidth="30"/>
-                        <!-- HMI_Bomse[1].Akt_Poz (gösterge) -->
-                        <controls:ParameterField x:Name="GirisAktPozField"
-                                                 Label="Bomse Aktüel Pozisyon" Unit="°" Decimals="2"
-                                                 ValueWidth="140" UnitWidth="30"
-                                                 IsReadOnly="True"/>
-                    </StackPanel>
-                </Border>
+                    <!-- HMI_BomIn_Alma_Pos (REAL, °) -->
+                    <controls:ParameterField x:Name="GirisOffsetField"
+                                             Label="Bomse Alma Offset" Unit="°" Decimals="1" Min="0" Max="360"
+                                             ValueWidth="140" UnitWidth="30"/>
+                    <!-- HMI_Bomse[1].Akt_Poz (gösterge) -->
+                    <controls:ParameterField x:Name="GirisAktPozField"
+                                             Label="Bomse Aktüel Pozisyon" Unit="°" Decimals="2"
+                                             ValueWidth="140" UnitWidth="30"
+                                             IsReadOnly="True"/>
+                </StackPanel>
+            </Border>
 
-                <!-- ================= ÇIKIŞ BOMSE ================= -->
-                <Border Style="{StaticResource CardStyle}" Margin="0,14,0,0">
-                    <StackPanel>
-                        <TextBlock Text="ÇIKIŞ BOMSE" Style="{StaticResource CardTitleStyle}"/>
+            <!-- ================= ÇIKIŞ BOMSE ================= -->
+            <Border Grid.Column="2" Style="{StaticResource CardStyle}" VerticalAlignment="Top">
+                <StackPanel>
+                    <TextBlock Text="ÇIKIŞ BOMSE" Style="{StaticResource CardTitleStyle}"/>
 
-                        <!-- HMI_BomOut_Alma_Pos (REAL, °) -->
-                        <controls:ParameterField x:Name="CikisOffsetField"
-                                                 Label="Bomse Referans Offset" Unit="°" Decimals="1" Min="0" Max="360"
-                                                 ValueWidth="140" UnitWidth="30"/>
-                        <!-- HMI_Bomse[8].Akt_Poz (gösterge) -->
-                        <controls:ParameterField x:Name="CikisAktPozField"
-                                                 Label="Bomse Aktüel Pozisyon" Unit="°" Decimals="2"
-                                                 ValueWidth="140" UnitWidth="30"
-                                                 IsReadOnly="True"/>
-                    </StackPanel>
-                </Border>
-            </StackPanel>
-
-            <!-- ================= GÖRSEL =================
-                 Örnek görsel: Assets\GirisCikisBomse.png aynı adla değiştirilebilir. -->
-            <Border Grid.Column="2" Style="{StaticResource CardStyle}" Padding="10">
-                <Image Source="/Assets/GirisCikisBomse.png"
-                       Stretch="Uniform"
-                       RenderOptions.BitmapScalingMode="HighQuality"/>
+                    <!-- HMI_BomOut_Alma_Pos (REAL, °) -->
+                    <controls:ParameterField x:Name="CikisOffsetField"
+                                             Label="Bomse Referans Offset" Unit="°" Decimals="1" Min="0" Max="360"
+                                             ValueWidth="140" UnitWidth="30"/>
+                    <!-- HMI_Bomse[8].Akt_Poz (gösterge) -->
+                    <controls:ParameterField x:Name="CikisAktPozField"
+                                             Label="Bomse Aktüel Pozisyon" Unit="°" Decimals="2"
+                                             ValueWidth="140" UnitWidth="30"
+                                             IsReadOnly="True"/>
+                </StackPanel>
             </Border>
         </Grid>
 

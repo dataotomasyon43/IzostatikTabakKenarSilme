@@ -63,11 +63,14 @@
                        Foreground="{DynamicResource SecondaryText}"/>
         </StackPanel>
 
+        <!-- BOMSE | MODÜL | GÖRSEL (görsel satır boyu, dikey) -->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="440"/>
+                <ColumnDefinition Width="360"/>
                 <ColumnDefinition Width="14"/>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="14"/>
+                <ColumnDefinition Width="260"/>
             </Grid.ColumnDefinitions>
 
             <!-- ================= BOMSE ================= -->
@@ -77,20 +80,20 @@
 
                     <controls:ParameterField x:Name="BomseBasPozField"
                                              Label="Bomse Başlama Pos" Unit="°" Decimals="1" Min="0" Max="360"
-                                             ValueWidth="130" UnitWidth="40" ValueFontSize="24"/>
+                                             ValueWidth="110" UnitWidth="36" ValueFontSize="24"/>
                     <controls:ParameterField x:Name="BomseAktPozField"
                                              Label="Bomse Aktüel Pos" Unit="°" Decimals="1"
-                                             ValueWidth="130" UnitWidth="40" ValueFontSize="24"
+                                             ValueWidth="110" UnitWidth="36" ValueFontSize="24"
                                              IsReadOnly="True"/>
                     <controls:ParameterField x:Name="BitisAciField"
                                              Label="Bitiş Ek Açı" Unit="°" Decimals="1" Min="0" Max="360"
-                                             ValueWidth="130" UnitWidth="40" ValueFontSize="24"/>
+                                             ValueWidth="110" UnitWidth="36" ValueFontSize="24"/>
                     <controls:ParameterField x:Name="GeriCekilmeAciField"
                                              Label="Modül Geri Çekilme Açısı" Unit="°" Decimals="1" Min="0" Max="360"
-                                             ValueWidth="130" UnitWidth="40" ValueFontSize="24"/>
+                                             ValueWidth="110" UnitWidth="36" ValueFontSize="24"/>
                     <controls:ParameterField x:Name="TurSureField"
                                              Label="Tur Süresi" Unit="s" Decimals="1" Min="0" Max="9999"
-                                             ValueWidth="130" UnitWidth="40" ValueFontSize="24"/>
+                                             ValueWidth="110" UnitWidth="36" ValueFontSize="24"/>
 
                     <!-- Tur sayısı + bomse dönüş yönü ("geri", kalıcı) -->
                     <Grid>
@@ -110,66 +113,58 @@
                 </StackPanel>
             </Border>
 
-            <Grid Grid.Column="2">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="14"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
+            <!-- ================= TAKIM + MODÜL ================= -->
+            <Border Grid.Column="2" Style="{StaticResource CardStyle}" VerticalAlignment="Top">
+                <StackPanel>
+                    <TextBlock Text="MODÜL" Style="{StaticResource CardTitleStyle}"/>
 
-                <!-- ================= TAKIM + MODÜL ================= -->
-                <Border Grid.Row="0" Style="{StaticResource CardStyle}">
-                    <StackPanel>
-                        <TextBlock Text="MODÜL" Style="{StaticResource CardTitleStyle}"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="92"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="10"/>
-                                <ColumnDefinition Width="110"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
+                        <!-- Takım hızı (taşlama / sünger) + yön ("geri", kalıcı).
+                             Takımı olmayan istasyonda gizlenir. -->
+                        <controls:ParameterField x:Name="ToolHizField" Grid.Row="0"
+                                                 Unit="%" Decimals="0" Min="0" Max="99"
+                                                 ValueWidth="110" UnitWidth="40" ValueFontSize="24"/>
+                        <controls:PlcToggleButton x:Name="ToolYonButton" Grid.Row="0" Grid.Column="2"
+                                                  Margin="0,5"
+                                                  Content="GERİ"
+                                                  Style="{StaticResource ManualButtonStyle}"/>
 
-                            <!-- Takım hızı (taşlama / sünger) + yön ("geri", kalıcı).
-                                 Takımı olmayan istasyonda gizlenir. -->
-                            <controls:ParameterField x:Name="ToolHizField" Grid.Row="0"
-                                                     Unit="%" Decimals="0" Min="0" Max="99"
-                                                     ValueWidth="130" UnitWidth="44" ValueFontSize="24"/>
-                            <controls:PlcToggleButton x:Name="ToolYonButton" Grid.Row="0" Grid.Column="2"
-                                                      Margin="0,5"
-                                                      Content="GERİ"
-                                                      Style="{StaticResource ManualButtonStyle}"/>
+                        <controls:ParameterField x:Name="ModHizField" Grid.Row="1"
+                                                 Label="Modül Hızı" Unit="%" Decimals="0" Min="0" Max="9999"
+                                                 ValueWidth="110" UnitWidth="40" ValueFontSize="24"/>
+                        <controls:ParameterField x:Name="ModAktPozField" Grid.Row="2"
+                                                 Label="Aktüel Poz" Unit="mm" Decimals="2"
+                                                 ValueWidth="110" UnitWidth="40" ValueFontSize="24"
+                                                 IsReadOnly="True"/>
+                        <controls:ParameterField x:Name="ModBasPozField" Grid.Row="3"
+                                                 Label="Başlama Poz" Unit="mm" Decimals="2" Min="0" Max="9999"
+                                                 ValueWidth="110" UnitWidth="40" ValueFontSize="24"/>
+                        <controls:PlcPushButton x:Name="TeachButton" Grid.Row="3" Grid.Column="2"
+                                                Margin="0,5"
+                                                Content="TEACH"
+                                                Style="{StaticResource PushButtonStyle}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
 
-                            <controls:ParameterField x:Name="ModHizField" Grid.Row="1"
-                                                     Label="Modül Hızı" Unit="%" Decimals="0" Min="0" Max="9999"
-                                                     ValueWidth="130" UnitWidth="44" ValueFontSize="24"/>
-                            <controls:ParameterField x:Name="ModAktPozField" Grid.Row="2"
-                                                     Label="Modül Aktüel Pozisyonu" Unit="mm" Decimals="2"
-                                                     ValueWidth="130" UnitWidth="44" ValueFontSize="24"
-                                                     IsReadOnly="True"/>
-                            <controls:ParameterField x:Name="ModBasPozField" Grid.Row="3"
-                                                     Label="Başlama Pozisyonu" Unit="mm" Decimals="2" Min="0" Max="9999"
-                                                     ValueWidth="130" UnitWidth="44" ValueFontSize="24"/>
-                            <controls:PlcPushButton x:Name="TeachButton" Grid.Row="3" Grid.Column="2"
-                                                    Margin="0,5"
-                                                    Content="TEACH"
-                                                    Style="{StaticResource PushButtonStyle}"/>
-                        </Grid>
-                    </StackPanel>
-                </Border>
-
-                <!-- ================= GÖRSEL ================= -->
-                <Border Grid.Row="2" Style="{StaticResource CardStyle}" Padding="10">
-                    <Image x:Name="StationImage"
-                           Stretch="Uniform"
-                           RenderOptions.BitmapScalingMode="HighQuality"/>
-                </Border>
-            </Grid>
+            <!-- ================= GÖRSEL ================= -->
+            <Border Grid.Column="4" Style="{StaticResource CardStyle}" Padding="10">
+                <Image x:Name="StationImage"
+                       Stretch="Uniform"
+                       RenderOptions.BitmapScalingMode="HighQuality"/>
+            </Border>
         </Grid>
 
         <!-- ================= MANUEL BUTONLAR =================

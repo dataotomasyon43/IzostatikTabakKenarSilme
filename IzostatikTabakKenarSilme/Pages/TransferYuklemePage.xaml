@@ -82,7 +82,7 @@
                 <ColumnDefinition Width="14"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="14"/>
-                <ColumnDefinition Width="240"/>
+                <ColumnDefinition Width="280"/>
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0">
@@ -149,16 +149,16 @@
 
                         <controls:ParameterField x:Name="HizBosField" Grid.Row="0" Grid.Column="0"
                                                  Label="Hız Boş" Unit="%" Decimals="0" Min="0" Max="9999"
-                                                 ValueWidth="80" UnitWidth="32" ValueFontSize="22"/>
+                                                 ValueWidth="72" UnitWidth="28" ValueFontSize="22"/>
                         <controls:ParameterField x:Name="IvmeBosField" Grid.Row="0" Grid.Column="2"
                                                  Label="İvme Boş" Unit="%" Decimals="0" Min="0" Max="9999"
-                                                 ValueWidth="80" UnitWidth="32" ValueFontSize="22"/>
+                                                 ValueWidth="72" UnitWidth="28" ValueFontSize="22"/>
                         <controls:ParameterField x:Name="HizDoluField" Grid.Row="1" Grid.Column="0"
                                                  Label="Hız Dolu" Unit="%" Decimals="0" Min="0" Max="9999"
-                                                 ValueWidth="80" UnitWidth="32" ValueFontSize="22"/>
+                                                 ValueWidth="72" UnitWidth="28" ValueFontSize="22"/>
                         <controls:ParameterField x:Name="IvmeDoluField" Grid.Row="1" Grid.Column="2"
                                                  Label="İvme Dolu" Unit="%" Decimals="0" Min="0" Max="9999"
-                                                 ValueWidth="80" UnitWidth="32" ValueFontSize="22"/>
+                                                 ValueWidth="72" UnitWidth="28" ValueFontSize="22"/>
                     </Grid>
 
                     <Border Height="1" Margin="0,6" Background="{DynamicResource PanelBorder}"/>
@@ -167,8 +167,8 @@
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="92"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -179,12 +179,12 @@
                         <!-- HMI_GTR_Akt_Poz (yalnız gösterge) -->
                         <controls:ParameterField x:Name="AktPozField" Grid.Row="0"
                                                  Label="Aktüel Poz" Unit="mm" Decimals="2"
-                                                 ValueWidth="130" UnitWidth="44" ValueFontSize="24"
+                                                 ValueWidth="120" UnitWidth="40" ValueFontSize="24"
                                                  IsReadOnly="True"/>
 
                         <controls:ParameterField x:Name="AlmaPozField" Grid.Row="1"
                                                  Label="Alma Poz" Unit="mm" Decimals="2" Min="0" Max="9999"
-                                                 ValueWidth="130" UnitWidth="44" ValueFontSize="24"/>
+                                                 ValueWidth="120" UnitWidth="40" ValueFontSize="24"/>
                         <controls:PlcPushButton x:Name="AlmaOgrenButton" Grid.Row="1" Grid.Column="2"
                                                 Margin="0,5"
                                                 Content="ÖĞREN"
@@ -193,7 +193,7 @@
 
                         <controls:ParameterField x:Name="BirakmaPozField" Grid.Row="2"
                                                  Label="Bırakma Poz" Unit="mm" Decimals="2" Min="0" Max="9999"
-                                                 ValueWidth="130" UnitWidth="44" ValueFontSize="24"/>
+                                                 ValueWidth="120" UnitWidth="40" ValueFontSize="24"/>
                         <controls:PlcPushButton x:Name="BirakmaOgrenButton" Grid.Row="2" Grid.Column="2"
                                                 Margin="0,5"
                                                 Content="ÖĞREN"

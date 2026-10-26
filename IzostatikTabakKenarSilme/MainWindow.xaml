@@ -6,8 +6,6 @@
         Height="800"
         Width="1280"
         WindowStartupLocation="CenterScreen"
-        WindowStyle="None"
-        ResizeMode="NoResize"
         Background="{DynamicResource AppBackground}"
         Foreground="{DynamicResource PrimaryText}">
 
@@ -78,8 +76,10 @@
             <RowDefinition Height="28"/>
         </Grid.RowDefinitions>
 
-        <!-- ÜST SABİT HEADER -->
-        <Border Grid.Row="0"
+        <!-- ÜST SABİT HEADER (pencere modunda buradan tutup taşınır) -->
+        <Border x:Name="HeaderBorder"
+                Grid.Row="0"
+                MouseLeftButtonDown="HeaderBorder_MouseLeftButtonDown"
                 Background="{DynamicResource HeaderBackground}"
                 BorderBrush="{DynamicResource PanelBorder}"
                 BorderThickness="0,0,0,1"

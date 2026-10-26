@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -80,11 +81,62 @@ namespace IzostatikTabakKenarSilme
         // Lambalara son gönderilen durum (yalnızca değişince gönderilir).
         private string _ezLampState;
 
+        // Uygulama bir "bin" klasörünün içinden çalışıyorsa (Visual Studio:
+        // bin\Debug, bin\Release) geliştirme sayılır: 1280x800 kenarlıksız
+        // pencere, üst başlıktan tutulup sürüklenebilir. Başka bir klasöre
+        // kopyalanınca (HMI PC'si) kenarlıksız tam ekran açılır.
+        private bool _windowed;
+
+        private static bool IsRunningFromBinFolder()
+        {
+            string dir = AppDomain.CurrentDomain.BaseDirectory ?? string.Empty;
+            string[] parts = dir.Split(new[] { '\\', '/' }, StringSplitOptions.RemoveEmptyEntries);
+            return parts.Any(p => string.Equals(p, "bin", StringComparison.OrdinalIgnoreCase));
+        }
+
+        private void ApplyWindowMode()
+        {
+            _windowed = IsRunningFromBinFolder();
+
+            WindowStyle = WindowStyle.None;
+            ResizeMode = ResizeMode.NoResize;
+
+            if (_windowed)
+            {
+                WindowState = WindowState.Normal;
+                HeaderBorder.Cursor = System.Windows.Input.Cursors.SizeAll;
+            }
+            else
+            {
+                WindowState = WindowState.Maximized;
+            }
+
+            AppLogger.Info("Pencere modu: " + (_windowed ? "pencere (bin klasörü)" : "tam ekran"));
+        }
+
+        // Pencere modunda üst başlıktan tutup taşıma. Butonlar olayı kendileri
+        // işlediği için onlara basınca pencere kaymaz.
+        private void HeaderBorder_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (!_windowed || e.ButtonState != System.Windows.Input.MouseButtonState.Pressed)
+                return;
+
+            try
+            {
+                DragMove();
+            }
+            catch (InvalidOperationException)
+            {
+                // Dokunmatik / bırakılmış fare: yok say.
+            }
+        }
+
         public MainWindow()
         {
             _commands = new PlcCommands(_plcService, _writeQueue);
 
             InitializeComponent();
+            ApplyWindowMode();
 
             _alarmTickerTimer.Tick += (s, e) => UpdateAlarmTicker(advance: true);
 

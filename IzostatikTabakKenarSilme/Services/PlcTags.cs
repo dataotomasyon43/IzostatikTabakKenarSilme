@@ -96,6 +96,24 @@
         public const string CikisBomseIleri = "HMI_Bomse[8].JogP";
         public const string CikisBomseGeri = "HMI_Bomse[8].JogN";
 
+        // ---------------- AYARLAR: Çapak Kırma (istasyon 2, Bomse 2) ----------------
+        public const string CpkBomseBasPoz = "HMI_BomseCpk_BasPoz";            // REAL, °
+        public const string CpkBomseAktPoz = "HMI_Bomse[2].Akt_Poz";           // REAL, °, gösterge
+        public const string CpkBitisAci = "HMI_Ist2BitisAci";                  // REAL, °
+        public const string CpkModGeriCekilmeAci = "HMI_Ist2ModGeriCekilmeAci"; // REAL, °
+        public const string CpkTurSure = "HMI_Tur2Sure";                       // REAL, s
+        public const string CpkTurSayi = "HMI_Ist2TurSayi";                    // INT, adet
+        public const string CpkBomseGeriYon = "HMI_Bomse2Yon";                 // BOOL, kalıcı ("geri")
+        public const string CpkModHiz = "HMI_CpkMod_OtoHiz";                   // INT, %
+        public const string CpkModAktPoz = "HMI_CpkMod_ActPos";                // REAL, mm, gösterge
+        public const string CpkModBasPoz = "HMI_CpkMod_BasPoz";                // REAL, mm
+        // Basılı tutma (bas TRUE, bırak FALSE)
+        public const string CpkTeach = "HMI_Cpk_BasPoz_Ogren";
+        public const string CpkBomseIleri = "HMI_Bomse[2].JogP";
+        public const string CpkBomseGeri = "HMI_Bomse[2].JogN";
+        public const string CpkModulIleri = "HMI_Cpk_Modul_PJog";
+        public const string CpkModulGeri = "HMI_Cpk_Modul_NJog";
+
         // BOOL — alarm reset (basılı tutma: TRUE, bırakınca FALSE)
         public const string Reset = "HMI_Reset";
 

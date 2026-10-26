@@ -10,7 +10,8 @@
       Background="Transparent"
       Title="GelismisAyarlarPage">
 
-    <!-- GENEL > Gelişmiş Ayarlar: servo tork limitleri (HMI_Ax*_Trq, LREAL, %).
+    <!-- GENEL > Gelişmiş Ayarlar: servo tork alarm sınırları (% nominal tork;
+         bomse/modül HMI_Ax*_Trq LREAL, transferler HMI_GTR/CTRMaxTork REAL).
          Solda transferler ve bomseler, sağda modüller (eski ekrandaki sıra).
          Satırlar koddan oluşturulur. -->
     <Page.Resources>
@@ -46,7 +47,7 @@
                        FontSize="25"
                        FontWeight="Bold"
                        VerticalAlignment="Bottom"/>
-            <TextBlock Text="Servo tork limitleri (% nominal tork)"
+            <TextBlock Text="Servo tork alarm sınırları (% nominal tork)"
                        Margin="16,0,0,4"
                        VerticalAlignment="Bottom"
                        Foreground="{DynamicResource SecondaryText}"/>
@@ -83,6 +84,6 @@
                    FontSize="13"
                    TextTrimming="CharacterEllipsis"
                    Foreground="{DynamicResource SecondaryText}"
-                   Text="Tork limiti değişikliğini makinede deneyerek doğrulayın; çok düşük değer ekseni hareket edemez hale getirebilir."/>
+                   Text="Eksenin torku bu sınırı aşarsa PLC tork alarmı verir (Reset ile silinir). Çok düşük değer normal çalışmada alarm verdirir."/>
     </Grid>
 </Page>

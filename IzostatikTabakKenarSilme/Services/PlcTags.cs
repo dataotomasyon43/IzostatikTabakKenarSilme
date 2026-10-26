@@ -235,9 +235,9 @@
         public const string CtrAlmayaGit = "HMI_CTR_Alma_PozGit";
         public const string CtrBirakmayaGit = "HMI_CTR_Birakma_PozGit";
         // Jog (MC_MoveJog, Manuel modda; piston yukarıda olmalı — PLC kontrol eder)
-        // Yön GTR ile aynı varsayıldı (göbeğe = JogP); makinede doğrulanacak.
-        public const string CtrGobege = "HMI_CTR_JogP";                   // PositiveEnable
-        public const string CtrIstifTablaya = "HMI_CTR_JogN";             // NegativeEnable
+        // CTR'de yön GTR'nin tersi (makinede doğrulandı): göbeğe = JogN.
+        public const string CtrGobege = "HMI_CTR_JogN";                   // NegativeEnable
+        public const string CtrIstifTablaya = "HMI_CTR_JogP";             // PositiveEnable
         // Kalıcı (bir basış TRUE, bir basış FALSE)
         public const string CtrPiston1Asagi = "HMI_CTR_Piston_Asagi_V_Man";
         public const string CtrPiston1Vakum = "HMI_CTR_Piston_Vakum_Man";
@@ -252,10 +252,13 @@
         public const string KonvDonmeSure = "HMI_Cikis_Konv_T";           // REAL, s
         public const string KonvManStart = "HMI_Cikis_Konveyoru_Man_Start"; // basılı tutma
 
-        // ---------------- GENEL: Gelişmiş Ayarlar (servo tork limitleri) ----------------
-        // LREAL, % (Omron MC_SetTorqueLimit: 0,1-1000,0 %). Sıra eski ekrandaki gibi.
-        public const string TorkGtr = "HMI_AxGTR_Trq";
-        public const string TorkCtr = "HMI_AxCTR_Trq";
+        // ---------------- GENEL: Gelişmiş Ayarlar (servo tork alarm sınırları) ----------------
+        // AlarmProg: |Ax.Act.Trq| sınırı aşarsa ilgili Alm[] (Reset'e kadar tutar).
+        // Bomse/modül: LREAL, %. Sıra eski ekrandaki gibi.
+        // Transferler: HMI_AxGTR_Trq / HMI_AxCTR_Trq rung'ları P_Off ile kapalı;
+        // çalışan sınırlar HMI_GTRMaxTork (Alm[50]) / HMI_CTRMaxTork (REAL).
+        public const string TorkGtr = "HMI_GTRMaxTork";                   // REAL, %
+        public const string TorkCtr = "HMI_CTRMaxTork";                   // REAL, %
         public const string TorkBomse1 = "HMI_AxBomse1_Trq";
         public const string TorkBomse2 = "HMI_AxBomse2_Trq";
         public const string TorkBomse3 = "HMI_AxBomse3_Trq";

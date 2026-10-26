@@ -11,10 +11,12 @@ using IzostatikTabakKenarSilme.Services;
 namespace IzostatikTabakKenarSilme.Pages
 {
     /// <summary>
-    /// GENEL > Gelişmiş Ayarlar: servo tork limitleri.
+    /// GENEL > Gelişmiş Ayarlar: servo tork alarm sınırları.
     ///
-    /// Tag'ler HMI_Ax*_Trq (LREAL, %); Omron MC_SetTorqueLimit 0,1-1000 %
-    /// aralığını kabul eder, ekranda 1-1000 girilebilir.
+    /// PLC (AlarmProg) eksenin anlık torku |Act.Trq| bu sınırı aşınca ilgili
+    /// alarmı verir (Reset'e kadar tutar). Bomse/modül: HMI_Ax*_Trq (LREAL),
+    /// transferler: HMI_GTRMaxTork / HMI_CTRMaxTork (REAL). % nominal tork,
+    /// ekranda 1-1000 girilebilir.
     /// Okuma yalnız sayfa açıkken (1 sn); yazma yalnız operatör değer
     /// onaylayınca.
     /// </summary>
@@ -30,6 +32,7 @@ namespace IzostatikTabakKenarSilme.Pages
         {
             public ParameterField Field;
             public string Tag;
+            public bool IsReal; // false: LREAL
         }
 
         private readonly PlcService _plc;
@@ -50,8 +53,8 @@ namespace IzostatikTabakKenarSilme.Pages
             InitializeComponent();
 
             // Eski ekrandaki sıra
-            Add(LeftPanel, "Giriş Transfer Servo Tork", PlcTags.TorkGtr);
-            Add(LeftPanel, "Çıkış Transfer Servo Tork", PlcTags.TorkCtr);
+            Add(LeftPanel, "Giriş Transfer Servo Tork", PlcTags.TorkGtr, isReal: true);
+            Add(LeftPanel, "Çıkış Transfer Servo Tork", PlcTags.TorkCtr, isReal: true);
             Add(LeftPanel, "Bomse-1 Servo Tork", PlcTags.TorkBomse1);
             Add(LeftPanel, "Bomse-2 Servo Tork", PlcTags.TorkBomse2);
             Add(LeftPanel, "Bomse-3 Servo Tork", PlcTags.TorkBomse3);
@@ -73,7 +76,7 @@ namespace IzostatikTabakKenarSilme.Pages
             new PagePoller(this, PollInterval, PollAsync, OnReadError);
         }
 
-        private void Add(Panel panel, string label, string tag)
+        private void Add(Panel panel, string label, string tag, bool isReal = false)
         {
             var field = new ParameterField
             {
@@ -87,7 +90,7 @@ namespace IzostatikTabakKenarSilme.Pages
                 ValueFontSize = 22
             };
 
-            var param = new Param { Field = field, Tag = tag };
+            var param = new Param { Field = field, Tag = tag, IsReal = isReal };
             field.ValueEntered += (s, v) => WriteParameter(param, v);
 
             panel.Children.Add(field);
@@ -104,10 +107,10 @@ namespace IzostatikTabakKenarSilme.Pages
                 return;
             }
 
-            List<string> tags = _params.Select(p => p.Tag).ToList();
+            var reads = _params.Select(p => new { p.Tag, p.IsReal }).ToList();
 
             List<double> values = await Task.Run(
-                () => tags.Select(t => _plc.ReadLRealTag(t)).ToList(), ct);
+                () => reads.Select(r => r.IsReal ? _plc.ReadRealTag(r.Tag) : _plc.ReadLRealTag(r.Tag)).ToList(), ct);
 
             if (ct.IsCancellationRequested)
                 return;
@@ -159,7 +162,10 @@ namespace IzostatikTabakKenarSilme.Pages
 
             try
             {
-                await _commands.WriteLRealAsync(param.Tag, value);
+                if (param.IsReal)
+                    await _commands.WriteRealAsync(param.Tag, (float)value);
+                else
+                    await _commands.WriteLRealAsync(param.Tag, value);
 
                 AppLogger.Info($"Parametre yazıldı: {description}");
                 ShowStatus($"Kaydedildi: {field.Label} = {newText} %", isError: false);

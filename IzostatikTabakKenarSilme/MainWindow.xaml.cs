@@ -962,7 +962,8 @@ namespace IzostatikTabakKenarSilme
                     () => new Pages.GirisCikisBomsePage(_plcService, _commands, _machineState)),
                 new Pages.SectionItem("CapakKirma", "Çapak Kırma",
                     () => new Pages.CapakKirmaPage(_plcService, _commands, _machineState)),
-                Station("Zimpara1", "Zımpara-1"),
+                new Pages.SectionItem("Zimpara1", "Zımpara-1",
+                    () => new Pages.BomseIstasyonPage(_plcService, _commands, _machineState, Zimpara1Config())),
                 Station("Zimpara2", "Zımpara-2"),
                 Station("Sunger1", "Sünger-1"),
                 Station("Sunger2", "Sünger-2"),
@@ -995,6 +996,40 @@ namespace IzostatikTabakKenarSilme
                     () => new Pages.PlaceholderPage("Gelişmiş Ayarlar", "Servo tork limitleri")),
                 new Pages.SectionItem("CanliIzleme", "Canlı İzleme",
                     () => new Pages.CanliIzlemePage(_plcService))
+            };
+        }
+
+        // Zımpara-1 (istasyon 3, Bomse 3): ortak bomse istasyonu sayfası.
+        private static Pages.BomseIstasyonConfig Zimpara1Config()
+        {
+            return new Pages.BomseIstasyonConfig
+            {
+                Title = "Zımpara-1",
+                Subtitle = "Bomse, taşlama ve modül ayarları, manuel kumanda",
+                ImageAsset = "/Assets/Zimpara1.png",
+
+                BomseBasPoz = PlcTags.Zim1BomseBasPoz,
+                BomseAktPoz = PlcTags.Zim1BomseAktPoz,
+                BitisAci = PlcTags.Zim1BitisAci,
+                GeriCekilmeAci = PlcTags.Zim1ModGeriCekilmeAci,
+                TurSure = PlcTags.Zim1TurSure,
+                TurSayi = PlcTags.Zim1TurSayi,
+                BomseYon = PlcTags.Zim1BomseYon,
+                BomseJogP = PlcTags.Zim1BomseJogP,
+                BomseJogN = PlcTags.Zim1BomseJogN,
+
+                ToolHizLabel = "Taşlama Hızı",
+                ToolHiz = PlcTags.Zim1TaslamaHiz,
+                ToolYon = PlcTags.Zim1TaslamaYon,
+                ToolStartText = "ZIMPARA DÖN",
+                ToolStart = PlcTags.Zim1ManStart,
+
+                ModHiz = PlcTags.Zim1ModHiz,
+                ModAktPoz = PlcTags.Zim1ModAktPoz,
+                ModBasPoz = PlcTags.Zim1ModBasPoz,
+                Teach = PlcTags.Zim1Teach,
+                ModJogP = PlcTags.Zim1ModJogP,
+                ModJogN = PlcTags.Zim1ModJogN
             };
         }
 

@@ -93,6 +93,9 @@
     <Compile Include="Controls\HoldButton.cs" />
     <Compile Include="Controls\PlcPushButton.cs" />
     <Compile Include="Controls\PlcToggleButton.cs" />
+    <Compile Include="Pages\BomseIstasyonPage.xaml.cs">
+      <DependentUpon>BomseIstasyonPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\CapakKirmaPage.xaml.cs">
       <DependentUpon>CapakKirmaPage.xaml</DependentUpon>
     </Compile>
@@ -159,6 +162,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\ParameterField.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\BomseIstasyonPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -254,6 +261,7 @@
     <Resource Include="Assets\DonerTabla.png" />
     <Resource Include="Assets\GirisCikisBomse.png" />
     <Resource Include="Assets\CapakKirma.png" />
+    <Resource Include="Assets\Zimpara1.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="WhatsApp Image 2025-01-02 at 19.45.08-Photoroom.png" />

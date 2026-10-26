@@ -1,0 +1,199 @@
+﻿<Page x:Class="IzostatikTabakKenarSilme.Pages.BomseIstasyonPage"
+      Foreground="{DynamicResource PrimaryText}"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:controls="clr-namespace:IzostatikTabakKenarSilme.Controls"
+      mc:Ignorable="d"
+      d:DesignHeight="538" d:DesignWidth="1024"
+      Background="Transparent"
+      Title="BomseIstasyonPage">
+
+    <!-- Bomse + modül + takım (zımpara / sünger) istasyonları için ortak
+         ayar sayfası. Başlık, görsel ve tüm tag'ler BomseIstasyonConfig'ten
+         gelir (bkz. MainWindow.AyarlarItems). Düzen eski HMI ekranıyla aynı:
+         solda bomse, sağda takım + modül, altta manuel butonlar. -->
+    <Page.Resources>
+        <Style x:Key="CardStyle" TargetType="{x:Type Border}">
+            <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource PanelBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="18,10"/>
+        </Style>
+        <Style x:Key="CardTitleStyle" TargetType="{x:Type TextBlock}">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryText}"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+        <Style TargetType="{x:Type controls:ParameterField}">
+            <Setter Property="Height" Value="47"/>
+            <Setter Property="FontSize" Value="15"/>
+        </Style>
+        <Style x:Key="ManualButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource CommandButtonStyle}">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Padding" Value="8,0"/>
+        </Style>
+        <!-- Basılı tutma butonları turuncu -->
+        <Style x:Key="PushButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource ManualButtonStyle}">
+            <Setter Property="Foreground" Value="{DynamicResource AccentColor}"/>
+        </Style>
+    </Page.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Başlık -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBlock x:Name="TitleText"
+                       FontSize="25"
+                       FontWeight="Bold"
+                       VerticalAlignment="Bottom"/>
+            <TextBlock x:Name="SubtitleText"
+                       Margin="16,0,0,4"
+                       VerticalAlignment="Bottom"
+                       Foreground="{DynamicResource SecondaryText}"/>
+        </StackPanel>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="440"/>
+                <ColumnDefinition Width="14"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- ================= BOMSE ================= -->
+            <Border Grid.Column="0" Style="{StaticResource CardStyle}" VerticalAlignment="Top">
+                <StackPanel>
+                    <TextBlock Text="BOMSE" Style="{StaticResource CardTitleStyle}"/>
+
+                    <controls:ParameterField x:Name="BomseBasPozField"
+                                             Label="Bomse Başlama Pos" Unit="°" Decimals="1" Min="0" Max="360"
+                                             ValueWidth="130" UnitWidth="40" ValueFontSize="24"/>
+                    <controls:ParameterField x:Name="BomseAktPozField"
+                                             Label="Bomse Aktüel Pos" Unit="°" Decimals="1"
+                                             ValueWidth="130" UnitWidth="40" ValueFontSize="24"
+                                             IsReadOnly="True"/>
+                    <controls:ParameterField x:Name="BitisAciField"
+                                             Label="Bitiş Ek Açı" Unit="°" Decimals="1" Min="0" Max="360"
+                                             ValueWidth="130" UnitWidth="40" ValueFontSize="24"/>
+                    <controls:ParameterField x:Name="GeriCekilmeAciField"
+                                             Label="Modül Geri Çekilme Açısı" Unit="°" Decimals="1" Min="0" Max="360"
+                                             ValueWidth="130" UnitWidth="40" ValueFontSize="24"/>
+                    <controls:ParameterField x:Name="TurSureField"
+                                             Label="Tur Süresi" Unit="s" Decimals="1" Min="0" Max="9999"
+                                             ValueWidth="130" UnitWidth="40" ValueFontSize="24"/>
+
+                    <!-- Tur sayısı + bomse dönüş yönü ("geri", kalıcı) -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="86"/>
+                        </Grid.ColumnDefinitions>
+                        <controls:ParameterField x:Name="TurSayiField"
+                                                 Label="Tur Sayısı" Unit="adet" Decimals="0" Min="0" Max="9999"
+                                                 ValueWidth="80" UnitWidth="44" ValueFontSize="24"/>
+                        <controls:PlcToggleButton x:Name="BomseYonButton" Grid.Column="2"
+                                                  Margin="0,5"
+                                                  Content="GERİ"
+                                                  Style="{StaticResource ManualButtonStyle}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="14"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- ================= TAKIM + MODÜL ================= -->
+                <Border Grid.Row="0" Style="{StaticResource CardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="MODÜL" Style="{StaticResource CardTitleStyle}"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="110"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Takım hızı (taşlama / sünger) + yön ("geri", kalıcı).
+                                 Takımı olmayan istasyonda gizlenir. -->
+                            <controls:ParameterField x:Name="ToolHizField" Grid.Row="0"
+                                                     Unit="%" Decimals="0" Min="0" Max="99"
+                                                     ValueWidth="130" UnitWidth="44" ValueFontSize="24"/>
+                            <controls:PlcToggleButton x:Name="ToolYonButton" Grid.Row="0" Grid.Column="2"
+                                                      Margin="0,5"
+                                                      Content="GERİ"
+                                                      Style="{StaticResource ManualButtonStyle}"/>
+
+                            <controls:ParameterField x:Name="ModHizField" Grid.Row="1"
+                                                     Label="Modül Hızı" Unit="%" Decimals="0" Min="0" Max="9999"
+                                                     ValueWidth="130" UnitWidth="44" ValueFontSize="24"/>
+                            <controls:ParameterField x:Name="ModAktPozField" Grid.Row="2"
+                                                     Label="Modül Aktüel Pozisyonu" Unit="mm" Decimals="2"
+                                                     ValueWidth="130" UnitWidth="44" ValueFontSize="24"
+                                                     IsReadOnly="True"/>
+                            <controls:ParameterField x:Name="ModBasPozField" Grid.Row="3"
+                                                     Label="Başlama Pozisyonu" Unit="mm" Decimals="2" Min="0" Max="9999"
+                                                     ValueWidth="130" UnitWidth="44" ValueFontSize="24"/>
+                            <controls:PlcPushButton x:Name="TeachButton" Grid.Row="3" Grid.Column="2"
+                                                    Margin="0,5"
+                                                    Content="TEACH"
+                                                    Style="{StaticResource PushButtonStyle}"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- ================= GÖRSEL ================= -->
+                <Border Grid.Row="2" Style="{StaticResource CardStyle}" Padding="10">
+                    <Image x:Name="StationImage"
+                           Stretch="Uniform"
+                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <!-- ================= MANUEL BUTONLAR =================
+             Turuncu: basılı tuttukça (bas TRUE, bırak FALSE).
+             Takım butonu (ör. ZIMPARA DÖN) kalıcı: bir basış açar, bir basış kapatır. -->
+        <UniformGrid x:Name="ButtonsPanel" Grid.Row="2" Rows="1" Columns="5" Margin="-4,10,-4,0" Height="68">
+            <controls:PlcPushButton x:Name="BomseIleriButton" Content="BOMSE İLERİ DÖN"
+                                    Style="{StaticResource PushButtonStyle}"/>
+            <controls:PlcPushButton x:Name="BomseGeriButton" Content="BOMSE GERİ DÖN"
+                                    Style="{StaticResource PushButtonStyle}"/>
+            <controls:PlcPushButton x:Name="ModulIleriButton" Content="MODÜL İLERİ"
+                                    Style="{StaticResource PushButtonStyle}"/>
+            <controls:PlcPushButton x:Name="ModulGeriButton" Content="MODÜL GERİ"
+                                    Style="{StaticResource PushButtonStyle}"/>
+            <controls:PlcToggleButton x:Name="ToolStartButton"
+                                      Style="{StaticResource ManualButtonStyle}"/>
+        </UniformGrid>
+
+        <!-- Sayfa durumu -->
+        <TextBlock x:Name="PageStatusText"
+                   Grid.Row="3"
+                   Margin="0,6,0,0"
+                   FontSize="13"
+                   TextTrimming="CharacterEllipsis"
+                   Foreground="{DynamicResource SecondaryText}"/>
+    </Grid>
+</Page>

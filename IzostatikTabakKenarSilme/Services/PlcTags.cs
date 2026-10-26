@@ -114,6 +114,26 @@
         public const string CpkModulIleri = "HMI_Cpk_Modul_PJog";
         public const string CpkModulGeri = "HMI_Cpk_Modul_NJog";
 
+        // ---------------- AYARLAR: Zımpara-1 (istasyon 3, Bomse 3) ----------------
+        public const string Zim1BomseBasPoz = "HMI_BomseZim1_BasPoz";            // REAL, °
+        public const string Zim1BomseAktPoz = "HMI_Bomse[3].Akt_Poz";            // REAL, °, gösterge
+        public const string Zim1BitisAci = "HMI_Ist3BitisAci";                   // REAL, °
+        public const string Zim1ModGeriCekilmeAci = "HMI_Ist3ModGeriCekilmeAci"; // REAL, °
+        public const string Zim1TurSure = "HMI_Tur3Sure";                        // REAL, s
+        public const string Zim1TurSayi = "HMI_Ist3TurSayi";                     // INT, adet
+        public const string Zim1BomseYon = "HMI_Bomse3Yon";                      // BOOL, kalıcı
+        public const string Zim1BomseJogP = "HMI_Bomse[3].JogP";                 // basılı tutma
+        public const string Zim1BomseJogN = "HMI_Bomse[3].JogN";                 // basılı tutma
+        public const string Zim1TaslamaHiz = "HMI_Zimpara1_Hiz";                 // INT, % (0-99)
+        public const string Zim1TaslamaYon = "HMI_Zimpara1_Yon";                 // BOOL, kalıcı
+        public const string Zim1ManStart = "HMI_Zimpara1_Man_Start";             // BOOL, kalıcı
+        public const string Zim1ModHiz = "HMI_Zim1Mod_OtoHiz";                   // INT, %
+        public const string Zim1ModAktPoz = "HMI_Zim1Mod_ActPos";                // REAL, mm, gösterge
+        public const string Zim1ModBasPoz = "HMI_Zim1_BasPoz";                   // REAL, mm
+        public const string Zim1Teach = "HMI_Zim1_BasPoz_Ogren";                 // basılı tutma
+        public const string Zim1ModJogP = "HMI_Zim1_Modul_PJog";                 // basılı tutma
+        public const string Zim1ModJogN = "HMI_Zim1_Modul_NJog";                 // basılı tutma
+
         // BOOL — alarm reset (basılı tutma: TRUE, bırakınca FALSE)
         public const string Reset = "HMI_Reset";
 

@@ -980,12 +980,12 @@ namespace IzostatikTabakKenarSilme
         }
 
         // ÜRETİM: form, reçete ve servo ayarları.
-        private static IList<Pages.SectionItem> UretimItems()
+        private IList<Pages.SectionItem> UretimItems()
         {
             return new[]
             {
-                new Pages.SectionItem("Form", "Form",
-                    () => new Pages.PlaceholderPage("Form", "Tabak formu seçimi ve düzenleme")),
+                new Pages.SectionItem("TabakYukle", "Tabak Yükle",
+                    () => new Pages.TabakYuklePage(_plcService, _commands, _machineState)),
                 new Pages.SectionItem("Recete", "Reçete",
                     () => new Pages.PlaceholderPage("Reçete", "Reçete yükleme ve düzenleme")),
                 new Pages.SectionItem("Servo", "Servo",

@@ -207,6 +207,40 @@ namespace IzostatikTabakKenarSilme.Services
             }
         }
 
+        // REAL dizisi (ör. Rec1: REAL[0..59]). Tüm dizi tek istekte okunur.
+        public float[] ReadRealArray(string tagName, int count)
+        {
+            lock (_sync)
+            {
+                Tag tag = Get(tagName, 4, count);
+                tag.Read();
+
+                var values = new float[count];
+                for (int i = 0; i < count; i++)
+                    values[i] = tag.GetFloat32(i * 4);
+
+                return values;
+            }
+        }
+
+        // REAL dizisi yazma: tüm dizi tek istekte (önce okunur, bkz. yukarı).
+        public void WriteRealArray(string tagName, float[] values)
+        {
+            if (values == null || values.Length == 0)
+                throw new ArgumentException("Yazılacak değer yok.", nameof(values));
+
+            lock (_sync)
+            {
+                Tag tag = Get(tagName, 4, values.Length);
+                tag.Read();
+
+                for (int i = 0; i < values.Length; i++)
+                    tag.SetFloat32(i * 4, values[i]);
+
+                tag.Write();
+            }
+        }
+
         // LREAL: 64 bit floating point
         public void WriteLRealTag(string tagName, double value)
         {

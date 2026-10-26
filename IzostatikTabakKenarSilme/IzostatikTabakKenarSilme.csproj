@@ -102,6 +102,14 @@
     <Compile Include="Pages\GelismisAyarlarPage.xaml.cs">
       <DependentUpon>GelismisAyarlarPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\TabakYuklePage.xaml.cs">
+      <DependentUpon>TabakYuklePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Services\Tabak\ExcelPointReader.cs" />
+    <Compile Include="Services\Tabak\TabakLibrary.cs" />
+    <Compile Include="Services\Tabak\TabakProfile.cs" />
+    <Compile Include="Services\Tabak\TabakRecipe.cs" />
+    <Compile Include="Services\Tabak\TabakUploader.cs" />
     <Compile Include="Pages\CapakKirmaPage.xaml.cs">
       <DependentUpon>CapakKirmaPage.xaml</DependentUpon>
     </Compile>
@@ -183,6 +191,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\GelismisAyarlarPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\TabakYuklePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

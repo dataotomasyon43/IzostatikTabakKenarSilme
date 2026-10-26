@@ -107,6 +107,11 @@ namespace IzostatikTabakKenarSilme.Services
             return _queue.Enqueue(() => _plc.WriteRealTag(tag, value));
         }
 
+        public Task WriteRealArrayAsync(string tag, float[] values)
+        {
+            return _queue.Enqueue(() => _plc.WriteRealArray(tag, values));
+        }
+
         public Task WriteLRealAsync(string tag, double value)
         {
             return _queue.Enqueue(() => _plc.WriteLRealTag(tag, value));

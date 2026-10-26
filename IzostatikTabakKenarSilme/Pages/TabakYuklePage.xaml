@@ -1,0 +1,328 @@
+﻿<Page x:Class="IzostatikTabakKenarSilme.Pages.TabakYuklePage"
+      Foreground="{DynamicResource PrimaryText}"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      mc:Ignorable="d"
+      d:DesignHeight="538" d:DesignWidth="1024"
+      Background="Transparent"
+      Title="TabakYuklePage">
+
+    <!-- ÜRETİM > Tabak Yükle: form kütüphanesi (Excel), seçilen formun
+         düzlemde görüntüsü + 360° profil, mekanik sınır kontrolü ve PLC'ye
+         yükleme. -->
+    <Page.Resources>
+        <Style x:Key="CardStyle" TargetType="{x:Type Border}">
+            <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource PanelBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="14,10"/>
+        </Style>
+        <Style x:Key="CardTitleStyle" TargetType="{x:Type TextBlock}">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryText}"/>
+        </Style>
+        <Style x:Key="StatLabelStyle" TargetType="{x:Type TextBlock}">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryText}"/>
+            <Setter Property="Margin" Value="0,2"/>
+        </Style>
+        <Style x:Key="StatValueStyle" TargetType="{x:Type TextBlock}">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontFamily" Value="Consolas"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="Margin" Value="0,2"/>
+        </Style>
+
+        <!-- Form listesi satırı: seçiliyken vurgu şeridi -->
+        <Style x:Key="FormItemStyle" TargetType="{x:Type ListBoxItem}">
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                        <Grid Margin="0,0,0,4" Background="Transparent">
+                            <Border x:Name="Frame"
+                                    Background="{DynamicResource AppBackground}"
+                                    BorderBrush="{DynamicResource PanelBorder}"
+                                    BorderThickness="1"
+                                    CornerRadius="5"/>
+                            <Border x:Name="Tint"
+                                    Background="{DynamicResource AccentColor}"
+                                    CornerRadius="5"
+                                    Opacity="0"/>
+                            <Border x:Name="Bar"
+                                    Background="{DynamicResource AccentColor}"
+                                    Width="4"
+                                    HorizontalAlignment="Left"
+                                    CornerRadius="5,0,0,5"
+                                    Visibility="Collapsed"/>
+                            <ContentPresenter Margin="14,8,10,8"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Tint" Property="Opacity" Value="0.12"/>
+                                <Setter TargetName="Bar" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="Frame" Property="BorderBrush" Value="{DynamicResource AccentColor}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ThinScrollBarStyle" TargetType="{x:Type ScrollBar}">
+            <Setter Property="Width" Value="6"/>
+            <Setter Property="MinWidth" Value="6"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ScrollBar}">
+                        <Track x:Name="PART_Track"
+                               Orientation="{TemplateBinding Orientation}"
+                               IsDirectionReversed="True">
+                            <Track.Thumb>
+                                <Thumb>
+                                    <Thumb.Template>
+                                        <ControlTemplate TargetType="{x:Type Thumb}">
+                                            <Border Background="{DynamicResource PanelBorder}" CornerRadius="3"/>
+                                        </ControlTemplate>
+                                    </Thumb.Template>
+                                </Thumb>
+                            </Track.Thumb>
+                        </Track>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Page.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Başlık + PLC'deki form -->
+        <Grid Grid.Row="0" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Tabak Yükle"
+                       FontSize="25"
+                       FontWeight="Bold"
+                       VerticalAlignment="Bottom"/>
+            <TextBlock Grid.Column="1"
+                       Text="Excel formundan 360° profil hesaplanır ve PLC'ye yüklenir"
+                       Margin="16,0,0,4"
+                       VerticalAlignment="Bottom"
+                       TextTrimming="CharacterEllipsis"
+                       Foreground="{DynamicResource SecondaryText}"/>
+            <Border Grid.Column="2"
+                    Background="{DynamicResource CardBackground}"
+                    BorderBrush="{DynamicResource PanelBorder}"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="12,5"
+                    VerticalAlignment="Bottom">
+                <StackPanel>
+                    <TextBlock Text="PLC'DE YÜKLÜ" FontSize="10" FontWeight="Bold"
+                               Foreground="{DynamicResource SecondaryText}"/>
+                    <TextBlock x:Name="LastLoadedText" Text="—" FontSize="14" FontWeight="Bold"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="250"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="268"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- ================= FORM LİSTESİ ================= -->
+            <Border Grid.Column="0" Style="{StaticResource CardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock x:Name="FormsTitleText" Text="TABAK FORMLARI"
+                               Style="{StaticResource CardTitleStyle}" Margin="0,0,0,8"/>
+
+                    <ListBox x:Name="FormList"
+                             Grid.Row="1"
+                             Background="Transparent"
+                             BorderThickness="0"
+                             Foreground="{DynamicResource PrimaryText}"
+                             ItemContainerStyle="{StaticResource FormItemStyle}"
+                             SelectionChanged="FormList_SelectionChanged"
+                             ManipulationBoundaryFeedback="FormList_ManipulationBoundaryFeedback">
+                        <ListBox.Resources>
+                            <Style TargetType="{x:Type ScrollBar}" BasedOn="{StaticResource ThinScrollBarStyle}"/>
+                        </ListBox.Resources>
+                        <ListBox.Template>
+                            <ControlTemplate TargetType="{x:Type ListBox}">
+                                <ScrollViewer PanningMode="VerticalOnly"
+                                              HorizontalScrollBarVisibility="Disabled"
+                                              VerticalScrollBarVisibility="Auto"
+                                              Focusable="False">
+                                    <ItemsPresenter/>
+                                </ScrollViewer>
+                            </ControlTemplate>
+                        </ListBox.Template>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Name}" FontSize="15" FontWeight="Bold"
+                                               TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Text="{Binding ModifiedText}" FontSize="11"
+                                               Foreground="{DynamicResource SecondaryText}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <TextBlock x:Name="EmptyListText"
+                               Grid.Row="1"
+                               TextWrapping="Wrap"
+                               TextAlignment="Center"
+                               VerticalAlignment="Center"
+                               Margin="10"
+                               FontSize="13"
+                               Foreground="{DynamicResource SecondaryText}"
+                               Visibility="Collapsed"
+                               Text="Henüz form yok. EKLE ile Excel (.xlsx) tabak formu ekleyin."/>
+
+                    <UniformGrid Grid.Row="2" Columns="2" Margin="-4,8,-4,0">
+                        <Button x:Name="AddButton" Content="+ EKLE"
+                                Style="{StaticResource ActionButtonStyle}"
+                                Click="AddButton_Click"/>
+                        <Button x:Name="DeleteButton" Content="SİL"
+                                Style="{StaticResource ActionButtonStyle}"
+                                Click="DeleteButton_Click"/>
+                    </UniformGrid>
+                </Grid>
+            </Border>
+
+            <!-- ================= ÖNİZLEME ================= -->
+            <Border Grid.Column="2" Style="{StaticResource CardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="8"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="104"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock x:Name="PreviewTitleText" Text="ÖNİZLEME"
+                               Style="{StaticResource CardTitleStyle}" Margin="0,0,0,4"
+                               TextTrimming="CharacterEllipsis"/>
+
+                    <!-- Düzlem: kontur, merkez, eksenler, 0° yönü, Rmin/Rmax -->
+                    <Canvas x:Name="PlaneCanvas" Grid.Row="1" ClipToBounds="True"
+                            Background="Transparent" SizeChanged="Canvas_SizeChanged"/>
+
+                    <TextBlock x:Name="PlaneHintText" Grid.Row="1"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                               FontSize="14" Foreground="{DynamicResource SecondaryText}"
+                               Text="Listeden bir form seçin"/>
+
+                    <TextBlock Grid.Row="3" Style="{StaticResource CardTitleStyle}"
+                               Text="MODÜL KURSU (R − Rmin) / BOMSE AÇISI"/>
+
+                    <!-- Profil: açı (0..360°) - kurs (mm) -->
+                    <Canvas x:Name="ProfileCanvas" Grid.Row="4" ClipToBounds="True"
+                            Background="Transparent" SizeChanged="Canvas_SizeChanged"/>
+                </Grid>
+            </Border>
+
+            <!-- ================= BİLGİ + YÜKLE ================= -->
+            <Border Grid.Column="4" Style="{StaticResource CardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="PROFİL" Style="{StaticResource CardTitleStyle}" Margin="0,0,0,4"/>
+
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Text="Nokta sayısı" Style="{StaticResource StatLabelStyle}"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" x:Name="PointsText" Text="—" Style="{StaticResource StatValueStyle}"/>
+                        <TextBlock Grid.Row="1" Text="Boyut (X × Y)" Style="{StaticResource StatLabelStyle}"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" x:Name="SizeText" Text="—" Style="{StaticResource StatValueStyle}"/>
+                        <TextBlock Grid.Row="2" Text="Rmin" Style="{StaticResource StatLabelStyle}"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1" x:Name="RMinText" Text="—" Style="{StaticResource StatValueStyle}"/>
+                        <TextBlock Grid.Row="3" Text="Rmax" Style="{StaticResource StatLabelStyle}"/>
+                        <TextBlock Grid.Row="3" Grid.Column="1" x:Name="RMaxText" Text="—" Style="{StaticResource StatValueStyle}"/>
+                        <TextBlock Grid.Row="4" Text="Modül kursu" Style="{StaticResource StatLabelStyle}"/>
+                        <TextBlock Grid.Row="4" Grid.Column="1" x:Name="StrokeText" Text="—" Style="{StaticResource StatValueStyle}"/>
+                    </Grid>
+
+                    <TextBlock Grid.Row="2" Text="MODÜL POZİSYONU (400–600 mm)"
+                               Style="{StaticResource CardTitleStyle}" Margin="0,10,0,4"/>
+
+                    <!-- Modül: başlama → en fazla pozisyon -->
+                    <StackPanel x:Name="ModulePanel" Grid.Row="3"/>
+
+                    <!-- Geçerlilik / sonuç -->
+                    <Border x:Name="VerdictBorder" Grid.Row="4"
+                            CornerRadius="5" Padding="10,6" Margin="0,6,0,8"
+                            BorderThickness="1"
+                            BorderBrush="{DynamicResource PanelBorder}">
+                        <TextBlock x:Name="VerdictText" Text="Form seçilmedi"
+                                   FontSize="13" FontWeight="Bold" TextWrapping="Wrap"/>
+                    </Border>
+
+                    <Button x:Name="UploadButton" Grid.Row="5"
+                            Height="64"
+                            Style="{StaticResource CommandButtonStyle}"
+                            Foreground="{DynamicResource OkColor}"
+                            IsEnabled="False"
+                            Click="UploadButton_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <Viewbox Width="24" Height="24">
+                                <Canvas Width="24" Height="24">
+                                    <Path Style="{StaticResource ButtonIconPathStyle}"
+                                          Data="M12,16 V4 M7,9 L12,4 L17,9 M5,20 H19"/>
+                                </Canvas>
+                            </Viewbox>
+                            <TextBlock Text="PLC'YE YÜKLE" FontSize="18" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Aşama / hata satırı -->
+        <TextBlock x:Name="PageStatusText"
+                   Grid.Row="2"
+                   Margin="0,6,0,0"
+                   FontSize="13"
+                   TextTrimming="CharacterEllipsis"
+                   Foreground="{DynamicResource SecondaryText}"/>
+    </Grid>
+</Page>

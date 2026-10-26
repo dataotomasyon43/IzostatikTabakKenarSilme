@@ -268,6 +268,17 @@
         public const string TorkModSun2 = "HMI_AxModSun2_Trq";
         public const string TorkModSun3 = "HMI_AxModSun3_Trq";
 
+        // ---------------- ÜRETİM: Tabak Yükle (ReceteTabakForm) ----------------
+        // Rec1..Rec6: REAL[0..59], toplam 360 değer = yarıçap (mm) × 10000.
+        // PLC: CamNode[i].Phase = i+1 (°), Distance = (Rec - minson) / 10000.
+        public static readonly string[] RecArrays = { "Rec1", "Rec2", "Rec3", "Rec4", "Rec5", "Rec6" };
+        public const int RecLength = 60;
+        // BOOL — yükselen kenarında PLC cam tablosunu üretir ve kaydeder
+        // (MC_GenerateCamTable + MC_SaveCamTable); bitince PLC
+        // HMI_Recete_Yuklendi'yi set eder ve bu biti kendisi sıfırlar.
+        public const string ReceteYukle = "HMI_Recete_Yukle";
+        public const string ReceteYuklendi = "HMI_Recete_Yuklendi";
+
         // BOOL — alarm reset (basılı tutma: TRUE, bırakınca FALSE)
         public const string Reset = "HMI_Reset";
 

@@ -174,6 +174,46 @@
         public const string Sun1ModJogP = "HMI_Sun1_Modul_PJog";                 // basılı tutma
         public const string Sun1ModJogN = "HMI_Sun1_Modul_NJog";                 // basılı tutma
 
+        // ---------------- AYARLAR: Sünger-2 (istasyon 6, Bomse 6) ----------------
+        public const string Sun2BomseBasPoz = "HMI_BomseSun2_BasPoz";            // REAL, °
+        public const string Sun2BomseAktPoz = "HMI_Bomse[6].Akt_Poz";            // REAL, °, gösterge
+        public const string Sun2BitisAci = "HMI_Ist6BitisAci";                   // REAL, °
+        public const string Sun2ModGeriCekilmeAci = "HMI_Ist6ModGeriCekilmeAci"; // REAL, °
+        public const string Sun2TurSure = "HMI_Tur6Sure";                        // REAL, s
+        public const string Sun2TurSayi = "HMI_Ist6TurSayi";                     // INT, adet
+        public const string Sun2BomseYon = "HMI_Bomse6Yon";                      // BOOL, kalıcı
+        public const string Sun2BomseJogP = "HMI_Bomse[6].JogP";                 // basılı tutma
+        public const string Sun2BomseJogN = "HMI_Bomse[6].JogN";                 // basılı tutma
+        public const string Sun2SungerHiz = "HMI_Sunger2_Hiz";                   // INT, % (0-99)
+        public const string Sun2SungerYon = "HMI_Sunger2_Yon";                   // BOOL, kalıcı
+        public const string Sun2ManStart = "HMI_Sunger2_Man_Start";              // BOOL, kalıcı
+        public const string Sun2ModHiz = "HMI_Sun2Mod_OtoHiz";                   // INT, %
+        public const string Sun2ModAktPoz = "HMI_Sun2Mod_ActPos";                // REAL, mm, gösterge
+        public const string Sun2ModBasPoz = "HMI_Sun2_BasPoz";                   // REAL, mm
+        public const string Sun2Teach = "HMI_Sun2_BasPoz_Ogren";                 // basılı tutma
+        public const string Sun2ModJogP = "HMI_Sun2_Modul_PJog";                 // basılı tutma
+        public const string Sun2ModJogN = "HMI_Sun2_Modul_NJog";                 // basılı tutma
+
+        // ---------------- AYARLAR: Sünger-3 (istasyon 7, Bomse 7) ----------------
+        public const string Sun3BomseBasPoz = "HMI_BomseSun3_BasPoz";            // REAL, °
+        public const string Sun3BomseAktPoz = "HMI_Bomse[7].Akt_Poz";            // REAL, °, gösterge
+        public const string Sun3BitisAci = "HMI_Ist7BitisAci";                   // REAL, °
+        public const string Sun3ModGeriCekilmeAci = "HMI_Ist7ModGeriCekilmeAci"; // REAL, °
+        public const string Sun3TurSure = "HMI_Tur7Sure";                        // REAL, s
+        public const string Sun3TurSayi = "HMI_Ist7TurSayi";                     // INT, adet
+        public const string Sun3BomseYon = "HMI_Bomse7Yon";                      // BOOL, kalıcı
+        public const string Sun3BomseJogP = "HMI_Bomse[7].JogP";                 // basılı tutma
+        public const string Sun3BomseJogN = "HMI_Bomse[7].JogN";                 // basılı tutma
+        public const string Sun3SungerHiz = "HMI_Sunger3_Hiz";                   // INT, % (0-99)
+        public const string Sun3SungerYon = "HMI_Sunger3_Yon";                   // BOOL, kalıcı
+        public const string Sun3ManStart = "HMI_Sunger3_Man_Start";              // BOOL, kalıcı
+        public const string Sun3ModHiz = "HMI_Sun3Mod_OtoHiz";                   // INT, %
+        public const string Sun3ModAktPoz = "HMI_Sun3Mod_ActPos";                // REAL, mm, gösterge
+        public const string Sun3ModBasPoz = "HMI_Sun3_BasPoz";                   // REAL, mm
+        public const string Sun3Teach = "HMI_Sun3_BasPoz_Ogren";                 // basılı tutma
+        public const string Sun3ModJogP = "HMI_Sun3_Modul_PJog";                 // basılı tutma
+        public const string Sun3ModJogN = "HMI_Sun3_Modul_NJog";                 // basılı tutma
+
         // BOOL — alarm reset (basılı tutma: TRUE, bırakınca FALSE)
         public const string Reset = "HMI_Reset";
 

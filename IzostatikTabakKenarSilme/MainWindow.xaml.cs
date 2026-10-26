@@ -968,8 +968,10 @@ namespace IzostatikTabakKenarSilme
                     () => new Pages.BomseIstasyonPage(_plcService, _commands, _machineState, Zimpara2Config())),
                 new Pages.SectionItem("Sunger1", "Sünger-1",
                     () => new Pages.BomseIstasyonPage(_plcService, _commands, _machineState, Sunger1Config())),
-                Station("Sunger2", "Sünger-2"),
-                Station("Sunger3", "Sünger-3"),
+                new Pages.SectionItem("Sunger2", "Sünger-2",
+                    () => new Pages.BomseIstasyonPage(_plcService, _commands, _machineState, Sunger2Config())),
+                new Pages.SectionItem("Sunger3", "Sünger-3",
+                    () => new Pages.BomseIstasyonPage(_plcService, _commands, _machineState, Sunger3Config())),
                 Station("TransferBosaltma", "Transfer Boşaltma"),
                 Station("CikisKonveyor", "Çıkış Konveyör")
             };
@@ -1100,6 +1102,74 @@ namespace IzostatikTabakKenarSilme
                 Teach = PlcTags.Sun1Teach,
                 ModJogP = PlcTags.Sun1ModJogP,
                 ModJogN = PlcTags.Sun1ModJogN
+            };
+        }
+
+        // Sünger-2 (istasyon 6, Bomse 6)
+        private static Pages.BomseIstasyonConfig Sunger2Config()
+        {
+            return new Pages.BomseIstasyonConfig
+            {
+                Title = "Sünger-2",
+                Subtitle = "Bomse, sünger ve modül ayarları, manuel kumanda",
+                ImageAsset = "/Assets/Sunger2.png",
+
+                BomseBasPoz = PlcTags.Sun2BomseBasPoz,
+                BomseAktPoz = PlcTags.Sun2BomseAktPoz,
+                BitisAci = PlcTags.Sun2BitisAci,
+                GeriCekilmeAci = PlcTags.Sun2ModGeriCekilmeAci,
+                TurSure = PlcTags.Sun2TurSure,
+                TurSayi = PlcTags.Sun2TurSayi,
+                BomseYon = PlcTags.Sun2BomseYon,
+                BomseJogP = PlcTags.Sun2BomseJogP,
+                BomseJogN = PlcTags.Sun2BomseJogN,
+
+                ToolHizLabel = "Sünger Hızı",
+                ToolHiz = PlcTags.Sun2SungerHiz,
+                ToolYon = PlcTags.Sun2SungerYon,
+                ToolStartText = "SÜNGER DÖN",
+                ToolStart = PlcTags.Sun2ManStart,
+
+                ModHiz = PlcTags.Sun2ModHiz,
+                ModAktPoz = PlcTags.Sun2ModAktPoz,
+                ModBasPoz = PlcTags.Sun2ModBasPoz,
+                Teach = PlcTags.Sun2Teach,
+                ModJogP = PlcTags.Sun2ModJogP,
+                ModJogN = PlcTags.Sun2ModJogN
+            };
+        }
+
+        // Sünger-3 (istasyon 7, Bomse 7)
+        private static Pages.BomseIstasyonConfig Sunger3Config()
+        {
+            return new Pages.BomseIstasyonConfig
+            {
+                Title = "Sünger-3",
+                Subtitle = "Bomse, sünger ve modül ayarları, manuel kumanda",
+                ImageAsset = "/Assets/Sunger3.png",
+
+                BomseBasPoz = PlcTags.Sun3BomseBasPoz,
+                BomseAktPoz = PlcTags.Sun3BomseAktPoz,
+                BitisAci = PlcTags.Sun3BitisAci,
+                GeriCekilmeAci = PlcTags.Sun3ModGeriCekilmeAci,
+                TurSure = PlcTags.Sun3TurSure,
+                TurSayi = PlcTags.Sun3TurSayi,
+                BomseYon = PlcTags.Sun3BomseYon,
+                BomseJogP = PlcTags.Sun3BomseJogP,
+                BomseJogN = PlcTags.Sun3BomseJogN,
+
+                ToolHizLabel = "Sünger Hızı",
+                ToolHiz = PlcTags.Sun3SungerHiz,
+                ToolYon = PlcTags.Sun3SungerYon,
+                ToolStartText = "SÜNGER DÖN",
+                ToolStart = PlcTags.Sun3ManStart,
+
+                ModHiz = PlcTags.Sun3ModHiz,
+                ModAktPoz = PlcTags.Sun3ModAktPoz,
+                ModBasPoz = PlcTags.Sun3ModBasPoz,
+                Teach = PlcTags.Sun3Teach,
+                ModJogP = PlcTags.Sun3ModJogP,
+                ModJogN = PlcTags.Sun3ModJogN
             };
         }
 

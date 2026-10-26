@@ -121,6 +121,11 @@ namespace IzostatikTabakKenarSilme
             if (!_windowed || e.ButtonState != System.Windows.Input.MouseButtonState.Pressed)
                 return;
 
+            // Makine durumu kartı tıklanabilir (Aktif Alarmlar); DragMove fareyi
+            // yakalayıp MouseLeftButtonUp'ı yuttuğu için oradan taşıma yapılmaz.
+            if (e.OriginalSource is System.Windows.Media.Visual v && (ReferenceEquals(v, MachineStateCard) || MachineStateCard.IsAncestorOf(v)))
+                return;
+
             try
             {
                 DragMove();

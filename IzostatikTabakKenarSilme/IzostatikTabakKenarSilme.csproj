@@ -102,6 +102,15 @@
     <Compile Include="Pages\GelismisAyarlarPage.xaml.cs">
       <DependentUpon>GelismisAyarlarPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\RecetePage.xaml.cs">
+      <DependentUpon>RecetePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Services\Recete\ReceteLoader.cs" />
+    <Compile Include="Services\Recete\ReceteParams.cs" />
+    <Compile Include="Services\Recete\ReceteStore.cs" />
+    <Compile Include="Windows\TextInputWindow.xaml.cs">
+      <DependentUpon>TextInputWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\ServoAyarPage.xaml.cs">
       <DependentUpon>ServoAyarPage.xaml</DependentUpon>
     </Compile>
@@ -194,6 +203,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\GelismisAyarlarPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\RecetePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\TextInputWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -987,7 +987,7 @@ namespace IzostatikTabakKenarSilme
                 new Pages.SectionItem("TabakYukle", "Tabak Yükle",
                     () => new Pages.TabakYuklePage(_plcService, _commands, _machineState)),
                 new Pages.SectionItem("Recete", "Reçete",
-                    () => new Pages.PlaceholderPage("Reçete", "Reçete yükleme ve düzenleme")),
+                    () => new Pages.RecetePage(_plcService, _commands, _machineState)),
                 new Pages.SectionItem("Servo", "Servo",
                     () => new Pages.ServoAyarPage(_plcService, _commands, _machineState))
             };

@@ -218,38 +218,76 @@ namespace IzostatikTabakKenarSilme.Services
             }
         }
 
-        // REAL dizisi (ör. Rec1: REAL[0..59]). Tüm dizi tek istekte okunur.
+        // REAL dizisi (ör. Rec1: REAL[0..59]).
+        // Omron'da dizinin adıyla ("Rec1") toplu erişim ErrorBadParam veriyor
+        // (Alm'daki gibi); bu yüzden ilk elemanın indeksiyle ("Rec1[0]")
+        // toplu istek yapılır. O da reddedilirse eleman eleman ("Rec1[i]")
+        // okunur / yazılır.
         public float[] ReadRealArray(string tagName, int count)
         {
-            lock (_sync)
+            if (count <= 0)
+                throw new ArgumentOutOfRangeException(nameof(count));
+
+            try
             {
-                Tag tag = Get(tagName, 4, count);
-                tag.Read();
+                lock (_sync)
+                {
+                    Tag tag = Get($"{tagName}[0]", 4, count);
+                    tag.Read();
 
-                var values = new float[count];
-                for (int i = 0; i < count; i++)
-                    values[i] = tag.GetFloat32(i * 4);
+                    var values = new float[count];
+                    for (int i = 0; i < count; i++)
+                        values[i] = tag.GetFloat32(i * 4);
 
-                return values;
+                    return values;
+                }
             }
+            catch (ObjectDisposedException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Warn($"{tagName}[0..{count - 1}] toplu okunamadı ({ex.Message}); eleman eleman okunuyor.");
+            }
+
+            var result = new float[count];
+            for (int i = 0; i < count; i++)
+                result[i] = ReadRealTag($"{tagName}[{i}]");
+
+            return result;
         }
 
-        // REAL dizisi yazma: tüm dizi tek istekte (önce okunur, bkz. yukarı).
         public void WriteRealArray(string tagName, float[] values)
         {
             if (values == null || values.Length == 0)
                 throw new ArgumentException("Yazılacak değer yok.", nameof(values));
 
-            lock (_sync)
+            try
             {
-                Tag tag = Get(tagName, 4, values.Length);
-                tag.Read();
+                lock (_sync)
+                {
+                    Tag tag = Get($"{tagName}[0]", 4, values.Length);
+                    tag.Read();
 
-                for (int i = 0; i < values.Length; i++)
-                    tag.SetFloat32(i * 4, values[i]);
+                    for (int i = 0; i < values.Length; i++)
+                        tag.SetFloat32(i * 4, values[i]);
 
-                tag.Write();
+                    tag.Write();
+                    return;
+                }
             }
+            catch (ObjectDisposedException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Warn($"{tagName}[0..{values.Length - 1}] toplu yazılamadı ({ex.Message}); eleman eleman yazılıyor.");
+            }
+
+            for (int i = 0; i < values.Length; i++)
+                WriteRealTag($"{tagName}[{i}]", values[i]);
         }
 
         // LREAL: 64 bit floating point

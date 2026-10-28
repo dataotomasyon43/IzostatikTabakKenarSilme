@@ -524,6 +524,9 @@ namespace IzostatikTabakKenarSilme
             if (button == null || !short.TryParse(button.CommandParameter as string, out short value))
                 return;
 
+            if (!ConfirmModeChange(value))
+                return;
+
             ModeButtonsPanel.IsEnabled = false;
 
             try
@@ -547,6 +550,9 @@ namespace IzostatikTabakKenarSilme
             {
                 await _commands.SetModeAsync(value);
                 ShowSystemMessage($"Mod komutu gönderildi: {text}", isError: false);
+                WatchCommandResult(TimeSpan.FromSeconds(2.5),
+                    () => _lastMode == value,
+                    $"{text} moduna geçilmedi (PLC modu değiştirmedi)");
             }
             catch (Exception ex)
             {
@@ -699,14 +705,15 @@ namespace IzostatikTabakKenarSilme
         //   2 yeşil   → Mode = 1 (Güvenli)
         //   3 turuncu → Mode = 2 (Manuel)
         //   4 mavi    → Mode = 3 (Otomatik)
-        //   5 durumuna göre (basılı tutma):
-        //       arıza var      → kırmızı flaş, RESET (Mode = 1 + HMI_Reset)
-        //       çevrim çalışıyor → kırmızı sabit, STOP (HMI_Sistem_Durdur)
-        //       diğer          → beyaz sabit,  START (HMI_Sistem_Baslat)
+        //   5 durumuna göre (basılı tutma); ekrandaki 5. tuş da aynısı:
+        //       arıza var                  → kırmızı sabit,  RESET (Mode = 1 + HMI_Reset)
+        //       otomatik değil, arıza yok  → yeşil sabit,    HAZIR (komut yok)
+        //       otomatik, çevrim çalışıyor → kırmızı flaş,   STOP  (HMI_Sistem_Durdur)
+        //       otomatik, çevrim durmuş    → yeşil flaş,     START (HMI_Sistem_Baslat)
         // Bu modül güvenlik fonksiyonu (acil stop) DEĞİLDİR; STOP normal
         // çevrim durdurmadır.
 
-        private enum Ez5Action { None, Start, Stop, Reset }
+        private enum Ez5Action { None, Start, Stop, Reset, Ready }
 
         // Arka plan thread'inden gelir → UI thread'ine aktarılır. BeginInvoke
         // sırayı korur; basma ve bırakma aynı sırayla işlenir.
@@ -724,10 +731,15 @@ namespace IzostatikTabakKenarSilme
 
         private void HandleEzButton(int button, bool pressed)
         {
+            // Fiziksel tuşa basınca ekrandaki karşılığı bir an parlar
+            // (tuşlarda yazı olmadığı için operatör eşleşmeyi görsün).
+            if (pressed)
+                FlashScreenButton(button);
+
             if (button >= 1 && button <= 4)
             {
                 // Mod butonları yalnızca basınca çalışır.
-                if (pressed)
+                if (pressed && ConfirmModeChange((short)(button - 1)))
                     _ = RequestModeAsync((short)(button - 1), $"Işıklı buton {button}");
                 return;
             }
@@ -749,6 +761,104 @@ namespace IzostatikTabakKenarSilme
             }
         }
 
+        // ---- Mod değişiminde koruma ----
+
+        private bool _modeConfirmOpen;
+
+        // Çevrim çalışırken otomatikten başka bir moda geçmek onay ister
+        // (ekran ve ışıklı buton). Onay penceresi açıkken gelen yeni mod
+        // istekleri yok sayılır.
+        private bool ConfirmModeChange(short value)
+        {
+            if (_modeConfirmOpen)
+                return false;
+
+            if (_plcConnected != true || _autoCycle != true || value == MachineModes.Otomatik)
+                return true;
+
+            _modeConfirmOpen = true;
+            try
+            {
+                bool ok = Windows.ConfirmWindow.Ask(this, "Çevrim çalışıyor",
+                    $"Makine otomatik çevrimde. {MachineModes.ToText(value)} moduna geçilirse çevrim ortada durabilir.\n\n" +
+                    "Yine de geçilsin mi?",
+                    $"{MachineModes.ToText(value).ToUpper(new System.Globalization.CultureInfo("tr-TR"))} MODUNA GEÇ", "VAZGEÇ",
+                    Windows.ConfirmKind.Warning);
+
+                AppLogger.Info($"Çevrim çalışırken mod değişimi ({MachineModes.ToText(value)}): {(ok ? "onaylandı" : "vazgeçildi")}");
+                return ok;
+            }
+            finally
+            {
+                _modeConfirmOpen = false;
+            }
+        }
+
+        // ---- Komut sonucu izleme ----
+
+        // Komuttan sonra beklenen durum belirli sürede oluşmazsa alt çubukta
+        // uyarı verir; varsa ilk aktif alarmlar da yazılır (neden çalışmadığı
+        // görülsün). Yalnız gösterir, tekrar komut göndermez.
+        private async void WatchCommandResult(TimeSpan wait, Func<bool> accepted, string message)
+        {
+            try
+            {
+                await Task.Delay(wait);
+
+                if (_ezCts.IsCancellationRequested || _plcConnected != true || accepted())
+                    return;
+
+                var alarms = _alarmService.ActiveAlarms.Take(2).Select(a => $"[{a.No}] {a.Metin}").ToList();
+                string why = alarms.Count > 0
+                    ? " Aktif alarm: " + string.Join(", ", alarms) + (_alarmService.ActiveAlarms.Count > 2 ? " …" : "")
+                    : " Makinenin çalışma koşullarını kontrol edin (acil stop, kapılar, reçete, pozisyonlar).";
+
+                AppLogger.Warn(message + "." + why);
+                ShowSystemMessage(message + "." + why, isError: true);
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("Komut sonucu izlenemedi", ex);
+            }
+        }
+
+        // ---- Fiziksel tuş → ekrandaki karşılığı ----
+
+        private void FlashScreenButton(int button)
+        {
+            Button target;
+
+            switch (button)
+            {
+                case 1: target = ModeKapaliButton; break;
+                case 2: target = ModeGuvenliButton; break;
+                case 3: target = ModeManuelButton; break;
+                case 4: target = ModeOtomatikButton; break;
+                case 5: target = CycleButton; break;
+                default: return;
+            }
+
+            try
+            {
+                var scale = new System.Windows.Media.ScaleTransform(1, 1);
+                target.RenderTransformOrigin = new Point(0.5, 0.5);
+                target.RenderTransform = scale;
+
+                var pulse = new System.Windows.Media.Animation.DoubleAnimation(1.0, 1.18, TimeSpan.FromMilliseconds(160))
+                {
+                    AutoReverse = true,
+                    RepeatBehavior = new System.Windows.Media.Animation.RepeatBehavior(2)
+                };
+
+                scale.BeginAnimation(System.Windows.Media.ScaleTransform.ScaleXProperty, pulse);
+                scale.BeginAnimation(System.Windows.Media.ScaleTransform.ScaleYProperty, pulse);
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Warn("Ekran tuşu vurgulanamadı: " + ex.Message);
+            }
+        }
+
         // ---- 5. tuş komutu (ışıklı buton ve ekrandaki START/STOP/RESET) ----
 
         // O anki göreve göre TRUE yazar; hangi komutun verildiğini döndürür
@@ -764,9 +874,14 @@ namespace IzostatikTabakKenarSilme
                     break;
                 case Ez5Action.Stop:
                     RunEzCommand(_commands.PressStopAsync(), $"{source}: Stop (HMI_Sistem_Durdur = TRUE)");
+                    WatchCommandResult(TimeSpan.FromSeconds(3), () => _autoCycle != true, "STOP kabul edilmedi, çevrim hâlâ çalışıyor");
                     break;
                 case Ez5Action.Start:
                     RunEzCommand(_commands.PressStartAsync(), $"{source}: Start (HMI_Sistem_Baslat = TRUE)");
+                    WatchCommandResult(TimeSpan.FromSeconds(3), () => _autoCycle == true, "START kabul edilmedi, çevrim başlamadı");
+                    break;
+                case Ez5Action.Ready:
+                    AppLogger.Info($"{source}: HAZIR (otomatik modda değil), komut gönderilmedi.");
                     break;
             }
 
@@ -806,13 +921,15 @@ namespace IzostatikTabakKenarSilme
         }
 
         // Ekrandaki 5. tuşun yazısı, simgesi ve rengi ışıklı butonun
-        // lambasıyla aynı: arızada kırmızı sabit RESET, çevrim çalışırken
-        // kırmızı yanıp sönen STOP, diğer durumda yeşil yanıp sönen START.
+        // lambasıyla aynı: arızada kırmızı sabit RESET; otomatik değilken
+        // yeşil sabit HAZIR; otomatikte çevrim çalışırken kırmızı yanıp
+        // sönen STOP, durmuşken yeşil yanıp sönen START.
         private string _cycleButtonState;
         private System.Windows.Media.Animation.Storyboard _cycleBlink;
 
         private const string StartIcon = "M8,5 L19,12 L8,19 Z";
         private const string StopIcon = "M6.5,6.5 H17.5 V17.5 H6.5 Z";
+        private const string ReadyIcon = "M5,12.5 L10,17.5 L19,7";
         private const string ResetIcon = "M19,12 A7,7 0 1 1 16.95,7.05 M17.2,3.2 L16.95,7.05 L13.1,6.8";
 
         private void UpdateCycleButton()
@@ -840,6 +957,9 @@ namespace IzostatikTabakKenarSilme
                 case Ez5Action.Stop:
                     label = "STOP"; icon = StopIcon; color = "ErrorColor"; blink = true; filled = true;
                     break;
+                case Ez5Action.Ready:
+                    label = "HAZIR"; icon = ReadyIcon; color = "OkColor"; blink = false; filled = false;
+                    break;
                 default:
                     label = "START"; icon = StartIcon; color = "OkColor"; blink = true; filled = true;
                     break;
@@ -848,7 +968,9 @@ namespace IzostatikTabakKenarSilme
             CycleLabel.Text = label;
             CycleIcon.Data = System.Windows.Media.Geometry.Parse(icon);
             CycleButton.SetResourceReference(ForegroundProperty, color);
-            CycleButton.ToolTip = $"{label} (ışıklı butonun 5. tuşu, basılı tutun)";
+            CycleButton.ToolTip = action == Ez5Action.Ready
+                ? "HAZIR: START / STOP otomatik modda çalışır (ışıklı butonun 5. tuşu)"
+                : $"{label} (ışıklı butonun 5. tuşu, basılı tutun)";
 
             if (filled)
                 CycleIcon.SetBinding(Shape.FillProperty, new System.Windows.Data.Binding("Foreground") { Source = CycleButton });
@@ -886,15 +1008,20 @@ namespace IzostatikTabakKenarSilme
         }
 
         // 5. tuşun o anki görevi: arıza > çalışıyor > beklemede.
+        // Bağlantı yokken ya da otomatik modda değilken (arıza yoksa) HAZIR:
+        // basınca komut gönderilmez. START / STOP yalnız otomatik modda.
         private Ez5Action CurrentEz5Action()
         {
-            if (_plcConnected == true && _alarmService.ActiveAlarms.Count > 0)
+            if (_plcConnected != true)
+                return Ez5Action.Ready;
+
+            if (_alarmService.ActiveAlarms.Count > 0)
                 return Ez5Action.Reset;
 
-            if (_plcConnected == true && _autoCycle == true)
-                return Ez5Action.Stop;
+            if (_lastMode != MachineModes.Otomatik)
+                return Ez5Action.Ready;
 
-            return Ez5Action.Start;
+            return _autoCycle == true ? Ez5Action.Stop : Ez5Action.Start;
         }
 
         // Komutu çalıştırır; hata olursa loglar ve alt çubukta gösterir.
@@ -964,7 +1091,10 @@ namespace IzostatikTabakKenarSilme
                     case Ez5Action.Stop:    // çalışıyor: kırmızı sabit
                         _ezSwitch.SetLamp(5, 0xFF, 0x00, 0x00, LampMode.FlasHizli, send: false);
                         break;
-                    default:                // beklemede: yeşil sabit
+                    case Ez5Action.Ready:   // otomatik değil, arıza yok: HAZIR, yeşil sabit
+                        _ezSwitch.SetLamp(5, 0x00, 0xFF, 0x00, LampMode.Sabit, send: false);
+                        break;
+                    default:                // otomatik, beklemede: START, yeşil flaş
                         _ezSwitch.SetLamp(5, 0x00, 0xFF, 0x00, LampMode.FlasHizli, send: false);
                         break;
                 }

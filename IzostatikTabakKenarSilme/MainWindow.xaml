@@ -136,7 +136,10 @@
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="{x:Type Button}">
-                                        <Grid>
+                                        <Grid x:Name="Root" RenderTransformOrigin="0.5,0.5">
+                                            <Grid.RenderTransform>
+                                                <ScaleTransform ScaleX="1" ScaleY="1"/>
+                                            </Grid.RenderTransform>
                                             <Border x:Name="Frame"
                                                     Background="{DynamicResource CardBackground}"
                                                     BorderBrush="{DynamicResource PanelBorder}"
@@ -168,8 +171,14 @@
                                                 <Setter TargetName="Tint" Property="Opacity" Value="0.18"/>
                                                 <Setter TargetName="Bar" Property="Visibility" Value="Visible"/>
                                             </Trigger>
+                                            <!-- Basılıyken belirgin geri bildirim: koyu dolgu + hafif küçülme -->
                                             <Trigger Property="IsPressed" Value="True">
-                                                <Setter TargetName="Tint" Property="Opacity" Value="0.32"/>
+                                                <Setter TargetName="Tint" Property="Opacity" Value="0.38"/>
+                                                <Setter TargetName="Root" Property="RenderTransform">
+                                                    <Setter.Value>
+                                                        <ScaleTransform ScaleX="0.93" ScaleY="0.93"/>
+                                                    </Setter.Value>
+                                                </Setter>
                                             </Trigger>
                                             <Trigger Property="IsEnabled" Value="False">
                                                 <Setter Property="Opacity" Value="0.5"/>
@@ -197,6 +206,7 @@
                         </Style>
                     </Grid.Resources>
                     <WrapPanel Grid.Row="0"
+                           HorizontalAlignment="Right"
                            VerticalAlignment="Center">
                         <!-- MAKİNE DURUMU: Bağlantı yok / Arıza Var / Çalışıyor / Hazır.
                              Kenarlık rengi ve kalınlığı koddan (UpdateMachineState)
@@ -272,7 +282,7 @@
                     <!-- Mod butonları + ışıklı butonun 5. tuşunun ekrandaki karşılığı -->
                     <StackPanel Grid.Row="1"
                             Orientation="Horizontal"
-                            HorizontalAlignment="Center"
+                            HorizontalAlignment="Right"
                             VerticalAlignment="Center">
                     <StackPanel x:Name="ModeButtonsPanel"
                             Orientation="Horizontal"

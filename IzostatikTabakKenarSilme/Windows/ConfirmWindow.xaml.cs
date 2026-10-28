@@ -35,8 +35,15 @@ namespace IzostatikTabakKenarSilme.Windows
             IconBadge.SetResourceReference(System.Windows.Controls.Border.BackgroundProperty, color);
             IconText.Text = kind == ConfirmKind.Question ? "?" : "!";
 
-            if (kind != ConfirmKind.Question)
-                YesButton.SetResourceReference(ForegroundProperty, color);
+            // Onay butonu dolu renkli, yazı beyaz. Foreground yerel olarak
+            // verilirse stilin "Active" tetikleyicisindeki beyaz yazıyı ezer ve
+            // turuncu zemine turuncu yazı olur; bu yüzden Tag kullanılmaz,
+            // zemin rengi doğrudan verilir.
+            string fill = kind == ConfirmKind.Danger ? "ErrorColor" : "AccentColor";
+            YesButton.Tag = null;
+            YesButton.SetResourceReference(BackgroundProperty, fill);
+            YesButton.SetResourceReference(BorderBrushProperty, fill);
+            YesButton.Foreground = System.Windows.Media.Brushes.White;
 
             PreviewKeyDown += (s, e) =>
             {

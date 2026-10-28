@@ -10,14 +10,19 @@ using System.Xml.Linq;
 namespace IzostatikTabakKenarSilme.Services.Tabak
 {
     /// <summary>
-    /// Tabak formu Excel dosyasını (.xlsx) okur.
+    /// Tabak formu dosyasını okur: Excel (.xlsx) ya da metin (.csv).
     ///
     /// Doğrulanan format (SUNUM_13X18.xlsx): ilk çalışma sayfası, A sütunu X,
     /// B sütunu Y (mm), başlıksız, her satır bir kontur noktası; son satır
     /// ilk noktayı tekrarlayarak konturu kapatır.
     ///
     /// Ek paket kullanılmaz: .xlsx bir ZIP paketidir, WPF ile gelen
-    /// System.IO.Packaging (WindowsBase) ile açılır. Eski .xls desteklenmez.
+    /// System.IO.Packaging (WindowsBase) ile açılır. Eski .xls ek paket
+    /// gerektirdiği için okunmaz; anlaşılır bir hata verir.
+    ///
+    /// .csv: aynı düzen, satır başına "X;Y". Ayraç noktalı virgül, sekme ya
+    /// da virgül olabilir; ondalık nokta ya da virgül (ayraç virgülse nokta).
+    ///
     /// A ve B'si sayı olmayan satırlar (ör. başlık) atlanır ve sayılır.
     /// </summary>
     public static class ExcelPointReader
@@ -37,10 +42,33 @@ namespace IzostatikTabakKenarSilme.Services.Tabak
             public int SkippedRows { get; set; }
         }
 
+        /// <summary>Okunabilen uzantılar (küçük harf).</summary>
+        public static readonly string[] SupportedExtensions = { ".xlsx", ".csv" };
+
+        /// <summary>Listelenen ama okunamayan eski Excel biçimi.</summary>
+        public const string LegacyExcelExtension = ".xls";
+
+        public const string LegacyExcelMessage =
+            "Eski Excel (.xls) biçimi okunamıyor. Dosyayı Excel'de \"Farklı Kaydet → Excel Çalışma Kitabı (.xlsx)\" ile kaydedin.";
+
+        public static bool IsSupported(string path)
+        {
+            string ext = Path.GetExtension(path) ?? string.Empty;
+            return SupportedExtensions.Any(e => string.Equals(e, ext, StringComparison.OrdinalIgnoreCase));
+        }
+
         public static Result Read(string path)
         {
-            if (!string.Equals(Path.GetExtension(path), ".xlsx", StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException("Yalnızca .xlsx dosyaları okunabilir.");
+            string ext = Path.GetExtension(path) ?? string.Empty;
+
+            if (string.Equals(ext, ".csv", StringComparison.OrdinalIgnoreCase))
+                return ReadCsv(path);
+
+            if (string.Equals(ext, LegacyExcelExtension, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException(LegacyExcelMessage);
+
+            if (!string.Equals(ext, ".xlsx", StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException("Yalnızca .xlsx ve .csv dosyaları okunabilir.");
 
             // Excel'de açıkken de okunabilsin.
             using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -73,6 +101,56 @@ namespace IzostatikTabakKenarSilme.Services.Tabak
 
                 return result;
             }
+        }
+
+        // ---------------- CSV ----------------
+
+        private static Result ReadCsv(string path)
+        {
+            string[] lines;
+
+            // Excel'de açıkken de okunabilsin. Kodlama BOM'dan, yoksa UTF-8;
+            // yalnız sayılar kullanıldığı için kodlama farkı sonucu etkilemez.
+            using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var reader = new StreamReader(stream, System.Text.Encoding.UTF8, detectEncodingFromByteOrderMarks: true))
+                lines = reader.ReadToEnd().Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
+
+            var result = new Result();
+
+            foreach (string raw in lines)
+            {
+                string line = raw.Trim();
+
+                if (line.Length == 0)
+                    continue;
+
+                char sep = line.IndexOf(';') >= 0 ? ';' : line.IndexOf('\t') >= 0 ? '\t' : ',';
+                string[] f = line.Split(sep);
+
+                if (f.Length >= 2 &&
+                    TryParseCsvNumber(f[0], sep, out double x) &&
+                    TryParseCsvNumber(f[1], sep, out double y))
+                {
+                    result.Points.Add(new Point(x, y));
+                }
+                else
+                {
+                    result.SkippedRows++;
+                }
+            }
+
+            return result;
+        }
+
+        private static bool TryParseCsvNumber(string text, char separator, out double value)
+        {
+            string t = text.Trim().Trim('"').Trim();
+
+            // Ayraç virgül değilse ondalık virgül kabul edilir (Türkçe Excel).
+            if (separator != ',')
+                t = t.Replace(',', '.');
+
+            return double.TryParse(t, NumberStyles.Float, CultureInfo.InvariantCulture, out value);
         }
 
         // workbook.xml → ilk <sheet> → ilişki → çalışma sayfası parçası.

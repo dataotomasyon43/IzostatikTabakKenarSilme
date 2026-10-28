@@ -8,7 +8,7 @@ using System.Text;
 namespace IzostatikTabakKenarSilme.Services.Tabak
 {
     /// <summary>
-    /// Tabak formu kütüphanesi: Excel dosyaları uygulama dizinindeki
+    /// Tabak formu kütüphanesi: Excel (.xlsx) / .csv dosyaları uygulama dizinindeki
     /// TabakFormlari klasöründe saklanır (eklenen dosyanın kopyası).
     /// PLC'ye en son yüklenen form ve zamanı son_yuklenen.txt dosyasında
     /// tutulur.
@@ -34,7 +34,8 @@ namespace IzostatikTabakKenarSilme.Services.Tabak
             System.IO.Directory.CreateDirectory(Directory);
 
             return new DirectoryInfo(Directory)
-                .GetFiles("*.xlsx")
+                .GetFiles()
+                .Where(f => ExcelPointReader.IsSupported(f.Name))
                 .Where(f => !f.Name.StartsWith("~$")) // Excel geçici dosyaları
                 .OrderBy(f => f.Name, StringComparer.CurrentCultureIgnoreCase)
                 .Select(f => new Entry
@@ -49,6 +50,48 @@ namespace IzostatikTabakKenarSilme.Services.Tabak
         public string TargetPathFor(string sourcePath)
         {
             return System.IO.Path.Combine(Directory, System.IO.Path.GetFileName(sourcePath));
+        }
+
+        /// <summary>
+        /// Dosya bizim tabak formu biçimimize uyuyor mu: okunabiliyor (.xlsx /
+        /// .csv, A=X B=Y), kapalı ve geçerli bir kontur veriyor mu. Uygunsa
+        /// null, değilse nedeni döner. Kütüphaneye yalnız uygun dosyalar
+        /// eklenir.
+        /// </summary>
+        public static string CheckFormat(string path, out ExcelPointReader.Result read, out TabakProfile profile)
+        {
+            read = null;
+            profile = null;
+
+            try
+            {
+                read = ExcelPointReader.Read(path);
+            }
+            catch (Exception ex)
+            {
+                return ex is InvalidDataException || ex is IOException || ex is UnauthorizedAccessException
+                    ? ex.Message
+                    : "Dosya okunamadı: " + ex.Message;
+            }
+
+            if (read.Points.Count == 0)
+                return "Dosyada X/Y nokta yok (A sütunu X, B sütunu Y olmalı).";
+
+            try
+            {
+                profile = TabakProfile.Compute(read.Points);
+            }
+            catch (Exception ex)
+            {
+                return "Kontur hesaplanamadı: " + ex.Message;
+            }
+
+            return profile.IsValid ? null : string.Join(" ", profile.Errors);
+        }
+
+        public static string CheckFormat(string path)
+        {
+            return CheckFormat(path, out _, out _);
         }
 
         /// <summary>Dosyayı kütüphaneye kopyalar (aynı ad varsa üzerine yazar).</summary>

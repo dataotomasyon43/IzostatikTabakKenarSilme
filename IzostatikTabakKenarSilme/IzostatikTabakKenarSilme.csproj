@@ -112,6 +112,9 @@
     <Compile Include="Windows\TextInputWindow.xaml.cs">
       <DependentUpon>TextInputWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\UsbFormWindow.xaml.cs">
+      <DependentUpon>UsbFormWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\ServoAyarPage.xaml.cs">
       <DependentUpon>ServoAyarPage.xaml</DependentUpon>
     </Compile>
@@ -213,6 +216,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\TextInputWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\UsbFormWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

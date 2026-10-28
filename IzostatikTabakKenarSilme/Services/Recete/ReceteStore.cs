@@ -33,7 +33,7 @@ namespace IzostatikTabakKenarSilme.Services.Recete
 
     /// <summary>
     /// Reçeteler: uygulama dizinindeki Receteler klasöründe her reçete için
-    /// &lt;ad&gt;.json ve tabak formunun kopyası &lt;ad&gt;.xlsx. Klasör
+    /// &lt;ad&gt;.json ve tabak formunun kopyası &lt;ad&gt;.xlsx (ya da .csv). Klasör
     /// kopyalanarak yedeklenir / taşınır. Etkin (son yüklenen) reçete
     /// aktif.txt'de tutulur.
     /// </summary>
@@ -103,7 +103,8 @@ namespace IzostatikTabakKenarSilme.Services.Recete
 
             if (formSourcePath != null)
             {
-                string formFile = SafeName(r.Name) + ".xlsx";
+                // Kaynağın uzantısı korunur (.xlsx / .csv).
+                string formFile = SafeName(r.Name) + Path.GetExtension(formSourcePath).ToLowerInvariant();
                 string target = Path.Combine(Folder, formFile);
 
                 if (!string.Equals(Path.GetFullPath(formSourcePath), Path.GetFullPath(target), StringComparison.OrdinalIgnoreCase))

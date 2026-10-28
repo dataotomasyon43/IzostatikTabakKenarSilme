@@ -18,7 +18,7 @@ namespace IzostatikTabakKenarSilme.Pages
     /// <summary>
     /// ÜRETİM > Tabak Yükle.
     ///
-    /// - Form kütüphanesi: EKLE ile seçilen .xlsx dosyaları TabakFormlari
+    /// - Form kütüphanesi: EKLE ile (USB listesi / elle arama) seçilen .xlsx / .csv dosyaları TabakFormlari
     ///   klasörüne kopyalanır ve listelenir; SİL kaldırır.
     /// - Listeden seçilen form okunur, 360° profil hesaplanır (arka planda),
     ///   kontur düzlemde ve profil açıya göre çizilir.
@@ -157,24 +157,30 @@ namespace IzostatikTabakKenarSilme.Pages
             UpdateUploadState();
         }
 
+        // EKLE: USB belleklerdeki formları listeleyen pencere açılır
+        // (oradan ELLE ARA ile dosya yöneticisine de geçilebilir).
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new OpenFileDialog
-            {
-                Title = "Tabak formu ekle",
-                Filter = "Excel tabak formu (*.xlsx)|*.xlsx",
-                Multiselect = true
-            };
+            List<string> files = IzostatikTabakKenarSilme.Windows.UsbFormWindow.Ask(Window.GetWindow(this), _library);
 
-            if (dialog.ShowDialog(Window.GetWindow(this)) != true)
+            if (files == null || files.Count == 0)
                 return;
 
             string last = null;
 
-            foreach (string file in dialog.FileNames)
+            foreach (string file in files)
             {
                 try
                 {
+                    // Biçim uymuyorsa hiç eklenmez.
+                    string formatError = TabakLibrary.CheckFormat(file);
+                    if (formatError != null)
+                    {
+                        AppLogger.Warn($"Tabak formu eklenmedi, format uygun değil ({file}): {formatError}");
+                        ShowStatus($"Format uygun değil, eklenmedi ({System.IO.Path.GetFileName(file)}): {formatError}", isError: true);
+                        continue;
+                    }
+
                     string target = _library.TargetPathFor(file);
 
                     if (string.Equals(System.IO.Path.GetFullPath(file), System.IO.Path.GetFullPath(target),

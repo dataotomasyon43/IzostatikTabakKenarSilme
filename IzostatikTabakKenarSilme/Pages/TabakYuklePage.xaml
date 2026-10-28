@@ -204,7 +204,7 @@
                                FontSize="13"
                                Foreground="{DynamicResource SecondaryText}"
                                Visibility="Collapsed"
-                               Text="Henüz form yok. EKLE ile Excel (.xlsx) tabak formu ekleyin."/>
+                               Text="Henüz form yok. EKLE ile USB bellekten (.xlsx / .csv) tabak formu ekleyin."/>
 
                     <UniformGrid Grid.Row="2" Columns="2" Margin="-4,8,-4,0">
                         <Button x:Name="AddButton" Content="+ EKLE"

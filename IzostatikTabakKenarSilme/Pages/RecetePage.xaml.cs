@@ -375,7 +375,7 @@ namespace IzostatikTabakKenarSilme.Pages
         {
             try
             {
-                string target = System.IO.Path.Combine(_forms.Directory, ReceteStore.SafeName(r.FormName) + ".xlsx");
+                string target = System.IO.Path.Combine(_forms.Directory, ReceteStore.SafeName(r.FormName) + System.IO.Path.GetExtension(formPath).ToLowerInvariant());
 
                 if (!File.Exists(target))
                 {

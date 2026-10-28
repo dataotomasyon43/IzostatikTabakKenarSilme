@@ -424,6 +424,9 @@ namespace IzostatikTabakKenarSilme
 
                     // 6) Işıklı buton lambası (5: beyaz / kırmızı / kırmızı flaş)
                     UpdateEzLamps();
+
+                    // 7) Ekrandaki 5. tuş (aynı görev, aynı renk)
+                    UpdateCycleButton();
                 }
                 catch (Exception ex)
                 {
@@ -734,42 +737,151 @@ namespace IzostatikTabakKenarSilme
 
             if (pressed)
             {
-                if (_ez5Action != Ez5Action.None)
-                    return;
-
-                _ez5Action = CurrentEz5Action();
-
-                switch (_ez5Action)
-                {
-                    case Ez5Action.Reset:
-                        RunEzCommand(_commands.PressResetAsync(), "Reset (Mode = 1 + HMI_Reset = TRUE)");
-                        break;
-                    case Ez5Action.Stop:
-                        RunEzCommand(_commands.PressStopAsync(), "Stop (HMI_Sistem_Durdur = TRUE)");
-                        break;
-                    case Ez5Action.Start:
-                        RunEzCommand(_commands.PressStartAsync(), "Start (HMI_Sistem_Baslat = TRUE)");
-                        break;
-                }
+                if (_ez5Action == Ez5Action.None)
+                    _ez5Action = PressCycleCommand("Işıklı buton 5");
             }
             else
             {
                 // Basarken hangi komut verildiyse onun FALSE'u yazılır.
                 Ez5Action action = _ez5Action;
                 _ez5Action = Ez5Action.None;
+                ReleaseCycleCommand(action, "Işıklı buton 5");
+            }
+        }
 
-                switch (action)
+        // ---- 5. tuş komutu (ışıklı buton ve ekrandaki START/STOP/RESET) ----
+
+        // O anki göreve göre TRUE yazar; hangi komutun verildiğini döndürür
+        // (bırakınca aynı komutun FALSE'u yazılsın diye).
+        private Ez5Action PressCycleCommand(string source)
+        {
+            Ez5Action action = CurrentEz5Action();
+
+            switch (action)
+            {
+                case Ez5Action.Reset:
+                    RunEzCommand(_commands.PressResetAsync(), $"{source}: Reset (Mode = 1 + HMI_Reset = TRUE)");
+                    break;
+                case Ez5Action.Stop:
+                    RunEzCommand(_commands.PressStopAsync(), $"{source}: Stop (HMI_Sistem_Durdur = TRUE)");
+                    break;
+                case Ez5Action.Start:
+                    RunEzCommand(_commands.PressStartAsync(), $"{source}: Start (HMI_Sistem_Baslat = TRUE)");
+                    break;
+            }
+
+            return action;
+        }
+
+        private void ReleaseCycleCommand(Ez5Action action, string source)
+        {
+            switch (action)
+            {
+                case Ez5Action.Reset:
+                    RunEzCommand(_commands.ReleaseResetAsync(), $"{source}: Reset bırak (HMI_Reset = FALSE)");
+                    break;
+                case Ez5Action.Stop:
+                    RunEzCommand(_commands.ReleaseStopAsync(), $"{source}: Stop bırak (HMI_Sistem_Durdur = FALSE)");
+                    break;
+                case Ez5Action.Start:
+                    RunEzCommand(_commands.ReleaseStartAsync(), $"{source}: Start bırak (HMI_Sistem_Baslat = FALSE)");
+                    break;
+            }
+        }
+
+        // Ekrandaki 5. tuş: ışıklı butonla aynı davranış (basılı tutma).
+        private Ez5Action _screenCycleAction;
+
+        private void CycleButton_Pressed(object sender, EventArgs e)
+        {
+            if (_screenCycleAction == Ez5Action.None)
+                _screenCycleAction = PressCycleCommand("Ekran 5. tuş");
+        }
+
+        private void CycleButton_Released(object sender, EventArgs e)
+        {
+            Ez5Action action = _screenCycleAction;
+            _screenCycleAction = Ez5Action.None;
+            ReleaseCycleCommand(action, "Ekran 5. tuş");
+        }
+
+        // Ekrandaki 5. tuşun yazısı, simgesi ve rengi ışıklı butonun
+        // lambasıyla aynı: arızada kırmızı sabit RESET, çevrim çalışırken
+        // kırmızı yanıp sönen STOP, diğer durumda yeşil yanıp sönen START.
+        private string _cycleButtonState;
+        private System.Windows.Media.Animation.Storyboard _cycleBlink;
+
+        private const string StartIcon = "M8,5 L19,12 L8,19 Z";
+        private const string StopIcon = "M6.5,6.5 H17.5 V17.5 H6.5 Z";
+        private const string ResetIcon = "M19,12 A7,7 0 1 1 16.95,7.05 M17.2,3.2 L16.95,7.05 L13.1,6.8";
+
+        private void UpdateCycleButton()
+        {
+            bool connected = _plcConnected == true;
+            Ez5Action action = CurrentEz5Action();
+            string state = connected + "|" + action;
+
+            if (state == _cycleButtonState)
+                return;
+
+            _cycleButtonState = state;
+
+            // Basılıyken devre dışı kalırsa HoldButton Released verir (FALSE yazılır).
+            CycleButton.IsEnabled = connected;
+
+            string label, icon, color;
+            bool blink, filled;
+
+            switch (action)
+            {
+                case Ez5Action.Reset:
+                    label = "RESET"; icon = ResetIcon; color = "ErrorColor"; blink = false; filled = false;
+                    break;
+                case Ez5Action.Stop:
+                    label = "STOP"; icon = StopIcon; color = "ErrorColor"; blink = true; filled = true;
+                    break;
+                default:
+                    label = "START"; icon = StartIcon; color = "OkColor"; blink = true; filled = true;
+                    break;
+            }
+
+            CycleLabel.Text = label;
+            CycleIcon.Data = System.Windows.Media.Geometry.Parse(icon);
+            CycleButton.SetResourceReference(ForegroundProperty, color);
+            CycleButton.ToolTip = $"{label} (ışıklı butonun 5. tuşu, basılı tutun)";
+
+            if (filled)
+                CycleIcon.SetBinding(Shape.FillProperty, new System.Windows.Data.Binding("Foreground") { Source = CycleButton });
+            else
+                CycleIcon.Fill = null;
+
+            SetCycleBlink(connected && blink);
+        }
+
+        private void SetCycleBlink(bool on)
+        {
+            if (_cycleBlink == null)
+            {
+                var anim = new System.Windows.Media.Animation.DoubleAnimation(1.0, 0.25, TimeSpan.FromMilliseconds(450))
                 {
-                    case Ez5Action.Reset:
-                        RunEzCommand(_commands.ReleaseResetAsync(), "Reset bırak (HMI_Reset = FALSE)");
-                        break;
-                    case Ez5Action.Stop:
-                        RunEzCommand(_commands.ReleaseStopAsync(), "Stop bırak (HMI_Sistem_Durdur = FALSE)");
-                        break;
-                    case Ez5Action.Start:
-                        RunEzCommand(_commands.ReleaseStartAsync(), "Start bırak (HMI_Sistem_Baslat = FALSE)");
-                        break;
-                }
+                    AutoReverse = true,
+                    RepeatBehavior = System.Windows.Media.Animation.RepeatBehavior.Forever
+                };
+                System.Windows.Media.Animation.Storyboard.SetTarget(anim, CycleContent);
+                System.Windows.Media.Animation.Storyboard.SetTargetProperty(anim, new PropertyPath(OpacityProperty));
+
+                _cycleBlink = new System.Windows.Media.Animation.Storyboard();
+                _cycleBlink.Children.Add(anim);
+            }
+
+            if (on)
+            {
+                _cycleBlink.Begin(this, true);
+            }
+            else
+            {
+                _cycleBlink.Stop(this);
+                CycleContent.Opacity = 1.0;
             }
         }
 

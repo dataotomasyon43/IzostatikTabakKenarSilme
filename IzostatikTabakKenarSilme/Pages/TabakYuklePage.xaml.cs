@@ -191,9 +191,9 @@ namespace IzostatikTabakKenarSilme.Pages
                     }
 
                     if (File.Exists(target) &&
-                        MessageBox.Show(Window.GetWindow(this),
+                        !IzostatikTabakKenarSilme.Windows.ConfirmWindow.Ask(Window.GetWindow(this), "Tabak formu ekle",
                             $"\"{System.IO.Path.GetFileName(target)}\" zaten var. Üzerine yazılsın mı?",
-                            "Tabak formu ekle", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                            "ÜZERİNE YAZ", "VAZGEÇ", IzostatikTabakKenarSilme.Windows.ConfirmKind.Danger))
                     {
                         continue;
                     }
@@ -222,9 +222,9 @@ namespace IzostatikTabakKenarSilme.Pages
             if (!(FormList.SelectedItem is TabakLibrary.Entry entry))
                 return;
 
-            if (MessageBox.Show(Window.GetWindow(this),
+            if (!IzostatikTabakKenarSilme.Windows.ConfirmWindow.Ask(Window.GetWindow(this), "Tabak formu sil",
                     $"\"{entry.Name}\" formu listeden silinsin mi?\n(PLC'deki yüklü form etkilenmez.)",
-                    "Tabak formu sil", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                    "SİL", "VAZGEÇ", IzostatikTabakKenarSilme.Windows.ConfirmKind.Danger))
             {
                 return;
             }
@@ -353,11 +353,11 @@ namespace IzostatikTabakKenarSilme.Pages
 
             string name = _selected.Name;
 
-            if (MessageBox.Show(Window.GetWindow(this),
+            if (!IzostatikTabakKenarSilme.Windows.ConfirmWindow.Ask(Window.GetWindow(this), "PLC'ye yükle",
                     $"\"{name}\" formu PLC'ye yüklenecek ve cam tablosu yeniden oluşturulacak.\n\n" +
                     $"Rmin {_profile.RMin.ToString("0.00", Tr)} mm, Rmax {_profile.RMax.ToString("0.00", Tr)} mm, " +
                     $"kurs {(_profile.RMax - _profile.RMin).ToString("0.00", Tr)} mm.\n\nDevam edilsin mi?",
-                    "PLC'ye yükle", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
+                    "PLC'YE YÜKLE", "VAZGEÇ", IzostatikTabakKenarSilme.Windows.ConfirmKind.Warning))
             {
                 return;
             }

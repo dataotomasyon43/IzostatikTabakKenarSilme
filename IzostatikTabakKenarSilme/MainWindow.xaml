@@ -179,6 +179,8 @@
                                 </Setter.Value>
                             </Setter>
                         </Style>
+                        <Style TargetType="{x:Type controls:HoldButton}"
+                               BasedOn="{StaticResource {x:Type Button}}"/>
                         <Style TargetType="{x:Type Path}">
                             <Setter Property="Stroke"
                                     Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"/>
@@ -267,8 +269,12 @@
                     <!-- Simgeli butonlar (stil yukarıdaki Grid.Resources'ta). Simgeler 24x24 SVG yol
                      verisidir; renk butonun Foreground'undan gelir:
                      Kapalı beyaz, Güvenli yeşil, Manuel turuncu, Otomatik mavi. -->
+                    <!-- Mod butonları + ışıklı butonun 5. tuşunun ekrandaki karşılığı -->
+                    <StackPanel Grid.Row="1"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
                     <StackPanel x:Name="ModeButtonsPanel"
-                            Grid.Row="1"
                             Orientation="Horizontal"
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center" Width="326">
@@ -343,6 +349,33 @@
                                 <TextBlock Text="OTOMATİK" Style="{StaticResource IconLabelStyle}"/>
                             </StackPanel>
                         </Button>
+                    </StackPanel>
+
+                    <Border Width="1" Height="44" Margin="6,0" VerticalAlignment="Center"
+                            Background="{DynamicResource PanelBorder}"/>
+
+                    <!-- 5. tuş (START / STOP / RESET): ışıklı butondaki 5. tuşun
+                         aynısı; görevi ve rengi duruma göre değişir, basılı
+                         tutulur (bas TRUE, bırak FALSE). Koddan güncellenir
+                         (UpdateCycleButton). -->
+                    <controls:HoldButton x:Name="CycleButton"
+                            Width="80"
+                            Foreground="{DynamicResource OkColor}"
+                            ToolTip="Işıklı butonun 5. tuşu"
+                            AutomationProperties.Name="Start / Stop / Reset"
+                            Pressed="CycleButton_Pressed"
+                            Released="CycleButton_Released">
+                        <StackPanel x:Name="CycleContent">
+                            <Viewbox Width="30" Height="30" HorizontalAlignment="Center">
+                                <Canvas Width="24" Height="24">
+                                    <Path x:Name="CycleIcon"
+                                          Data="M8,5 L19,12 L8,19 Z"
+                                          Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType={x:Type Button}}}"/>
+                                </Canvas>
+                            </Viewbox>
+                            <TextBlock x:Name="CycleLabel" Text="START" Style="{StaticResource IconLabelStyle}"/>
+                        </StackPanel>
+                    </controls:HoldButton>
                     </StackPanel>
                 </Grid>
             </Grid>

@@ -200,8 +200,8 @@ namespace IzostatikTabakKenarSilme.Pages
                 return;
 
             if (_store.Exists(name) &&
-                MessageBox.Show(Window.GetWindow(this), $"\"{name}\" adlı reçete var. Üzerine yazılsın mı?",
-                    "Yeni reçete", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                !IzostatikTabakKenarSilme.Windows.ConfirmWindow.Ask(Window.GetWindow(this), "Yeni reçete", $"\"{name}\" adlı reçete var. Üzerine yazılsın mı?",
+                    "ÜZERİNE YAZ", "VAZGEÇ", IzostatikTabakKenarSilme.Windows.ConfirmKind.Danger))
             {
                 return;
             }
@@ -220,9 +220,9 @@ namespace IzostatikTabakKenarSilme.Pages
                 return;
             }
 
-            if (MessageBox.Show(Window.GetWindow(this),
+            if (!IzostatikTabakKenarSilme.Windows.ConfirmWindow.Ask(Window.GetWindow(this), "Reçeteyi kaydet",
                     $"\"{_selected.Name}\" reçetesi makinedeki güncel ayarlarla ve PLC'ye son yüklenen tabak formuyla güncellensin mi?",
-                    "Reçeteyi kaydet", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                    "KAYDET", "VAZGEÇ"))
             {
                 return;
             }
@@ -256,10 +256,10 @@ namespace IzostatikTabakKenarSilme.Pages
                 }
                 else if (r.FormFile == null)
                 {
-                    if (MessageBox.Show(Window.GetWindow(this),
+                    if (!IzostatikTabakKenarSilme.Windows.ConfirmWindow.Ask(Window.GetWindow(this), "Reçete kaydet",
                             "PLC'ye son yüklenen tabak formu bulunamadı (Tabak Yükle listesinde yok).\n" +
                             "Reçete tabak formu olmadan kaydedilsin mi? (Yüklenirken yalnız ayarlar yazılır.)",
-                            "Reçete kaydet", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
+                            "FORMSUZ KAYDET", "VAZGEÇ", IzostatikTabakKenarSilme.Windows.ConfirmKind.Warning))
                     {
                         ShowStatus("Kaydetme iptal edildi.", isError: false);
                         return;
@@ -291,9 +291,9 @@ namespace IzostatikTabakKenarSilme.Pages
             if (_selected == null)
                 return;
 
-            if (MessageBox.Show(Window.GetWindow(this),
+            if (!IzostatikTabakKenarSilme.Windows.ConfirmWindow.Ask(Window.GetWindow(this), "Reçete sil",
                     $"\"{_selected.Name}\" reçetesi silinsin mi?\n(PLC'deki ayarlar etkilenmez.)",
-                    "Reçete sil", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                    "SİL", "VAZGEÇ", IzostatikTabakKenarSilme.Windows.ConfirmKind.Danger))
             {
                 return;
             }
@@ -328,10 +328,10 @@ namespace IzostatikTabakKenarSilme.Pages
             int changes = CountDiff(r);
             string formLine = formPath != null ? $"Tabak formu \"{r.FormName}\" da yüklenecek." : "Reçetede tabak formu yok; yalnız ayarlar yazılacak.";
 
-            if (MessageBox.Show(Window.GetWindow(this),
+            if (!IzostatikTabakKenarSilme.Windows.ConfirmWindow.Ask(Window.GetWindow(this), "Reçeteyi yükle",
                     $"\"{r.Name}\" reçetesi PLC'ye yüklenecek.\n\n" +
                     (changes >= 0 ? $"{changes} ayar değişecek. " : "") + formLine + "\n\nDevam edilsin mi?",
-                    "Reçeteyi yükle", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
+                    "PLC'YE YÜKLE", "VAZGEÇ", IzostatikTabakKenarSilme.Windows.ConfirmKind.Warning))
             {
                 return;
             }

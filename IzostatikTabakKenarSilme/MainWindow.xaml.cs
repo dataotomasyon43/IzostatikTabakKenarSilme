@@ -1142,15 +1142,15 @@ namespace IzostatikTabakKenarSilme
             };
         }
 
-        // GENEL: gelişmiş ayarlar ve servis (Canlı İzleme).
+        // GENEL: gelişmiş ayarlar ve servis (girişler/çıkışlar, eksenler, sistem; tag testi Servis > Sistem içinde).
         private IList<Pages.SectionItem> GenelItems()
         {
             return new[]
             {
                 new Pages.SectionItem("GelismisAyarlar", "Gelişmiş Ayarlar",
                     () => new Pages.GelismisAyarlarPage(_plcService, _commands, _machineState)),
-                new Pages.SectionItem("CanliIzleme", "Canlı İzleme",
-                    () => new Pages.CanliIzlemePage(_plcService))
+                new Pages.SectionItem("Servis", "Servis",
+                    () => new Pages.ServisPage(_plcService, _machineState))
             };
         }
 

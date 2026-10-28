@@ -425,7 +425,7 @@
 
                 </StackPanel>
 
-                <!-- GENEL: yalnızca simge (Gelişmiş Ayarlar, Servis / Canlı İzleme) -->
+                <!-- GENEL: yalnızca simge (Gelişmiş Ayarlar, Servis) -->
                 <Button x:Name="MenuGenelButton"
                         Grid.Column="1"
                         CommandParameter="Genel"

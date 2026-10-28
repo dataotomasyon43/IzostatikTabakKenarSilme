@@ -91,6 +91,9 @@
     <Compile Include="Pages\CanliIzlemePage.xaml.cs">
       <DependentUpon>CanliIzlemePage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\ServisPage.xaml.cs">
+      <DependentUpon>ServisPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\HoldButton.cs" />
     <Compile Include="Controls\PlcPushButton.cs" />
     <Compile Include="Controls\PlcToggleButton.cs" />
@@ -264,6 +267,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\CanliIzlemePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\ServisPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

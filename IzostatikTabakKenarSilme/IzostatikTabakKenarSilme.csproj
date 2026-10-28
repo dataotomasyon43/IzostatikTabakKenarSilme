@@ -129,6 +129,7 @@
     </Compile>
     <Compile Include="Services\Tabak\ExcelPointReader.cs" />
     <Compile Include="Services\Tabak\TabakLibrary.cs" />
+    <Compile Include="Services\Tabak\TurSuresiOnerisi.cs" />
     <Compile Include="Services\Tabak\TabakProfile.cs" />
     <Compile Include="Services\Tabak\TabakRecipe.cs" />
     <Compile Include="Services\Tabak\TabakUploader.cs" />

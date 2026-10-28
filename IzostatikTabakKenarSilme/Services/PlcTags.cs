@@ -106,6 +106,7 @@
         public const string CpkTurSayi = "HMI_Ist2TurSayi";                    // INT, adet
         public const string CpkBomseGeriYon = "HMI_Bomse2Yon";                 // BOOL, kalıcı ("geri")
         public const string CpkModHiz = "HMI_CpkMod_OtoHiz";                   // INT, %
+        public const string CpkModIvme = "HMI_CpkMod_OtoIvme";                 // INT, % (0-100 → 0-2000 mm/s², ivme=yavaşlama)
         public const string CpkModAktPoz = "HMI_CpkMod_ActPos";                // REAL, mm, gösterge
         public const string CpkModBasPoz = "HMI_CpkMod_BasPoz";                // REAL, mm
         // Basılı tutma (bas TRUE, bırak FALSE)
@@ -129,6 +130,7 @@
         public const string Zim1TaslamaYon = "HMI_Zimpara1_Yon";                 // BOOL, kalıcı
         public const string Zim1ManStart = "HMI_Zimpara1_Man_Start";             // BOOL, kalıcı
         public const string Zim1ModHiz = "HMI_Zim1Mod_OtoHiz";                   // INT, %
+        public const string Zim1ModIvme = "HMI_Zim1Mod_OtoIvme";               // INT, % (0-100 → 0-2000 mm/s², ivme=yavaşlama)
         public const string Zim1ModAktPoz = "HMI_Zim1Mod_ActPos";                // REAL, mm, gösterge
         public const string Zim1ModBasPoz = "HMI_Zim1_BasPoz";                   // REAL, mm
         public const string Zim1Teach = "HMI_Zim1_BasPoz_Ogren";                 // basılı tutma
@@ -149,6 +151,7 @@
         public const string Zim2TaslamaYon = "HMI_Zimpara2_Yon";                 // BOOL, kalıcı
         public const string Zim2ManStart = "HMI_Zimpara2_Man_Start";             // BOOL, kalıcı
         public const string Zim2ModHiz = "HMI_Zim2Mod_OtoHiz";                   // INT, %
+        public const string Zim2ModIvme = "HMI_Zim2Mod_OtoIvme";               // INT, % (0-100 → 0-2000 mm/s², ivme=yavaşlama)
         public const string Zim2ModAktPoz = "HMI_Zim2Mod_ActPos";                // REAL, mm, gösterge
         public const string Zim2ModBasPoz = "HMI_Zim2_BasPoz";                   // REAL, mm
         public const string Zim2Teach = "HMI_Zim2_BasPoz_Ogren";                 // basılı tutma
@@ -169,6 +172,7 @@
         public const string Sun1SungerYon = "HMI_Sunger1_Yon";                   // BOOL, kalıcı
         public const string Sun1ManStart = "HMI_Sunger1_Man_Start";              // BOOL, kalıcı
         public const string Sun1ModHiz = "HMI_Sun1Mod_OtoHiz";                   // INT, %
+        public const string Sun1ModIvme = "HMI_Sun1Mod_OtoIvme";               // REAL, % (0-100 → 0-2000 mm/s², ivme=yavaşlama)
         public const string Sun1ModAktPoz = "HMI_Sun1Mod_ActPos";                // REAL, mm, gösterge
         public const string Sun1ModBasPoz = "HMI_Sun1_BasPoz";                   // REAL, mm
         public const string Sun1Teach = "HMI_Sun1_BasPoz_Ogren";                 // basılı tutma
@@ -189,6 +193,7 @@
         public const string Sun2SungerYon = "HMI_Sunger2_Yon";                   // BOOL, kalıcı
         public const string Sun2ManStart = "HMI_Sunger2_Man_Start";              // BOOL, kalıcı
         public const string Sun2ModHiz = "HMI_Sun2Mod_OtoHiz";                   // INT, %
+        public const string Sun2ModIvme = "HMI_Sun2Mod_OtoIvme";               // INT, % (0-100 → 0-2000 mm/s², ivme=yavaşlama)
         public const string Sun2ModAktPoz = "HMI_Sun2Mod_ActPos";                // REAL, mm, gösterge
         public const string Sun2ModBasPoz = "HMI_Sun2_BasPoz";                   // REAL, mm
         public const string Sun2Teach = "HMI_Sun2_BasPoz_Ogren";                 // basılı tutma
@@ -209,6 +214,7 @@
         public const string Sun3SungerYon = "HMI_Sunger3_Yon";                   // BOOL, kalıcı
         public const string Sun3ManStart = "HMI_Sunger3_Man_Start";              // BOOL, kalıcı
         public const string Sun3ModHiz = "HMI_Sun3Mod_OtoHiz";                   // INT, %
+        public const string Sun3ModIvme = "HMI_Sun3Mod_OtoIvme";               // INT, % (0-100 → 0-2000 mm/s², ivme=yavaşlama)
         public const string Sun3ModAktPoz = "HMI_Sun3Mod_ActPos";                // REAL, mm, gösterge
         public const string Sun3ModBasPoz = "HMI_Sun3_BasPoz";                   // REAL, mm
         public const string Sun3Teach = "HMI_Sun3_BasPoz_Ogren";                 // basılı tutma

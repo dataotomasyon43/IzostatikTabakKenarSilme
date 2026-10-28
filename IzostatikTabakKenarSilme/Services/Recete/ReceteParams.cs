@@ -95,32 +95,38 @@ namespace IzostatikTabakKenarSilme.Services.Recete
             Station(list, "Çapak Kırma", PlcTags.CpkBomseBasPoz, PlcTags.CpkBitisAci, PlcTags.CpkModGeriCekilmeAci,
                 PlcTags.CpkTurSure, PlcTags.CpkTurSayi, PlcTags.CpkBomseGeriYon,
                 null, null, null,
-                PlcTags.CpkModHiz, PlcTags.CpkModBasPoz);
+                PlcTags.CpkModHiz, PlcTags.CpkModBasPoz,
+                PlcTags.CpkModIvme, ReceteParamType.Int);
 
             Station(list, "Zımpara-1", PlcTags.Zim1BomseBasPoz, PlcTags.Zim1BitisAci, PlcTags.Zim1ModGeriCekilmeAci,
                 PlcTags.Zim1TurSure, PlcTags.Zim1TurSayi, PlcTags.Zim1BomseYon,
                 "Taşlama Hızı", PlcTags.Zim1TaslamaHiz, PlcTags.Zim1TaslamaYon,
-                PlcTags.Zim1ModHiz, PlcTags.Zim1ModBasPoz);
+                PlcTags.Zim1ModHiz, PlcTags.Zim1ModBasPoz,
+                PlcTags.Zim1ModIvme, ReceteParamType.Int);
 
             Station(list, "Zımpara-2", PlcTags.Zim2BomseBasPoz, PlcTags.Zim2BitisAci, PlcTags.Zim2ModGeriCekilmeAci,
                 PlcTags.Zim2TurSure, PlcTags.Zim2TurSayi, PlcTags.Zim2BomseYon,
                 "Taşlama Hızı", PlcTags.Zim2TaslamaHiz, PlcTags.Zim2TaslamaYon,
-                PlcTags.Zim2ModHiz, PlcTags.Zim2ModBasPoz);
+                PlcTags.Zim2ModHiz, PlcTags.Zim2ModBasPoz,
+                PlcTags.Zim2ModIvme, ReceteParamType.Int);
 
             Station(list, "Sünger-1", PlcTags.Sun1BomseBasPoz, PlcTags.Sun1BitisAci, PlcTags.Sun1ModGeriCekilmeAci,
                 PlcTags.Sun1TurSure, PlcTags.Sun1TurSayi, PlcTags.Sun1BomseYon,
                 "Sünger Hızı", PlcTags.Sun1SungerHiz, PlcTags.Sun1SungerYon,
-                PlcTags.Sun1ModHiz, PlcTags.Sun1ModBasPoz);
+                PlcTags.Sun1ModHiz, PlcTags.Sun1ModBasPoz,
+                PlcTags.Sun1ModIvme, ReceteParamType.Real);
 
             Station(list, "Sünger-2", PlcTags.Sun2BomseBasPoz, PlcTags.Sun2BitisAci, PlcTags.Sun2ModGeriCekilmeAci,
                 PlcTags.Sun2TurSure, PlcTags.Sun2TurSayi, PlcTags.Sun2BomseYon,
                 "Sünger Hızı", PlcTags.Sun2SungerHiz, PlcTags.Sun2SungerYon,
-                PlcTags.Sun2ModHiz, PlcTags.Sun2ModBasPoz);
+                PlcTags.Sun2ModHiz, PlcTags.Sun2ModBasPoz,
+                PlcTags.Sun2ModIvme, ReceteParamType.Int);
 
             Station(list, "Sünger-3", PlcTags.Sun3BomseBasPoz, PlcTags.Sun3BitisAci, PlcTags.Sun3ModGeriCekilmeAci,
                 PlcTags.Sun3TurSure, PlcTags.Sun3TurSayi, PlcTags.Sun3BomseYon,
                 "Sünger Hızı", PlcTags.Sun3SungerHiz, PlcTags.Sun3SungerYon,
-                PlcTags.Sun3ModHiz, PlcTags.Sun3ModBasPoz);
+                PlcTags.Sun3ModHiz, PlcTags.Sun3ModBasPoz,
+                PlcTags.Sun3ModIvme, ReceteParamType.Int);
 
             // Servo (form hız ayarları)
             Servo(list, "Servo — Çapak", PlcTags.CpkOranliMod, PlcTags.CpkKoselerHizli, PlcTags.CpkKoseHiz, PlcTags.CpkGeriMesafe);
@@ -142,7 +148,8 @@ namespace IzostatikTabakKenarSilme.Services.Recete
 
         private static void Station(List<ReceteParam> list, string g,
             string basPoz, string bitisAci, string geriCekilme, string turSure, string turSayi, string bomseYon,
-            string toolLabel, string toolHiz, string toolYon, string modHiz, string modBasPoz)
+            string toolLabel, string toolHiz, string toolYon, string modHiz, string modBasPoz,
+            string modIvme, ReceteParamType modIvmeType)
         {
             list.Add(new ReceteParam(g, "Bomse Başlama Pos", basPoz, ReceteParamType.Real, "°", 1, 0, 360));
             list.Add(new ReceteParam(g, "Bitiş Ek Açı", bitisAci, ReceteParamType.Real, "°", 1, 0, 360));
@@ -158,6 +165,7 @@ namespace IzostatikTabakKenarSilme.Services.Recete
             }
 
             list.Add(new ReceteParam(g, "Modül Hızı", modHiz, ReceteParamType.Int, "%", 0, 0, 9999));
+            list.Add(new ReceteParam(g, "Modül İvme", modIvme, modIvmeType, "%", 0, 0, 100));
             list.Add(new ReceteParam(g, "Modül Başlama Pozisyonu", modBasPoz, ReceteParamType.Real, "mm", 2, 0, 9999));
         }
 

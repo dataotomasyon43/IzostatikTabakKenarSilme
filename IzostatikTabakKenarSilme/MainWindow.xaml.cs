@@ -1470,6 +1470,7 @@ namespace IzostatikTabakKenarSilme
                 ToolStart = PlcTags.Zim1ManStart,
 
                 ModHiz = PlcTags.Zim1ModHiz,
+                ModIvme = PlcTags.Zim1ModIvme,
                 ModAktPoz = PlcTags.Zim1ModAktPoz,
                 ModBasPoz = PlcTags.Zim1ModBasPoz,
                 Teach = PlcTags.Zim1Teach,
@@ -1504,6 +1505,7 @@ namespace IzostatikTabakKenarSilme
                 ToolStart = PlcTags.Zim2ManStart,
 
                 ModHiz = PlcTags.Zim2ModHiz,
+                ModIvme = PlcTags.Zim2ModIvme,
                 ModAktPoz = PlcTags.Zim2ModAktPoz,
                 ModBasPoz = PlcTags.Zim2ModBasPoz,
                 Teach = PlcTags.Zim2Teach,
@@ -1538,6 +1540,8 @@ namespace IzostatikTabakKenarSilme
                 ToolStart = PlcTags.Sun1ManStart,
 
                 ModHiz = PlcTags.Sun1ModHiz,
+                ModIvme = PlcTags.Sun1ModIvme,
+                ModIvmeIsReal = true, // PLC'de HMI_Sun1Mod_OtoIvme REAL
                 ModAktPoz = PlcTags.Sun1ModAktPoz,
                 ModBasPoz = PlcTags.Sun1ModBasPoz,
                 Teach = PlcTags.Sun1Teach,
@@ -1572,6 +1576,7 @@ namespace IzostatikTabakKenarSilme
                 ToolStart = PlcTags.Sun2ManStart,
 
                 ModHiz = PlcTags.Sun2ModHiz,
+                ModIvme = PlcTags.Sun2ModIvme,
                 ModAktPoz = PlcTags.Sun2ModAktPoz,
                 ModBasPoz = PlcTags.Sun2ModBasPoz,
                 Teach = PlcTags.Sun2Teach,
@@ -1606,6 +1611,7 @@ namespace IzostatikTabakKenarSilme
                 ToolStart = PlcTags.Sun3ManStart,
 
                 ModHiz = PlcTags.Sun3ModHiz,
+                ModIvme = PlcTags.Sun3ModIvme,
                 ModAktPoz = PlcTags.Sun3ModAktPoz,
                 ModBasPoz = PlcTags.Sun3ModBasPoz,
                 Teach = PlcTags.Sun3Teach,

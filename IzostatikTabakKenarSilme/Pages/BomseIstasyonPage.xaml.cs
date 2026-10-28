@@ -43,6 +43,8 @@ namespace IzostatikTabakKenarSilme.Pages
 
         // Modül
         public string ModHiz;           // INT, %
+        public string ModIvme;          // INT ya da REAL (ModIvmeIsReal), %
+        public bool ModIvmeIsReal;
         public string ModAktPoz;        // REAL, mm, gösterge
         public string ModBasPoz;        // REAL, mm
         public string Teach;            // BOOL, basılı tutma
@@ -106,6 +108,7 @@ namespace IzostatikTabakKenarSilme.Pages
             AddParam(TurSureField, _cfg.TurSure, false);
             AddParam(TurSayiField, _cfg.TurSayi, true);
             AddParam(ModHizField, _cfg.ModHiz, true);
+            AddParam(ModIvmeField, _cfg.ModIvme, !_cfg.ModIvmeIsReal);
             AddParam(ModBasPozField, _cfg.ModBasPoz, false);
 
             // Basılı tutma butonları
@@ -238,10 +241,54 @@ namespace IzostatikTabakKenarSilme.Pages
 
             SetPushEnabled(true);
 
+            UpdateTurSureHint();
+
             if (_readOk == false)
                 ShowStatus(string.Empty, isError: false);
 
             _readOk = true;
+        }
+
+        // ---------------- Tur süresi önerisi ----------------
+
+        // PLC'deki forma göre önerilen en kısa tur süresi; yalnız tavsiye,
+        // girilen değer sınırlanmaz. Öneri arka planda bir kez hesaplanır
+        // (form değişince yeniden).
+        private readonly Services.Tabak.TabakLibrary _formLibrary = new Services.Tabak.TabakLibrary();
+        private Services.Tabak.TurSuresiOnerisi.Sonuc _turOneri;
+        private DateTime _turOneriTime;
+
+        private async void UpdateTurSureHint()
+        {
+            try
+            {
+                if ((DateTime.Now - _turOneriTime).TotalSeconds > 10)
+                {
+                    _turOneriTime = DateTime.Now;
+                    var lib = _formLibrary;
+                    _turOneri = await System.Threading.Tasks.Task.Run(() => Services.Tabak.TurSuresiOnerisi.Hesapla(lib));
+                }
+
+                if (_turOneri == null)
+                {
+                    TurSureHintText.Visibility = Visibility.Collapsed;
+                    return;
+                }
+
+                double oneri = _turOneri.OnerilenSn;
+                string txt = oneri.ToString("0.0", System.Globalization.CultureInfo.GetCultureInfo("tr-TR"));
+                bool kisa = TurSureField.Value.HasValue && TurSureField.Value.Value < oneri - 0.05;
+
+                TurSureHintText.Text = kisa
+                    ? $"⚠ Önerilen en az {txt} s ({_turOneri.FormAdi}). Daha kısa sürede modül köşelerde zorlanır."
+                    : $"Önerilen en az {txt} s ({_turOneri.FormAdi})";
+                TurSureHintText.SetResourceReference(TextBlock.ForegroundProperty, kisa ? "WarningColor" : "SecondaryText");
+                TurSureHintText.Visibility = Visibility.Visible;
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Warn("Tur süresi önerisi gösterilemedi: " + ex.Message);
+            }
         }
 
         private void OnReadError(Exception ex)

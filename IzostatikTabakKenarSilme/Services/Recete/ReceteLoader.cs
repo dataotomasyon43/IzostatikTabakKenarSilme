@@ -80,7 +80,8 @@ namespace IzostatikTabakKenarSilme.Services.Recete
 
         /// <summary>
         /// Reçetedeki değerlerin sınır dışı olanları (boş liste: hepsi uygun).
-        /// Reçetede olmayan ayarlar da listelenir.
+        /// Reçetede olmayan ayarlar hata sayılmaz (sonradan eklenen ayarlar,
+        /// ör. Modül İvme): yüklemede atlanır, PLC'deki değer korunur.
         /// </summary>
         public static List<string> Validate(ReceteData r)
         {
@@ -88,13 +89,17 @@ namespace IzostatikTabakKenarSilme.Services.Recete
 
             foreach (ReceteParam p in ReceteParams.All)
             {
-                if (!r.Values.TryGetValue(p.Tag, out double v))
-                    errors.Add($"{p.Group} / {p.Label}: reçetede yok");
-                else if (!p.InRange(v))
+                if (r.Values.TryGetValue(p.Tag, out double v) && !p.InRange(v))
                     errors.Add($"{p.Group} / {p.Label}: {p.Format(v)} sınır dışı");
             }
 
             return errors;
+        }
+
+        /// <summary>Reçetede kaydı olmayan ayarlar (eski reçeteler).</summary>
+        public static List<ReceteParam> Missing(ReceteData r)
+        {
+            return ReceteParams.All.Where(p => !r.Values.ContainsKey(p.Tag)).ToList();
         }
 
         /// <summary>Reçetenin tabak formu profili (form yoksa null).</summary>
@@ -166,7 +171,15 @@ namespace IzostatikTabakKenarSilme.Services.Recete
             }
 
             // Ayarları yaz
-            List<ReceteParam> ps = ReceteParams.All.ToList();
+            // Yalnız reçetede kaydı olan ayarlar yazılır.
+            List<ReceteParam> ps = ReceteParams.All.Where(p => r.Values.ContainsKey(p.Tag)).ToList();
+            List<ReceteParam> missing = Missing(r);
+
+            if (missing.Count > 0)
+            {
+                AppLogger.Warn($"Reçete {r.Name}: {missing.Count} ayar reçetede yok, yazılmayacak: " +
+                               string.Join(", ", missing.Select(p => p.Group + " / " + p.Label)));
+            }
 
             try
             {
@@ -208,9 +221,12 @@ namespace IzostatikTabakKenarSilme.Services.Recete
             }
 
             result.Success = true;
-            result.Message = profile != null
+            result.Message = (profile != null
                 ? $"\"{r.Name}\" yüklendi: {ps.Count} ayar + tabak formu \"{r.FormName}\"."
-                : $"\"{r.Name}\" yüklendi: {ps.Count} ayar (reçetede tabak formu yok).";
+                : $"\"{r.Name}\" yüklendi: {ps.Count} ayar (reçetede tabak formu yok).") +
+                (missing.Count > 0
+                    ? $" {missing.Count} ayar reçetede yoktu (ör. {missing[0].Group} / {missing[0].Label}), PLC'deki değeri değişmedi; reçeteyi kaydedip güncelleyin."
+                    : "");
             AppLogger.Info("Reçete yüklendi: " + result.Message);
             return result;
         }

@@ -94,6 +94,10 @@
                     <controls:ParameterField x:Name="TurSureField"
                                              Label="Tur Süresi" Unit="s" Decimals="1" Min="0" Max="9999"
                                              ValueWidth="110" UnitWidth="36" ValueFontSize="24"/>
+                    <!-- Yüklü forma göre önerilen en kısa tur süresi (yalnız tavsiye) -->
+                    <TextBlock x:Name="TurSureHintText" FontSize="12" Margin="0,-4,0,2"
+                               TextWrapping="Wrap" Visibility="Collapsed"
+                               Foreground="{DynamicResource SecondaryText}"/>
 
                     <!-- Tur sayısı + bomse dönüş yönü ("geri", kalıcı) -->
                     <Grid>
@@ -129,6 +133,7 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
                         <!-- Takım hızı (taşlama / sünger) + yön ("geri", kalıcı).
@@ -144,14 +149,19 @@
                         <controls:ParameterField x:Name="ModHizField" Grid.Row="1"
                                                  Label="Modül Hızı" Unit="%" Decimals="0" Min="0" Max="9999"
                                                  ValueWidth="110" UnitWidth="40" ValueFontSize="24"/>
-                        <controls:ParameterField x:Name="ModAktPozField" Grid.Row="2"
+                        <!-- Geri / başlama pozisyonuna gidişte ivme = yavaşlama.
+                             0 verilirse eksen anında kalkıp anında durur (vuruntu). -->
+                        <controls:ParameterField x:Name="ModIvmeField" Grid.Row="2"
+                                                 Label="Modül İvme" Unit="%" Decimals="0" Min="0" Max="100"
+                                                 ValueWidth="110" UnitWidth="40" ValueFontSize="24"/>
+                        <controls:ParameterField x:Name="ModAktPozField" Grid.Row="3"
                                                  Label="Aktüel Poz" Unit="mm" Decimals="2"
                                                  ValueWidth="110" UnitWidth="40" ValueFontSize="24"
                                                  IsReadOnly="True"/>
-                        <controls:ParameterField x:Name="ModBasPozField" Grid.Row="3"
+                        <controls:ParameterField x:Name="ModBasPozField" Grid.Row="4"
                                                  Label="Başlama Poz" Unit="mm" Decimals="2" Min="0" Max="9999"
                                                  ValueWidth="110" UnitWidth="40" ValueFontSize="24"/>
-                        <controls:PlcPushButton x:Name="TeachButton" Grid.Row="3" Grid.Column="2"
+                        <controls:PlcPushButton x:Name="TeachButton" Grid.Row="4" Grid.Column="2"
                                                 Margin="0,5"
                                                 Content="TEACH"
                                                 Style="{StaticResource PushButtonStyle}"/>

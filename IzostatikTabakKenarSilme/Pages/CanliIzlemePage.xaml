@@ -2,80 +2,193 @@
       Foreground="{DynamicResource PrimaryText}"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      mc:Ignorable="d"
+      d:DesignHeight="538" d:DesignWidth="1024"
       Background="Transparent">
+
+    <!-- Servis > Tag okuma testi: PlcTaglari.csv'deki tüm PLC değişkenleri
+         (+ birkaç ek sistem değişkeni). Ara, görünenleri ya da seçiliyi oku.
+         Yalnız okur, PLC'ye hiçbir şey yazmaz. -->
+    <Page.Resources>
+        <Style x:Key="ToolButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource CommandButtonStyle}">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Height" Value="46"/>
+            <Setter Property="MinWidth" Value="120"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
+        </Style>
+        <Style x:Key="ThinScrollBarStyle" TargetType="{x:Type ScrollBar}">
+            <Setter Property="Width" Value="8"/>
+            <Setter Property="MinWidth" Value="8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ScrollBar}">
+                        <Track x:Name="PART_Track"
+                               Orientation="{TemplateBinding Orientation}"
+                               IsDirectionReversed="True">
+                            <Track.Thumb>
+                                <Thumb>
+                                    <Thumb.Template>
+                                        <ControlTemplate TargetType="{x:Type Thumb}">
+                                            <Border Background="{DynamicResource PanelBorder}" CornerRadius="4"/>
+                                        </ControlTemplate>
+                                    </Thumb.Template>
+                                </Thumb>
+                            </Track.Thumb>
+                        </Track>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Page.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- Başlık -->
-        <StackPanel Grid.Row="0" Margin="0,0,0,16">
-            <TextBlock Text="PLC Canlı İzleme"
-                       FontSize="25"
-                       FontWeight="Bold"/>
-
-            <TextBlock Text="Tag okuma ve haberleşme test paneli"
-                       Margin="0,5,0,0"
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBlock Text="Tag Okuma Testi" FontSize="25" FontWeight="Bold" VerticalAlignment="Bottom"/>
+            <TextBlock x:Name="SourceText" Margin="16,0,0,4" VerticalAlignment="Bottom"
                        Foreground="{DynamicResource SecondaryText}"/>
         </StackPanel>
 
-        <!-- Durum ve işlem butonu -->
-        <Grid Grid.Row="1" Margin="0,0,0,12">
+        <!-- Arama + işlemler -->
+        <Grid Grid.Row="1" Margin="0,0,0,10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <TextBlock x:Name="StatusText"
-                       Grid.Column="0"
-                       Text="Henüz test yapılmadı"
-                       VerticalAlignment="Center"
-                       TextWrapping="Wrap"
-                       Foreground="{DynamicResource SecondaryText}"/>
+            <!-- Dokununca ekran klavyesi açılır (o pencerede fiziksel klavye de çalışır) -->
+            <Grid>
+                <TextBox x:Name="SearchBox"
+                         Height="46" FontSize="18" Padding="10,0,40,0"
+                         VerticalContentAlignment="Center"
+                         Background="{DynamicResource CardBackground}"
+                         Foreground="{DynamicResource PrimaryText}"
+                         BorderBrush="{DynamicResource PanelBorder}"
+                         CaretBrush="{DynamicResource AccentColor}"
+                         IsReadOnly="True"
+                         Focusable="False"
+                         Cursor="Hand"
+                         TextChanged="SearchBox_TextChanged"
+                         PreviewMouseLeftButtonUp="SearchBox_PreviewMouseLeftButtonUp"/>
+                <TextBlock x:Name="SearchHint" Text="Ara (ör. GTR, Bomse, Alm)" IsHitTestVisible="False"
+                           FontSize="16" Margin="12,0,0,0" VerticalAlignment="Center"
+                           Foreground="{DynamicResource SecondaryText}"/>
+                <Button Content="✕" Width="36" Height="36" Margin="0,0,5,0" HorizontalAlignment="Right"
+                        FontSize="14" Focusable="False" Style="{StaticResource CommandButtonStyle}"
+                        Padding="0" Click="ClearSearch_Click"/>
+            </Grid>
 
-            <Button x:Name="ReadAllButton"
-                    Grid.Column="1"
-                    Content="Tümünü Oku"
-                    Padding="16,8"
-                    Margin="12,0,0,0"
-                    VerticalAlignment="Center"
-                    Click="ReadAll_Click"/>
+            <Button x:Name="ReadSelectedButton" Grid.Column="1" Content="SEÇİLİYİ OKU"
+                    Style="{StaticResource ToolButtonStyle}" Click="ReadSelected_Click"/>
+            <Button x:Name="ReadVisibleButton" Grid.Column="2" Content="GÖRÜNENLERİ OKU" Tag="Active"
+                    Style="{StaticResource ToolButtonStyle}" Click="ReadVisible_Click"/>
+            <Button Grid.Column="3" Content="SERVİS" Style="{StaticResource ToolButtonStyle}"
+                    Click="Back_Click"/>
         </Grid>
 
-        <!-- PLC tag listesi -->
+        <!-- Tag listesi -->
         <DataGrid x:Name="TagGrid"
                   Grid.Row="2"
                   AutoGenerateColumns="False"
                   IsReadOnly="True"
                   CanUserAddRows="False"
                   CanUserDeleteRows="False"
+                  CanUserResizeRows="False"
                   HeadersVisibility="Column"
                   GridLinesVisibility="Horizontal"
                   SelectionMode="Single"
                   SelectionUnit="FullRow"
                   EnableRowVirtualization="True"
-                  EnableColumnVirtualization="True">
+                  EnableColumnVirtualization="True"
+                  VirtualizingPanel.IsVirtualizing="True"
+                  VirtualizingPanel.VirtualizationMode="Recycling"
+                  ScrollViewer.PanningMode="VerticalOnly"
+                  RowHeight="34"
+                  FontSize="14"
+                  Background="{DynamicResource CardBackground}"
+                  RowBackground="Transparent"
+                  AlternatingRowBackground="Transparent"
+                  Foreground="{DynamicResource PrimaryText}"
+                  BorderBrush="{DynamicResource PanelBorder}"
+                  HorizontalGridLinesBrush="{DynamicResource PanelBorder}"
+                  ManipulationBoundaryFeedback="TagGrid_ManipulationBoundaryFeedback">
+            <DataGrid.Resources>
+                <Style TargetType="{x:Type ScrollBar}" BasedOn="{StaticResource ThinScrollBarStyle}"/>
+                <Style TargetType="{x:Type DataGridColumnHeader}">
+                    <Setter Property="Background" Value="{DynamicResource AppBackground}"/>
+                    <Setter Property="Foreground" Value="{DynamicResource SecondaryText}"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                    <Setter Property="FontSize" Value="12"/>
+                    <Setter Property="Padding" Value="8,6"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource PanelBorder}"/>
+                    <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                </Style>
+                <Style TargetType="{x:Type DataGridCell}">
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="Padding" Value="8,0"/>
+                    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type DataGridCell}">
+                                <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter VerticalAlignment="Center"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="{DynamicResource PanelBorder}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource PrimaryText}"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.Resources>
 
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Değişken"
-                                    Binding="{Binding Name}"
-                                    Width="2*"/>
-
-                <DataGridTextColumn Header="Beklenen Tip"
-                                    Binding="{Binding DataType}"
-                                    Width="*"/>
-
-                <DataGridTextColumn Header="Değer"
-                                    Binding="{Binding Value}"
-                                    Width="*"/>
-
-                <DataGridTextColumn Header="Okuma Durumu"
-                                    Binding="{Binding Status}"
-                                    Width="2*"/>
+                <DataGridTextColumn Header="DEĞİŞKEN" Binding="{Binding Name}" Width="2.2*"/>
+                <DataGridTextColumn Header="TİP" Binding="{Binding DataType}" Width="0.9*"/>
+                <DataGridTextColumn Header="DEĞER" Binding="{Binding Value}" Width="2*">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="FontFamily" Value="Consolas"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="DURUM" Binding="{Binding Status}" Width="1.3*">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                            <Setter Property="Foreground" Value="{DynamicResource SecondaryText}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsError}" Value="True">
+                                    <Setter Property="Foreground" Value="{DynamicResource ErrorColor}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
             </DataGrid.Columns>
         </DataGrid>
+
+        <TextBlock x:Name="StatusText"
+                   Grid.Row="3"
+                   Margin="0,6,0,0"
+                   FontSize="13"
+                   TextTrimming="CharacterEllipsis"
+                   Foreground="{DynamicResource SecondaryText}"/>
     </Grid>
 </Page>

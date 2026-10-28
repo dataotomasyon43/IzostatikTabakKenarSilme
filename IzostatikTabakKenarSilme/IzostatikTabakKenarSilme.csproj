@@ -327,6 +327,11 @@
     <Content Include="AlarmMetinleri.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <!-- PLC değişken listesi (Sysmac dışa aktarımı): Servis > Tag okuma
+         testi bunu listeler. PLC programı değişince aynı adla değiştirilir. -->
+    <Content Include="PlcTaglari.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <!-- Logonun vektör kaynağı (uygulama Controls/LogoView'ı kullanır;
          bu dosya başka yerlerde kullanım içindir, derlemeye girmez). -->
     <None Include="Assets\logo.svg" />

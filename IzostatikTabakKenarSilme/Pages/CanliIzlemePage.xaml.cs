@@ -1,239 +1,379 @@
-﻿
-using IzostatikTabakKenarSilme.Services;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using IzostatikTabakKenarSilme.Services;
 
 namespace IzostatikTabakKenarSilme.Pages
 {
+    /// <summary>
+    /// Servis > Tag okuma testi. Uygulama klasöründeki PlcTaglari.csv
+    /// (Sysmac değişken dışa aktarımı: "VAR,Ad,Tip,...") okunur ve tüm
+    /// değişkenler listelenir; ayrıca CSV'de olmayan birkaç sistem değişkeni
+    /// (eksen hata kodları, _MC_ErrSta ...) eklenir. Arama kutusu listeyi
+    /// süzer; "Görünenleri oku" yalnız süzülen satırları okur.
+    /// Yalnız okur, PLC'ye hiçbir şey yazmaz.
+    /// </summary>
     public partial class CanliIzlemePage : Page
     {
-        // Ana pencereye ait paylaşılan servis. Bu sayfa servisi
-        // oluşturmaz ve dispose etmez.
+        private const string TagFileName = "PlcTaglari.csv";
+
+        // Ana pencereye ait paylaşılan servis; bu sayfa dispose etmez.
         private readonly PlcService _plc;
+        private readonly Func<Page> _back;
 
-        private readonly ObservableCollection<TagResult> _tags =
-            new ObservableCollection<TagResult>();
+        private readonly List<TagResult> _tags = new List<TagResult>();
+        private readonly ICollectionView _view;
 
-        public CanliIzlemePage(PlcService plc)
+        private CancellationTokenSource _readCts;
+
+        public CanliIzlemePage(PlcService plc, Func<Page> back = null)
         {
             _plc = plc ?? throw new ArgumentNullException(nameof(plc));
+            _back = back;
 
             InitializeComponent();
 
-            TagGrid.ItemsSource = _tags;
+            LoadTags();
 
-            AddTag("HMI_GTR_Akt_Poz", "REAL");
-            AddTag("Mode", "INT");
+            _view = CollectionViewSource.GetDefaultView(_tags);
+            _view.Filter = o => Matches((TagResult)o, SearchBox.Text);
+            TagGrid.ItemsSource = _view;
 
-            AddTag("Manuel", "BOOL");
-            AddTag("Otomatik", "BOOL");
-            AddTag("AutoCycle", "BOOL");
-            AddTag("AlmOut", "BOOL");
-            AddTag("HMI_AlmLamp", "BOOL");
-
-            AddTag("GTRAlm", "BOOL");
-            AddTag("CTRAlm", "BOOL");
-            AddTag("Zim1Alm", "BOOL");
-            AddTag("Zim2Alm", "BOOL");
-            AddTag("Sun1Alm", "BOOL");
-            AddTag("Sun2Alm", "BOOL");
-            AddTag("Sun3Alm", "BOOL");
-
-            for (int i = 1; i <= 8; i++)
-                AddTag($"Bom{i}Alm", "BOOL");
-
-            AddTag("I_Acil_Saha1", "BOOL");
-            AddTag("I_Acil_Saha2", "BOOL");
-            AddTag("I_Acil_Saha3", "BOOL");
-            AddTag("I_Faz_OK", "BOOL");
-            AddTag("I_GuvRole_OK", "BOOL");
-            AddTag("I_Pano_Acil_Basili", "BOOL");
-
-            AddTag("HMI_Konvde_Tabak_Var", "BOOL");
-            AddTag("HMI_Recete_Yukle", "BOOL");
-            AddTag("HMI_Recete_Yuklendi", "BOOL");
-
-            AddTag("Alm", "BOOL[501]");
-
-            // ---- Sistem arızaları okuma testi ----
-            // Servo / EtherCAT / PLC hatalarının (Alm[] dışı) EtherNet/IP
-            // üzerinden okunabilir olup olmadığını görmek için. Okunamayanlar
-            // "Network Publish" kapalı demektir; o zaman PLC'de HMI
-            // değişkenine aktarmak gerekir.
-            AddTag("AxGTR.MFaultLvl.Active", "BOOL");
-            AddTag("AxGTR.MFaultLvl.Code", "DWORD");
-            AddTag("AxGTR.Obsr.Active", "BOOL");
-            AddTag("AxGTR.Obsr.Code", "DWORD");
-            AddTag("AxModZim1.MFaultLvl.Active", "BOOL");
-            AddTag("AxModZim1.MFaultLvl.Code", "DWORD");
-            AddTag("BomseCpk.MFaultLvl.Code", "DWORD");
-            AddTag("_MC_ErrSta", "WORD");
-            AddTag("_EC_ErrSta", "WORD");
-            AddTag("_PLC_ErrSta", "WORD");
-            AddTag("_ErrSta", "WORD");
+            UpdateCounts();
+            Unloaded += (s, e) => _readCts?.Cancel();
         }
 
-        private void AddTag(string name, string type)
-        {
-            _tags.Add(new TagResult
-            {
-                Name = name,
-                DataType = type,
-                Value = "-",
-                Status = "Test bekliyor"
-            });
-        }
+        // ---------------- Liste ----------------
 
-        // async void yalnızca olay işleyicisi olduğu için kullanılır; tüm
-        // istisnalar içeride yakalanır. PLC okumaları Task.Run ile arka
-        // planda yapılır, await sonrası kod UI thread'inde devam eder.
-        private async void ReadAll_Click(object sender, RoutedEventArgs e)
+        private void LoadTags()
         {
-            ReadAllButton.IsEnabled = false;
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, TagFileName);
+            int fromFile = 0;
 
             try
             {
-                try
+                if (File.Exists(path))
                 {
-                    // Connect servis kilidini alır; ana penceredeki periyodik
-                    // okuma sürüyorsa UI thread'i beklemesin diye arka planda.
-                    await Task.Run(() => _plc.Connect());
-                    StatusText.Text = "PLC erişimi başlatıldı; tag okumaları başlıyor.";
+                    var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+                    foreach (string line in File.ReadAllLines(path))
+                    {
+                        string[] f = line.Split(',');
+
+                        if (f.Length < 3 || !string.Equals(f[0].Trim(), "VAR", StringComparison.OrdinalIgnoreCase))
+                            continue;
+
+                        string name = f[1].Trim();
+                        string type = f[2].Trim();
+
+                        if (name.Length == 0 || type.Length == 0 || !seen.Add(name))
+                            continue;
+
+                        _tags.Add(new TagResult { Name = name, DataType = type, Group = "PLC" });
+                        fromFile++;
+                    }
+
+                    SourceText.Text = $"{TagFileName} · {fromFile} değişken";
                 }
-                catch (Exception ex)
+                else
                 {
-                    AppLogger.Error("Canlı izleme: PLC bağlantısı başlatılamadı", ex);
-                    StatusText.Text = "PLC bağlantı hatası: " + ex.Message;
-
-                    foreach (var tag in _tags)
-                        tag.Status = "Bağlantı kurulamadı";
-
-                    TagGrid.Items.Refresh();
-                    return;
+                    SourceText.Text = $"{TagFileName} bulunamadı · yalnız ek değişkenler";
                 }
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("Tag listesi okunamadı", ex);
+                SourceText.Text = $"{TagFileName} okunamadı: {ex.Message}";
+            }
 
-                int success = 0;
-                int failed = 0;
-                int index = 0;
-                var failedTags = new List<string>();
+            // CSV'de olmayan sistem değişkenleri: servo / EtherCAT / PLC
+            // hatalarının EtherNet/IP'den okunup okunamadığını görmek için.
+            // Okunamayanlar "Network Publish" kapalı demektir.
+            Extra("AxGTR.MFaultLvl.Active", "BOOL");
+            Extra("AxGTR.MFaultLvl.Code", "DWORD");
+            Extra("AxGTR.Obsr.Active", "BOOL");
+            Extra("AxGTR.Obsr.Code", "DWORD");
+            Extra("AxModZim1.MFaultLvl.Active", "BOOL");
+            Extra("AxModZim1.MFaultLvl.Code", "DWORD");
+            Extra("BomseCpk.MFaultLvl.Code", "DWORD");
+            Extra("_MC_ErrSta", "WORD");
+            Extra("_EC_ErrSta", "WORD");
+            Extra("_PLC_ErrSta", "WORD");
+            Extra("_ErrSta", "WORD");
+        }
 
-                foreach (var tag in _tags)
+        private void Extra(string name, string type)
+        {
+            if (_tags.Any(t => string.Equals(t.Name, name, StringComparison.OrdinalIgnoreCase)))
+                return;
+
+            _tags.Add(new TagResult { Name = name, DataType = type, Group = "Ek" });
+        }
+
+        // Büyük/küçük harf ve Türkçe İ/ı farkı gözetmeden "içerir" araması.
+        // Boşlukla ayrılmış birden çok kelimenin hepsi geçmeli.
+        private static bool Matches(TagResult tag, string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+                return true;
+
+            string name = Norm(tag.Name);
+
+            return query.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
+                .All(word => name.Contains(Norm(word)));
+        }
+
+        private static string Norm(string s)
+        {
+            return s.Replace('İ', 'I').Replace('ı', 'i').ToUpperInvariant();
+        }
+
+        private List<TagResult> VisibleTags()
+        {
+            return _view.Cast<TagResult>().ToList();
+        }
+
+        private void UpdateCounts()
+        {
+            int visible = _view.Cast<object>().Count();
+            SearchHint.Visibility = string.IsNullOrEmpty(SearchBox.Text) ? Visibility.Visible : Visibility.Collapsed;
+
+            if (_readCts == null)
+                StatusText.Text = $"Gösterilen: {visible} / {_tags.Count}. Satıra dokunup SEÇİLİYİ OKU ya da GÖRÜNENLERİ OKU.";
+        }
+
+        // ---------------- Arama ----------------
+
+        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            _view?.Refresh();
+            UpdateCounts();
+        }
+
+        private void SearchBox_PreviewMouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            AskSearch();
+            e.Handled = true;
+        }
+
+        private void AskSearch()
+        {
+            string text = IzostatikTabakKenarSilme.Windows.TextInputWindow.Ask(Window.GetWindow(this), "Tag ara", SearchBox.Text,
+                "Değişken adının bir kısmı (ör. GTR, Bomse, Alm). Boşlukla birden çok kelime.");
+
+            if (text != null)
+                SearchBox.Text = text;
+        }
+
+        private void ClearSearch_Click(object sender, RoutedEventArgs e)
+        {
+            SearchBox.Text = string.Empty;
+        }
+
+        // ---------------- Okuma ----------------
+
+        private void ReadSelected_Click(object sender, RoutedEventArgs e)
+        {
+            if (TagGrid.SelectedItem is TagResult tag)
+                _ = ReadAsync(new List<TagResult> { tag });
+            else
+                StatusText.Text = "Önce listeden bir satır seçin.";
+        }
+
+        private void ReadVisible_Click(object sender, RoutedEventArgs e)
+        {
+            if (_readCts != null)
+            {
+                _readCts.Cancel(); // okuma sürüyor: DURDUR
+                return;
+            }
+
+            _ = ReadAsync(VisibleTags());
+        }
+
+        private async Task ReadAsync(List<TagResult> tags)
+        {
+            if (_readCts != null || tags.Count == 0)
+                return;
+
+            var cts = new CancellationTokenSource();
+            _readCts = cts;
+            ReadVisibleButton.Content = "DURDUR";
+            ReadSelectedButton.IsEnabled = false;
+
+            int ok = 0, failed = 0, index = 0;
+            var failedNames = new List<string>();
+
+            try
+            {
+                foreach (TagResult tag in tags)
                 {
+                    if (cts.IsCancellationRequested)
+                        break;
+
                     index++;
-                    StatusText.Text = $"Okunuyor ({index}/{_tags.Count}): {tag.Name}";
+                    StatusText.Text = $"Okunuyor ({index}/{tags.Count}): {tag.Name}";
 
                     try
                     {
-                        string value = await Task.Run(() => ReadTagValue(tag));
+                        string value = await Task.Run(() => ReadTagValue(tag.Name, tag.DataType));
 
                         if (value == null)
                         {
-                            tag.Value = "-";
-                            tag.Status = "Desteklenen okuma metodu yok";
-                            failed++;
+                            tag.Set("-", "Bu tip okunmuyor", isError: false);
                         }
                         else
                         {
-                            tag.Value = value;
-                            tag.Status = "OK";
-                            success++;
+                            tag.Set(value, "OK " + DateTime.Now.ToString("HH:mm:ss", CultureInfo.InvariantCulture), isError: false);
+                            ok++;
                         }
                     }
                     catch (Exception ex)
                     {
-                        tag.Value = "-";
-                        tag.Status = ex.Message;
+                        tag.Set("-", ex.Message, isError: true);
                         failed++;
-                        failedTags.Add($"{tag.Name} ({ex.Message})");
+                        failedNames.Add(tag.Name);
                     }
-
-                    TagGrid.Items.Refresh();
                 }
 
-                StatusText.Text =
-                    $"Test tamamlandı. Başarılı: {success} | Hatalı: {failed}";
+                string summary = $"{(cts.IsCancellationRequested ? "Durduruldu" : "Bitti")}: {ok} okundu, {failed} hatalı ({index}/{tags.Count}).";
+                StatusText.Text = summary;
 
-                // Tek tek değil, okuma sonunda tek satır özet loglanır.
-                if (failedTags.Count > 0)
-                    AppLogger.Warn($"Canlı izleme okuması: {success} başarılı, {failed} hatalı. Hatalı tag'ler: {string.Join(", ", failedTags)}");
-                else
-                    AppLogger.Info($"Canlı izleme okuması: {success} tag başarıyla okundu.");
+                if (tags.Count > 1)
+                {
+                    AppLogger.Info("Tag okuma testi: " + summary +
+                        (failedNames.Count > 0 ? " Hatalı: " + string.Join(", ", failedNames.Take(40)) +
+                                                 (failedNames.Count > 40 ? " …" : "") : ""));
+                }
             }
             catch (Exception ex)
             {
-                // async void içinden hata kaçmamalı; aksi hâlde uygulama
-                // seviyesindeki yakalayıcıya düşer.
-                AppLogger.Error("Canlı izleme okumasında beklenmeyen hata", ex);
+                AppLogger.Error("Tag okuma testinde beklenmeyen hata", ex);
                 StatusText.Text = "Beklenmeyen hata: " + ex.Message;
             }
             finally
             {
-                ReadAllButton.IsEnabled = true;
+                _readCts = null;
+                ReadVisibleButton.Content = "GÖRÜNENLERİ OKU";
+                ReadSelectedButton.IsEnabled = true;
             }
         }
 
-        // Arka plan thread'inde çalışır: UI kontrollerine ve TagResult
-        // nesnesinin değerlerine yazmaz, yalnızca okunan değeri döndürür.
-        // Desteklenmeyen tip için null döner.
-        private string ReadTagValue(TagResult tag)
+        // Arka plan thread'inde çalışır; yalnız değeri döndürür.
+        // Desteklenmeyen tip için null.
+        private string ReadTagValue(string name, string type)
         {
-            if (tag.DataType == "REAL")
+            string t = type.ToUpperInvariant();
+
+            // Dizi: "BOOL[0..36]", "REAL[0..59]", "BOOL[501]"
+            int br = t.IndexOf('[');
+            if (br > 0)
             {
-                float value = _plc.TestReadReal(tag.Name);
-                return value.ToString();
+                string baseType = t.Substring(0, br);
+                int count = ArrayCount(t.Substring(br));
+
+                if (count <= 0)
+                    return null;
+
+                if (baseType == "BOOL")
+                {
+                    bool[] bits = _plc.ReadAlarmArray(name, count);
+                    var on = new List<int>();
+                    for (int i = 0; i < bits.Length; i++)
+                        if (bits[i]) on.Add(i);
+
+                    return on.Count == 0
+                        ? $"{bits.Length} eleman, TRUE yok"
+                        : $"{on.Count} TRUE: [{string.Join(",", on.Take(30))}{(on.Count > 30 ? ",…" : "")}]";
+                }
+
+                if (baseType == "REAL")
+                {
+                    float[] v = _plc.ReadRealArray(name, count);
+                    return $"{v.Length} eleman: " + string.Join("; ", v.Take(4).Select(x => x.ToString("0.###", CultureInfo.InvariantCulture))) +
+                           (v.Length > 4 ? " …" : "");
+                }
+
+                return null;
             }
 
-            if (tag.DataType == "INT")
+            switch (t)
             {
-                short value = _plc.ReadIntTag(tag.Name);
-                return value.ToString();
+                case "BOOL": return _plc.ReadBoolTag(name) ? "TRUE" : "FALSE";
+                case "INT": return _plc.ReadIntTag(name).ToString(CultureInfo.InvariantCulture);
+                case "DINT": return _plc.ReadDIntTag(name).ToString(CultureInfo.InvariantCulture);
+                case "REAL": return _plc.ReadRealTag(name).ToString("0.####", CultureInfo.InvariantCulture);
+                case "LREAL": return _plc.ReadLRealTag(name).ToString("0.####", CultureInfo.InvariantCulture);
+                case "WORD": return $"0x{_plc.ReadWordTag(name):X4}";
+                case "UDINT": return _plc.ReadUDintTag(name).ToString(CultureInfo.InvariantCulture);
+                case "DWORD": return $"0x{_plc.ReadUDintTag(name):X8}";
+                default: return null;
+            }
+        }
+
+        // "[0..36]" → 37, "[501]" → 501
+        private static int ArrayCount(string bracket)
+        {
+            string inner = bracket.Trim('[', ']');
+            int dots = inner.IndexOf("..", StringComparison.Ordinal);
+
+            if (dots >= 0 &&
+                int.TryParse(inner.Substring(0, dots), out int lo) &&
+                int.TryParse(inner.Substring(dots + 2), out int hi))
+            {
+                return hi - lo + 1;
             }
 
-            if (tag.DataType == "BOOL")
-            {
-                bool value = _plc.ReadBoolTag(tag.Name);
-                return value.ToString();
-            }
+            return int.TryParse(inner, out int n) ? n : 0;
+        }
 
-            if (tag.DataType == "WORD")
-            {
-                ushort value = _plc.ReadWordTag(tag.Name);
-                return $"0x{value:X4}";
-            }
+        // ---------------- Diğer ----------------
 
-            if (tag.DataType == "DWORD")
-            {
-                uint value = _plc.ReadUDintTag(tag.Name);
-                return $"0x{value:X8}";
-            }
+        private void Back_Click(object sender, RoutedEventArgs e)
+        {
+            _readCts?.Cancel();
 
-            if (tag.DataType.StartsWith("BOOL["))
-            {
-                int count = int.Parse(tag.DataType.Substring(5).TrimEnd(']'));
-                bool[] alarms = _plc.ReadAlarmArray(tag.Name, count);
+            if (_back != null)
+                NavigationService?.Navigate(_back());
+            else if (NavigationService?.CanGoBack == true)
+                NavigationService.GoBack();
+        }
 
-                var active = new List<int>();
-                for (int i = 0; i < alarms.Length; i++)
-                    if (alarms[i]) active.Add(i);
-
-                return active.Count == 0
-                    ? $"{alarms.Length} eleman; aktif yok"
-                    : $"{alarms.Length} eleman; {active.Count} aktif (idx: {string.Join(",", active)})";
-            }
-
-            return null;
+        private void TagGrid_ManipulationBoundaryFeedback(object sender, System.Windows.Input.ManipulationBoundaryFeedbackEventArgs e)
+        {
+            e.Handled = true;
         }
     }
 
-    public class TagResult
+    public class TagResult : INotifyPropertyChanged
     {
         public string Name { get; set; }
         public string DataType { get; set; }
-        public string Value { get; set; }
-        public string Status { get; set; }
+        public string Group { get; set; }
+
+        public string Value { get; private set; } = "-";
+        public string Status { get; private set; } = string.Empty;
+        public bool IsError { get; private set; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void Set(string value, string status, bool isError)
+        {
+            Value = value;
+            Status = status;
+            IsError = isError;
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Status)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsError)));
+        }
     }
 }

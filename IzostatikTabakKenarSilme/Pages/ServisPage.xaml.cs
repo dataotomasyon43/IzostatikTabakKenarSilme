@@ -655,7 +655,9 @@ namespace IzostatikTabakKenarSilme.Pages
 
         private void TagTest_Click(object sender, RoutedEventArgs e)
         {
-            NavigationService?.Navigate(new CanliIzlemePage(_plc));
+            PlcService plc = _plc;
+            MachineState state = _state;
+            NavigationService?.Navigate(new CanliIzlemePage(plc, () => new ServisPage(plc, state)));
         }
 
         private void Scroll_ManipulationBoundaryFeedback(object sender, System.Windows.Input.ManipulationBoundaryFeedbackEventArgs e)

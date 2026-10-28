@@ -34,6 +34,14 @@ namespace IzostatikTabakKenarSilme.Pages
 
         private CancellationTokenSource _readCts;
 
+        // Karşılaştırma: yüklenen önceki kaydın adı; "sadece farklar" süzgeci.
+        private string _compareName;
+        private bool _onlyChanged;
+
+        private const string ExportFolderName = "TagKayitlari";
+        private static string ExportFolder =>
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ExportFolderName);
+
         public CanliIzlemePage(PlcService plc, Func<Page> back = null)
         {
             _plc = plc ?? throw new ArgumentNullException(nameof(plc));
@@ -44,7 +52,11 @@ namespace IzostatikTabakKenarSilme.Pages
             LoadTags();
 
             _view = CollectionViewSource.GetDefaultView(_tags);
-            _view.Filter = o => Matches((TagResult)o, SearchBox.Text);
+            _view.Filter = o =>
+            {
+                var t = (TagResult)o;
+                return Matches(t, SearchBox.Text) && (!_onlyChanged || t.IsChanged);
+            };
             TagGrid.ItemsSource = _view;
 
             UpdateCounts();
@@ -146,8 +158,19 @@ namespace IzostatikTabakKenarSilme.Pages
             int visible = _view.Cast<object>().Count();
             SearchHint.Visibility = string.IsNullOrEmpty(SearchBox.Text) ? Visibility.Visible : Visibility.Collapsed;
 
-            if (_readCts == null)
+            if (_readCts != null)
+                return;
+
+            if (_compareName == null)
+            {
                 StatusText.Text = $"Gösterilen: {visible} / {_tags.Count}. Satıra dokunup SEÇİLİYİ OKU ya da GÖRÜNENLERİ OKU.";
+            }
+            else
+            {
+                int changed = _tags.Count(t => t.IsChanged);
+                StatusText.Text = $"Gösterilen: {visible} / {_tags.Count}. Karşılaştırılan: {_compareName} · " +
+                                  $"farklı: {changed} (turuncu). Yeni değerler için okumayı tekrarlayın.";
+            }
         }
 
         // ---------------- Arama ----------------
@@ -264,6 +287,12 @@ namespace IzostatikTabakKenarSilme.Pages
                 _readCts = null;
                 ReadVisibleButton.Content = "GÖRÜNENLERİ OKU";
                 ReadSelectedButton.IsEnabled = true;
+
+                if (_onlyChanged)
+                    _view.Refresh();
+
+                if (_compareName != null)
+                    StatusText.Text += $" Farklı: {_tags.Count(t => t.IsChanged)}.";
             }
         }
 
@@ -335,6 +364,230 @@ namespace IzostatikTabakKenarSilme.Pages
             return int.TryParse(inner, out int n) ? n : 0;
         }
 
+        // ---------------- Dışa aktar / karşılaştır ----------------
+
+        // Okunmuş tüm satırlar (arama süzgecinden bağımsız) CSV'ye yazılır:
+        // <uygulama>\TagKayitlari\TagOkuma_yyyyMMdd_HHmmss.csv; USB takılıysa
+        // <USB>\IzostatikLoglar\TagKayitlari\ altına da kopyalanır.
+        // Ayraç ";" ve UTF-8 BOM: Türkçe Excel doğrudan açar.
+        private async void Export_Click(object sender, RoutedEventArgs e)
+        {
+            List<TagResult> rows = _tags.Where(t => t.ReadTime.HasValue).ToList();
+
+            if (rows.Count == 0)
+            {
+                StatusText.Text = "Dışa aktarılacak okuma yok. Önce GÖRÜNENLERİ OKU ile okuyun.";
+                return;
+            }
+
+            ExportButton.IsEnabled = false;
+
+            try
+            {
+                string fileName = $"TagOkuma_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+                string ip = _plc.IpAddress;
+
+                string[] written = await Task.Run(() =>
+                {
+                    var lines = new List<string> { Csv("Degisken", "Tip", "Deger", "Durum", "OkumaZamani", "Grup") };
+                    lines.AddRange(rows.Select(t => Csv(t.Name, t.DataType, t.Value, t.Status,
+                        t.ReadTime.Value.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture), t.Group)));
+
+                    Directory.CreateDirectory(ExportFolder);
+                    string local = Path.Combine(ExportFolder, fileName);
+                    File.WriteAllLines(local, lines, new System.Text.UTF8Encoding(true));
+
+                    string usbCopy = null;
+                    DriveInfo usb = DriveInfo.GetDrives().FirstOrDefault(d =>
+                    {
+                        try { return d.DriveType == DriveType.Removable && d.IsReady; }
+                        catch { return false; }
+                    });
+
+                    if (usb != null)
+                    {
+                        try
+                        {
+                            string dir = Path.Combine(usb.RootDirectory.FullName, "IzostatikLoglar", ExportFolderName);
+                            Directory.CreateDirectory(dir);
+                            usbCopy = Path.Combine(dir, fileName);
+                            File.Copy(local, usbCopy, overwrite: true);
+                        }
+                        catch (Exception ex)
+                        {
+                            AppLogger.Warn("Tag kaydı USB'ye kopyalanamadı: " + ex.Message);
+                            usbCopy = null;
+                        }
+                    }
+
+                    return new[] { local, usbCopy };
+                });
+
+                AppLogger.Info($"Tag okuma kaydı: {written[0]} ({rows.Count} satır, PLC {ip})" +
+                               (written[1] != null ? $", USB: {written[1]}" : ""));
+
+                StatusText.Text = $"✔ {rows.Count} satır kaydedildi: {fileName}" +
+                                  (written[1] != null ? " (USB'ye de kopyalandı)" : " (USB takılı değil, yalnız bu PC'de)");
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error("Tag okuma kaydı yazılamadı", ex);
+                StatusText.Text = "✖ Kaydedilemedi: " + ex.Message;
+            }
+            finally
+            {
+                ExportButton.IsEnabled = true;
+            }
+        }
+
+        // Önceki bir kayıt seçilir; değerleri ÖNCEKİ sütununa yazılır.
+        // Şimdi okunan değeri öncekinden farklı olan satırlar turuncu olur.
+        private void Compare_Click(object sender, RoutedEventArgs e)
+        {
+            if (_compareName != null)
+            {
+                // Karşılaştırmayı kapat
+                foreach (TagResult t in _tags)
+                    t.SetPrevious(null);
+
+                _compareName = null;
+                _onlyChanged = false;
+                PreviousColumn.Visibility = Visibility.Collapsed;
+                CompareButton.Content = "KARŞILAŞTIR";
+                CompareButton.Tag = null;
+                OnlyChangedButton.IsEnabled = false;
+                OnlyChangedButton.Tag = null;
+                _view.Refresh();
+                UpdateCounts();
+                return;
+            }
+
+            Directory.CreateDirectory(ExportFolder);
+
+            var dialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Title = "Karşılaştırılacak tag kaydı",
+                Filter = "Tag kaydı (*.csv)|*.csv",
+                InitialDirectory = ExportFolder
+            };
+
+            if (dialog.ShowDialog(Window.GetWindow(this)) != true)
+                return;
+
+            Dictionary<string, string> previous;
+
+            try
+            {
+                previous = ReadExport(dialog.FileName);
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Warn($"Tag kaydı okunamadı ({dialog.FileName}): {ex.Message}");
+                StatusText.Text = "✖ Kayıt okunamadı: " + ex.Message;
+                return;
+            }
+
+            if (previous.Count == 0)
+            {
+                StatusText.Text = "✖ Bu dosya bir tag okuma kaydı değil (Degisken;Tip;Deger... başlığı yok).";
+                return;
+            }
+
+            foreach (TagResult t in _tags)
+                t.SetPrevious(previous.TryGetValue(t.Name, out string v) ? v : null);
+
+            _compareName = Path.GetFileNameWithoutExtension(dialog.FileName);
+            PreviousColumn.Header = "ÖNCEKİ (" + ShortName(_compareName) + ")";
+            PreviousColumn.Visibility = Visibility.Visible;
+            CompareButton.Content = "KARŞ. KAPAT";
+            CompareButton.Tag = "Active";
+            OnlyChangedButton.IsEnabled = true;
+
+            AppLogger.Info($"Tag karşılaştırması: {dialog.FileName} ({previous.Count} değişken)");
+            _view.Refresh();
+            UpdateCounts();
+        }
+
+        private void OnlyChanged_Click(object sender, RoutedEventArgs e)
+        {
+            _onlyChanged = !_onlyChanged;
+            OnlyChangedButton.Tag = _onlyChanged ? "Active" : null;
+            _view.Refresh();
+            UpdateCounts();
+        }
+
+        // "TagOkuma_20261028_091200" → "28.10 09:12"
+        private static string ShortName(string name)
+        {
+            string stamp = name.StartsWith("TagOkuma_") ? name.Substring(9) : name;
+
+            return DateTime.TryParseExact(stamp, "yyyyMMdd_HHmmss", CultureInfo.InvariantCulture,
+                    DateTimeStyles.None, out DateTime t)
+                ? t.ToString("dd.MM HH:mm", CultureInfo.InvariantCulture)
+                : name;
+        }
+
+        private static Dictionary<string, string> ReadExport(string path)
+        {
+            var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            string[] lines = File.ReadAllLines(path, System.Text.Encoding.UTF8);
+
+            if (lines.Length == 0)
+                return map;
+
+            List<string> head = ParseCsv(lines[0]);
+            int nameCol = head.FindIndex(h => h.Trim().Equals("Degisken", StringComparison.OrdinalIgnoreCase));
+            int valueCol = head.FindIndex(h => h.Trim().Equals("Deger", StringComparison.OrdinalIgnoreCase));
+
+            if (nameCol < 0 || valueCol < 0)
+                return map;
+
+            foreach (string line in lines.Skip(1))
+            {
+                List<string> f = ParseCsv(line);
+                if (f.Count > Math.Max(nameCol, valueCol) && f[nameCol].Length > 0)
+                    map[f[nameCol]] = f[valueCol];
+            }
+
+            return map;
+        }
+
+        private static string Csv(params string[] fields)
+        {
+            return string.Join(";", fields.Select(f =>
+            {
+                f = f ?? string.Empty;
+                return f.IndexOfAny(new[] { ';', '"', '\r', '\n' }) >= 0
+                    ? "\"" + f.Replace("\"", "\"\"") + "\""
+                    : f;
+            }));
+        }
+
+        private static List<string> ParseCsv(string line)
+        {
+            var fields = new List<string>();
+            var sb = new System.Text.StringBuilder();
+            bool quoted = false;
+
+            for (int i = 0; i < line.Length; i++)
+            {
+                char c = line[i];
+
+                if (quoted)
+                {
+                    if (c == '"' && i + 1 < line.Length && line[i + 1] == '"') { sb.Append('"'); i++; }
+                    else if (c == '"') quoted = false;
+                    else sb.Append(c);
+                }
+                else if (c == '"') quoted = true;
+                else if (c == ';') { fields.Add(sb.ToString()); sb.Clear(); }
+                else sb.Append(c);
+            }
+
+            fields.Add(sb.ToString());
+            return fields;
+        }
+
         // ---------------- Diğer ----------------
 
         private void Back_Click(object sender, RoutedEventArgs e)
@@ -362,6 +615,13 @@ namespace IzostatikTabakKenarSilme.Pages
         public string Value { get; private set; } = "-";
         public string Status { get; private set; } = string.Empty;
         public bool IsError { get; private set; }
+        public DateTime? ReadTime { get; private set; }
+
+        // Karşılaştırılan kayıttaki değer (yoksa null).
+        public string Previous { get; private set; }
+
+        // Bu oturumda okundu ve önceki kayıttan farklı.
+        public bool IsChanged => ReadTime.HasValue && Previous != null && !string.Equals(Value, Previous, StringComparison.Ordinal);
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -370,10 +630,21 @@ namespace IzostatikTabakKenarSilme.Pages
             Value = value;
             Status = status;
             IsError = isError;
+            ReadTime = DateTime.Now;
 
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Status)));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsError)));
+            Notify(nameof(Value), nameof(Status), nameof(IsError), nameof(IsChanged));
+        }
+
+        public void SetPrevious(string previous)
+        {
+            Previous = previous;
+            Notify(nameof(Previous), nameof(IsChanged));
+        }
+
+        private void Notify(params string[] names)
+        {
+            foreach (string n in names)
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
         }
     }
 }

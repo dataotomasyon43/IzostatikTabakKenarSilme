@@ -165,6 +165,22 @@
                             <Setter Property="FontFamily" Value="Consolas"/>
                             <Setter Property="FontWeight" Value="Bold"/>
                             <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                            <Style.Triggers>
+                                <!-- Karşılaştırılan kayıttan farklı -->
+                                <DataTrigger Binding="{Binding IsChanged}" Value="True">
+                                    <Setter Property="Foreground" Value="{DynamicResource AccentColor}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn x:Name="PreviousColumn" Header="ÖNCEKİ" Binding="{Binding Previous}" Width="2*"
+                                    Visibility="Collapsed">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="FontFamily" Value="Consolas"/>
+                            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                            <Setter Property="Foreground" Value="{DynamicResource SecondaryText}"/>
                         </Style>
                     </DataGridTextColumn.ElementStyle>
                 </DataGridTextColumn>
@@ -184,11 +200,27 @@
             </DataGrid.Columns>
         </DataGrid>
 
-        <TextBlock x:Name="StatusText"
-                   Grid.Row="3"
-                   Margin="0,6,0,0"
-                   FontSize="13"
-                   TextTrimming="CharacterEllipsis"
-                   Foreground="{DynamicResource SecondaryText}"/>
+        <!-- Durum + kayıt / karşılaştırma -->
+        <Grid Grid.Row="3" Margin="0,8,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="StatusText"
+                       FontSize="13"
+                       VerticalAlignment="Center"
+                       TextWrapping="Wrap"
+                       MaxHeight="40"
+                       TextTrimming="CharacterEllipsis"
+                       Foreground="{DynamicResource SecondaryText}"/>
+            <Button x:Name="ExportButton" Grid.Column="1" Content="DIŞA AKTAR"
+                    Style="{StaticResource ToolButtonStyle}" Click="Export_Click"/>
+            <Button x:Name="CompareButton" Grid.Column="2" Content="KARŞILAŞTIR"
+                    Style="{StaticResource ToolButtonStyle}" Click="Compare_Click"/>
+            <Button x:Name="OnlyChangedButton" Grid.Column="3" Content="SADECE FARKLAR"
+                    Style="{StaticResource ToolButtonStyle}" IsEnabled="False" Click="OnlyChanged_Click"/>
+        </Grid>
     </Grid>
 </Page>

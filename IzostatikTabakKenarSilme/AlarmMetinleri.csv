@@ -46,13 +46,13 @@
 39;Sünger-1 modül servo hatası
 40;Sünger-2 modül servo hatası
 41;Sünger-3 modül servo hatası
-42;Bombe giriş servo hatası
-43;Bombe çapak servo hatası
-44;Bombe zımpara-1 servo hatası
-45;Bombe zımpara-2 servo hatası
-46;Bombe sünger-1 servo hatası
-47;Bombe sünger-2 servo hatası
-48;Bombe sünger-3 servo hatası
+42;Bomse giriş servo hatası
+43;Bomse çapak servo hatası
+44;Bomse zımpara-1 servo hatası
+45;Bomse zımpara-2 servo hatası
+46;Bomse sünger-1 servo hatası
+47;Bomse sünger-2 servo hatası
+48;Bomse sünger-3 servo hatası
 49;Yedek
 50;GTR tork limiti aşıldı
 51;CTR tork limiti aşıldı
@@ -62,14 +62,14 @@
 55;Çapak modülü geri pozisyonu 700'ü aşıyor
 56;Yedek
 57;Yedek
-58;Bombe-1 tork alarmı
-59;Bombe-2 tork alarmı
-60;Bombe-3 tork alarmı
-61;Bombe-4 tork alarmı
-62;Bombe-5 tork alarmı
-63;Bombe-6 tork alarmı
-64;Bombe-7 tork alarmı
-65;Bombe-8 tork alarmı
+58;Bomse-1 tork alarmı
+59;Bomse-2 tork alarmı
+60;Bomse-3 tork alarmı
+61;Bomse-4 tork alarmı
+62;Bomse-5 tork alarmı
+63;Bomse-6 tork alarmı
+64;Bomse-7 tork alarmı
+65;Bomse-8 tork alarmı
 66;Çapak kırma modülü tork alarmı
 67;Zımpara-1 modülü tork alarmı
 68;Zımpara-2 modülü tork alarmı

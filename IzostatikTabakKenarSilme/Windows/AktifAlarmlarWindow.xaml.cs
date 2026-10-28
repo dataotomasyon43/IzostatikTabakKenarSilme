@@ -45,6 +45,9 @@ namespace IzostatikTabakKenarSilme.Windows
             AlarmList.ItemsSource = _alarms.ActiveAlarms;
             _alarms.ActiveAlarms.CollectionChanged += ActiveAlarms_CollectionChanged;
 
+            SystemList.ItemsSource = _alarms.SystemWarnings;
+            _alarms.SystemWarnings.CollectionChanged += ActiveAlarms_CollectionChanged;
+
             Closing += AktifAlarmlarWindow_Closing;
             Closed += AktifAlarmlarWindow_Closed;
 
@@ -59,9 +62,10 @@ namespace IzostatikTabakKenarSilme.Windows
         private void UpdateCount()
         {
             int count = _alarms.ActiveAlarms.Count;
+            int warnings = _alarms.SystemWarnings.Count;
 
-            CountText.Text = $"({count})";
-            EmptyText.Visibility = count == 0 ? Visibility.Visible : Visibility.Collapsed;
+            CountText.Text = warnings > 0 ? $"({count}) + {warnings} sistem uyarısı" : $"({count})";
+            EmptyText.Visibility = count == 0 && warnings == 0 ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
@@ -78,6 +82,7 @@ namespace IzostatikTabakKenarSilme.Windows
         private void AktifAlarmlarWindow_Closed(object sender, EventArgs e)
         {
             _alarms.ActiveAlarms.CollectionChanged -= ActiveAlarms_CollectionChanged;
+            _alarms.SystemWarnings.CollectionChanged -= ActiveAlarms_CollectionChanged;
         }
 
         // ---------------- Fare ----------------

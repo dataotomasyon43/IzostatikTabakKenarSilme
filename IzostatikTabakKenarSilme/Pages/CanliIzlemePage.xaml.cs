@@ -324,6 +324,13 @@ namespace IzostatikTabakKenarSilme.Pages
                         : $"{on.Count} TRUE: [{string.Join(",", on.Take(30))}{(on.Count > 30 ? ",…" : "")}]";
                 }
 
+                if (baseType == "BYTE" || baseType == "USINT")
+                {
+                    byte[] bytes = _plc.ReadByteArray(name, count);
+                    return $"{bytes.Length} bayt: " + string.Join(" ", bytes.Take(16).Select(x => x.ToString("X2"))) +
+                           (bytes.Length > 16 ? " …" : "");
+                }
+
                 if (baseType == "REAL")
                 {
                     float[] v = _plc.ReadRealArray(name, count);

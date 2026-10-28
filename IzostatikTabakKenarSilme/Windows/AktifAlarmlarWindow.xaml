@@ -90,6 +90,52 @@
             <Grid Grid.Row="2" Margin="20,0,20,0">
                 <ScrollViewer VerticalScrollBarVisibility="Auto"
                               PanningMode="VerticalOnly">
+                    <StackPanel>
+                    <!-- Sistem uyarıları (_MC/_EC/_PLC_ErrSta): turuncu, en üstte.
+                         Geçmişe yazılmaz; ayrıntı Sysmac Studio'da. -->
+                    <ItemsControl x:Name="SystemList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{DynamicResource CardBackground}"
+                                        BorderBrush="{DynamicResource WarningColor}"
+                                        BorderThickness="1"
+                                        CornerRadius="4"
+                                        Padding="0,10"
+                                        Margin="0,0,0,6">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="90"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="230"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Grid.Column="0" Margin="12,0,0,0" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Kaynak}"
+                                                       FontSize="18"
+                                                       FontWeight="Bold"
+                                                       Foreground="{DynamicResource WarningColor}"/>
+                                            <TextBlock Text="{Binding KodText}"
+                                                       FontSize="12"
+                                                       FontFamily="Consolas"
+                                                       Foreground="{DynamicResource SecondaryText}"/>
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="1"
+                                                   Text="{Binding Metin}"
+                                                   FontSize="18"
+                                                   TextWrapping="Wrap"
+                                                   Foreground="{DynamicResource WarningColor}"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2"
+                                                   Text="{Binding BaslangicText}"
+                                                   FontSize="16"
+                                                   Foreground="{DynamicResource SecondaryText}"
+                                                   VerticalAlignment="Center"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
                     <ItemsControl x:Name="AlarmList">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
@@ -128,6 +174,7 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+                    </StackPanel>
                 </ScrollViewer>
 
                 <TextBlock x:Name="EmptyText"

@@ -33,6 +33,40 @@ namespace IzostatikTabakKenarSilme.Services
         public ObservableCollection<ActiveAlarm> ActiveAlarms { get; } =
             new ObservableCollection<ActiveAlarm>();
 
+        // Sistem uyarıları (_MC_ErrSta vb.): yalnız Aktif Alarmlar'da turuncu
+        // gösterilir; geçmişe yazılmaz, alarm sayısına ve lambaya girmez.
+        public ObservableCollection<SystemWarning> SystemWarnings { get; } =
+            new ObservableCollection<SystemWarning>();
+
+        /// <summary>
+        /// Okunan sistem uyarılarını uygular (null/boş: hepsi kalkar). Aynı
+        /// kaynak ve kod sürerse başlangıç zamanı korunur.
+        /// </summary>
+        public void UpdateSystemWarnings(IList<SystemWarning> current)
+        {
+            current = current ?? new List<SystemWarning>();
+
+            for (int i = SystemWarnings.Count - 1; i >= 0; i--)
+            {
+                SystemWarning old = SystemWarnings[i];
+                if (!current.Any(c => c.Key == old.Key && c.Kod == old.Kod))
+                {
+                    SystemWarnings.RemoveAt(i);
+                    AppLogger.Info($"Sistem uyarısı kalktı: {old.Key} {old.KodText}");
+                }
+            }
+
+            foreach (SystemWarning c in current)
+            {
+                if (SystemWarnings.Any(w => w.Key == c.Key && w.Kod == c.Kod))
+                    continue;
+
+                c.Baslangic = DateTime.Now;
+                SystemWarnings.Add(c);
+                AppLogger.Warn($"Sistem uyarısı: {c.Key} {c.KodText} — {c.Metin}");
+            }
+        }
+
         public void Initialize()
         {
             Texts.Load();

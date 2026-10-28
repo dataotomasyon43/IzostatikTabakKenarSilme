@@ -314,6 +314,31 @@ namespace IzostatikTabakKenarSilme.Services
             }
         }
 
+        // BYTE dizisi (ör. From_Cube20). Alm[] ile aynı indeksli parça okuması.
+        public byte[] ReadByteArray(string tagName, int count, int chunk = 100)
+        {
+            if (count <= 0)
+                throw new ArgumentOutOfRangeException(nameof(count));
+
+            var result = new byte[count];
+
+            for (int start = 0; start < count; start += chunk)
+            {
+                int n = Math.Min(chunk, count - start);
+
+                lock (_sync)
+                {
+                    Tag tag = Get($"{tagName}[{start}]", 1, n);
+                    tag.Read();
+
+                    for (int i = 0; i < n; i++)
+                        result[start + i] = tag.GetUInt8(i);
+                }
+            }
+
+            return result;
+        }
+
         // BOOL dizisi
         public bool[] ReadAlarmArray(string tagName, int count, int chunk = 100)
         {

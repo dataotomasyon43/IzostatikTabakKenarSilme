@@ -60,7 +60,8 @@ namespace IzostatikTabakKenarSilme
         private bool? _alarmReadOk;
         private bool? _autoCycle;          // null: okunamadı / bilinmiyor
         private bool? _autoCycleReadOk;
-        private string _lastMachineStateText;  // son loglanan makine durumu metni
+        private string _lastMachineStateText;
+        private bool? _systemStatusReadOk;     // sistem hata durumu okuması (log tekrarlanmasın)  // son loglanan makine durumu metni
 
         // Alt çubuktaki arıza akışı: aktif arızaların açıklamaları
         // saniyede bir sırayla gösterilir.
@@ -369,6 +370,51 @@ namespace IzostatikTabakKenarSilme
                         }
                     }
 
+                    // 3b) Sistem hata durumları (_MC/_EC/_PLC_ErrSta): Aktif
+                    //     Alarmlar'da turuncu uyarı; geçmişe yazılmaz.
+                    if (connected)
+                    {
+                        try
+                        {
+                            List<SystemWarning> warnings = await Task.Run(() =>
+                            {
+                                var list = new List<SystemWarning>();
+                                foreach (SystemStatus.Source src in SystemStatus.Sources)
+                                {
+                                    SystemWarning w = SystemStatus.Describe(src, _plcService.ReadWordTag(src.Tag));
+                                    if (w != null)
+                                        list.Add(w);
+                                }
+                                return list;
+                            });
+
+                            if (ct.IsCancellationRequested)
+                                break;
+
+                            _alarmService.UpdateSystemWarnings(warnings);
+                            _systemStatusReadOk = true;
+                        }
+                        catch (ObjectDisposedException)
+                        {
+                            break;
+                        }
+                        catch (Exception ex)
+                        {
+                            if (ct.IsCancellationRequested)
+                                break;
+
+                            if (_systemStatusReadOk != false)
+                            {
+                                _systemStatusReadOk = false;
+                                AppLogger.Warn($"Sistem hata durumları okunamadı: {FriendlyPlcError(ex)}");
+                            }
+                        }
+                    }
+                    else
+                    {
+                        _alarmService.UpdateSystemWarnings(null);
+                    }
+
                     // 4) Makine durumu kartı (bağlantı, arıza, çalışma, mod)
                     UpdateMachineState();
 
@@ -458,7 +504,9 @@ namespace IzostatikTabakKenarSilme
         // Aktif Alarmlar penceresini açar.
         private void MachineStateCard_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            if (_plcConnected == true && _alarmService.ActiveAlarms.Count > 0)
+            // Yalnız sistem uyarısı (turuncu) varken de açılabilsin.
+            if (_plcConnected == true &&
+                (_alarmService.ActiveAlarms.Count > 0 || _alarmService.SystemWarnings.Count > 0))
                 ShowActiveAlarms();
         }
 
@@ -919,7 +967,7 @@ namespace IzostatikTabakKenarSilme
             MachineStateText.Text = text;
 
             // Arıza varken kart tıklanabilir (Aktif Alarmlar)
-            MachineStateCard.Cursor = _plcConnected == true && alarmCount > 0
+            MachineStateCard.Cursor = _plcConnected == true && (alarmCount > 0 || _alarmService.SystemWarnings.Count > 0)
                 ? System.Windows.Input.Cursors.Hand
                 : null;
             MachineStateText.SetResourceReference(TextBlock.ForegroundProperty, textColor);

@@ -179,6 +179,7 @@
     <Compile Include="Services\AlarmTextProvider.cs" />
     <Compile Include="Services\AppLogger.cs" />
     <Compile Include="Services\AutoStart.cs" />
+    <Compile Include="Services\SystemStatus.cs" />
     <Compile Include="Services\EzSwitchAnimations.cs" />
     <Compile Include="Services\EzSwitchDevice.cs" />
     <Compile Include="Services\PlcCommands.cs" />

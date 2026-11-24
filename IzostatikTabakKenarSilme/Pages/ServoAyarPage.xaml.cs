@@ -65,7 +65,7 @@ namespace IzostatikTabakKenarSilme.Pages
             "Köşeler Hızlı açıkken tersi. Geri dönüş pozisyonu = kurs + başlama poz + geri mesafe (PLC hesaplar).";
 
         private const string JogHint =
-            "Referans: buton basılı tutulduğu sürece TRUE, bırakınca FALSE. Bypass: kalıcı, açıkken yeşil. Ek koşullar PLC tarafında.";
+            "Referans, göbek adım, giriş bomse: basılı tutulduğu sürece TRUE, bırakınca FALSE. Bypass: kalıcı, açıkken yeşil. Ek koşullar PLC tarafında.";
 
         private readonly PlcService _plc;
         private readonly PlcCommands _commands;
@@ -254,6 +254,28 @@ namespace IzostatikTabakKenarSilme.Pages
                 AddRef(BomseRefPanel, "Bomse " + bomse[n - 1], PlcTags.BomseReferans(n), PlcTags.BomseAktPoz(n));
                 AddBypass(n, bomse[n - 1]);
             }
+
+            // Bomseleri sırayla girişe getirip hizalamak için (diğer sayfalardaki
+            // ile aynı tag'ler; ek koşullar PLC tarafında).
+            AddManualPush("GÖBEK ADIM", PlcTags.GobekAdim, "Göbek Adım");
+            AddManualPush("GİRİŞ BOMSE GERİ", PlcTags.GirisBomseGeri, "Giriş Bomse Geri");
+            AddManualPush("GİRİŞ BOMSE İLERİ", PlcTags.GirisBomseIleri, "Giriş Bomse İleri");
+        }
+
+        private void AddManualPush(string text, string tag, string description)
+        {
+            var button = new PlcPushButton
+            {
+                Content = text,
+                PlcTag = tag,
+                Description = description,
+                Commands = _commands,
+                Height = 40,
+                Margin = new Thickness(4, 0, 4, 0),
+                Style = (Style)FindResource("PushStyle")
+            };
+            button.CommandFailed += (s, m) => ShowStatus(m, isError: true);
+            RefManuelPanel.Children.Add(button);
         }
 
         private void AddJog(string label, string tag, bool isInt)
@@ -269,7 +291,7 @@ namespace IzostatikTabakKenarSilme.Pages
             var pos = new TextBlock
             {
                 Text = "—",
-                FontSize = 22,
+                FontSize = 20,
                 FontFamily = new System.Windows.Media.FontFamily("Consolas"),
                 FontWeight = FontWeights.Bold,
                 HorizontalAlignment = HorizontalAlignment.Right,
@@ -281,7 +303,7 @@ namespace IzostatikTabakKenarSilme.Pages
             var posBox = new Border
             {
                 Child = pos,
-                Height = 38,
+                Height = 32,
                 CornerRadius = new CornerRadius(6),
                 BorderThickness = new Thickness(1),
                 Margin = new Thickness(0, 0, 0, 4)
@@ -299,7 +321,8 @@ namespace IzostatikTabakKenarSilme.Pages
             };
             button.CommandFailed += (s, m) => ShowStatus(m, isError: true);
 
-            var tile = new StackPanel { Margin = new Thickness(4) };
+            // Dikey boşluk az: altta göbek adım / giriş bomse satırı da sığsın.
+            var tile = new StackPanel { Margin = new Thickness(4, 2, 4, 2) };
             tile.Children.Add(posBox);
             tile.Children.Add(button);
             panel.Children.Add(tile);

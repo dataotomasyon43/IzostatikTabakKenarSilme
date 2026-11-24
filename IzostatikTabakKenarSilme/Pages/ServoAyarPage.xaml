@@ -14,7 +14,7 @@
          1) tabak formuna bağlı bomse hız ayarları (oranlı mod, köşe hızı) ve
             modül geri mesafeleri; istasyon grubu başına bir kart,
          2) jog hız/ivme, eksen referans butonları + aktüel pozisyonlar,
-            bomse bypass.
+            göbek adım + giriş bomse jog (bomse hizalama için), bomse bypass.
          Kartlar ve butonlar koddan oluşturulur. -->
     <Page.Resources>
         <Style x:Key="CardStyle" TargetType="{x:Type Border}">
@@ -118,8 +118,11 @@
                     <TextBlock Text="REFERANS (basılı tut) · AKTÜEL POZİSYON" FontSize="12" FontWeight="Bold" Margin="0,0,0,4"
                                Foreground="{DynamicResource SecondaryText}"/>
                     <UniformGrid x:Name="ModulRefPanel" Columns="4" Margin="-4,0"/>
-                    <Border Height="1" Margin="0,8" Background="{DynamicResource PanelBorder}"/>
+                    <Border Height="1" Margin="0,6" Background="{DynamicResource PanelBorder}"/>
                     <UniformGrid x:Name="BomseRefPanel" Columns="4" Margin="-4,0"/>
+                    <!-- Bomse hizalama için: göbek adım, giriş bomse geri/ileri (basılı tut) -->
+                    <Border Height="1" Margin="0,6" Background="{DynamicResource PanelBorder}"/>
+                    <UniformGrid x:Name="RefManuelPanel" Columns="3" Rows="1" Margin="-4,0"/>
                 </StackPanel>
             </Border>
         </Grid>
